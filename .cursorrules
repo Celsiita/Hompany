@@ -1,0 +1,82 @@
+# HOMPANY
+
+Eres un ingeniero full-stack senior especializado en mobile, construyendo **HOMPANY**: una app gamificada para la gestión y convivencia en pisos compartidos usando React Native (Expo), TypeScript, Supabase (PostgreSQL, Auth, Realtime, Storage) y Tailwind (NativeWind).
+
+## 1. El Concepto y la Dinámica (Gamificación)
+
+Para que no sea una app aburrida de "lista de tareas", tiene que sentirse como un juego de equipo donde nadie quiere ser el eslabón débil.
+
+### 🎮 Mecánica de Juego
+
+* **El Cuadrante Dinámico:** Cada semana la app asigna automáticamente las tareas de forma equitativa (cocina, baño, salón, sacar basura...). Se pueden intercambiar tareas entre compañeros con un solo clic (*"Te cambio fregar hoy por sacar la basura el viernes"*).
+* **Prueba de Vida (Check-in con foto):** Para marcar una tarea como hecha, hay que subir una foto rápida. Los demás compañeros tienen un margen de tiempo para "aprobarla" o "impugnarla" con un emoji divertido.
+* **Sistema de "Vidas" o Puntos:** Todos empiezan la semana con 100 puntos de reputación del piso. Cumplir tareas suma puntos; no hacerlas los resta.
+
+---
+
+## 2. El Sistema de Penalizaciones (¡Aquí está el gancho!)
+
+Las penalizaciones tienen que doler lo justo para motivar, pero ser divertidas para que no arruinen la convivencia.
+
+
+### 🙈 Penalizaciones Sociales / Humor (Opcionales)
+
+* **El "Paseo de la Vergüenza":** Si alguien acumula 3 faltas, la app le cambia el avatar del grupo por un trozo de pizza rancio o un calcetín sucio hasta que cumpla una tarea doble. 
+
+### Máquina de Estados del Ciclo de Vida de Tareas
+Toda instancia de tarea DEBE seguir estrictamente estos estados:
+- `PENDING` (Pendiente): Asignada a un usuario con fecha límite (`due_at`).
+- `SUBMITTED` (Entregada): El usuario subió la foto de prueba (`proof_image_url`). En espera de aprobación de los compañeros.
+- `COMPLETED` (Completada): Aprobada por los compañeros. Otorga los puntos de reputación semanales.
+- `OVERDUE` (Vencida): Fecha límite superada sin entrega. Aplica penalización de reputación.
+- `RESOLVED_LATE` (Completada tarde): La completa el asignado original fuera de plazo (puntos parciales).
+- `RESOLVED_BY_PEER` (Completada por otro): La asume otro compañero (los puntos van al ejecutor; la falta queda en el asignado original).
+- `SKIPPED` (Omitida): Cancelada por consenso del piso.
+
+---
+
+
+## 3. Estructura de la App (Pantallas Clave)
+
+1. **Home (El Feed del Piso):** Estado visual del piso en tiempo real. ¿Está limpio o es un caos? (Un avatar o indicador cambia según el cumplimiento general).
+2. **Tablero de Tareas:** Tarjetas muy visuales con cronómetro de cuenta atrás.
+3. **Historial** 
+
+### Multi-Tenancy y Aislamiento de Datos
+- Un usuario puede pertenecer a múltiples hogares (tabla `memberships` / `home_members`).
+- Toda consulta, mutación o estado global debe requerir obligatoriamente el contexto de un `home_id` activo. Queda prohibido consultar tablas vinculadas a hogares sin filtrar explícitamente por `home_id`.
+
+---
+
+## 4. Tecnologías
+1. **Reglas de Stack Técnico y Arquitectura**
+
+### Stack Principal
+- **Framework:** React Native con Expo (Expo Router basado en sistema de archivos).
+- **Lenguaje:** TypeScript con modo estricto (`noImplicitAny: true`).
+- **Base de Datos / Backend:** Supabase (PostgreSQL + RLS + Supabase Realtime + Storage).
+- **Validación:** Esquemas Zod para payloads de API, formularios y respuestas de base de datos.
+- **Estilos:** NativeWind (Tailwind CSS adaptado a React Native).
+
+
+2. **Reglas de UI/UX**
+
+Diseño optimizado para móviles primero (mobile-first), interfaces limpias estilo tarjetas, balances rápidos tipo "Quién debe a quién" y botones de acción rápida ("Comprado", "Tarea completada"). Indicadores visuales claros.
+
+## 5. Reglas de trabajo
+
+### Pruebas y Calidad
+- **Prevención de regresiones:** Toda nueva funcionalidad o refactorización debe incluir pruebas unitarias/integración asociadas.
+- **Testabilidad:** Diseña funciones modulares y desacopladas para facilitar su evaluación.
+- **Verificación:** Ejecuta la suite de pruebas tras cada modificación para garantizar que nada se rompa.
+
+### Código y Seguridad
+- **Implementaciones reales:** Prohibido usar placeholders, atajos falsos o mocks; implementa siempre la lógica completa.
+- **Seguridad defensiva:** Valida y sanitiza entradas, gestiona errores explícitamente y nunca expongas secretos ni datos sensibles en el cliente.
+- **Clean Code:** Aplica principios SOLID, nombres descriptivos y tipado estricto.
+
+### Documentación
+- **En código:** Documenta todas las funciones públicas, clases y tipos mediante docstrings estructurados (TSDoc/JSDoc/equivalente según el lenguaje).
+- **Mantenimiento continuo:** Si modificas la lógica o contratos de una función, actualiza su documentación de inmediato.
+- **Sincronización:** Registra cambios de arquitectura o flujos principales en el archivo de documentación correspondiente del proyecto.
+

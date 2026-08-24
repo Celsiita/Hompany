@@ -1,0 +1,198 @@
+import { Image, Pressable, Text, View } from 'react-native';
+
+import { Button } from '@/components/ui/Button';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { formatEuro } from '@/features/expenses/lib/expense-balances';
+import { isExpensePaused } from '@/features/expenses/lib/expense-filters';
+import { isShareSettled } from '@/features/expenses/lib/expense-settlement';
+import { formatDueSummary } from '@/features/tasks/lib/countdown';
+import { glyphForExpenseKind } from '@/lib/icons/packs';
+import { expenseStatusBadge } from '@/lib/status-badges';
+import { formatHistoryDateTime, recurrenceLabel } from '@/lib/recurrence';
+import { useIconPack } from '@/providers/IconPackProvider';
+import type { ExpenseShareWithProfile, ExpenseWithRelations } from '@/types/database.types';
+import { EXPENSE_KIND_LABEL } from '@/types/expense';
+
+type ExpenseCardProps = {
+  expense: ExpenseWithRelations;
+  currentUserId?: string | null;
+  busy?: boolean;
+  /** Temporary visual focus from calendar / create redirect. */
+  highlighted?: boolean;
+  onEdit?: (expense: ExpenseWithRelations) => void;
+  onSettle?: (expense: ExpenseWithRelations) => void;
+  onReopen?: (expense: ExpenseWithRelations) => void;
+  onRepeat?: (expense: ExpenseWithRelations) => void;
+  showDate?: boolean;
+  canEdit?: boolean;
+  /** Creditor: classic per-user Saldar / Deshacer. */
+  onSettleShare?: (
+    expense: ExpenseWithRelations,
+    share: ExpenseShareWithProfile,
+    isSettled: boolean,
+  ) => void;
+};
+
+/**
+ * Interactive expense card with payer, debtor requests and creditor settle actions.
+ */
+export function ExpenseCard({
+  expense,
+  currentUserId,
+  busy = false,
+  highlighted = false,
+  onEdit,
+  onSettle,
+  onReopen,
+  onRepeat,
+  showDate = false,
+  canEdit = true,
+  onSettleShare,
+}: ExpenseCardProps) {
+  const { pack } = useIconPack();
+  const isOpen = expense.status === 'OPEN';
+  const noAmount = expense.amount <= 0;
+  const debtors = expense.expense_shares.filter((share) => share.user_id !== expense.paid_by);
+  const countdown = expense.due_at
+    ? formatDueSummary(expense.due_at, expense.due_mode ?? 'DEADLINE')
+    : null;
+  const badge = expenseStatusBadge({
+    status: expense.status,
+    paused: isExpensePaused(expense),
+    noAmount: isOpen && noAmount,
+  });
+  const completedAt =
+    expense.completed_at ??
+    (expense.status === 'SETTLED' || expense.status === 'ARCHIVED' ? expense.updated_at : null);
+  const isCreditor = Boolean(currentUserId && currentUserId === expense.paid_by);
+
+  return (
+    <View
+      className={`rounded-2xl border bg-white p-4 gap-3 ${
+        highlighted ? 'border-emerald-400 bg-emerald-50' : 'border-gray-200'
+      }`}>
+      <View className="flex-row items-start justify-between gap-3">
+        <View className="flex-row items-start gap-3 flex-1">
+          <View className="h-11 w-11 items-center justify-center rounded-xl bg-emerald-50">
+            <Text className="text-xl">{glyphForExpenseKind(pack, expense.kind)}</Text>
+          </View>
+          <View className="flex-1 gap-1">
+            <Text className="text-lg font-semibold text-gray-900">{expense.title}</Text>
+            <Text className="text-xs font-medium text-emerald-700">
+              {EXPENSE_KIND_LABEL[expense.kind]} · {recurrenceLabel(expense.recurrence)}
+            </Text>
+            {expense.description ? (
+              <Text className="text-sm text-gray-600">{expense.description}</Text>
+            ) : null}
+          </View>
+        </View>
+        <StatusBadge tone={badge} />
+      </View>
+
+      <View className="flex-row items-center justify-between">
+        <Text className="text-sm text-gray-600">
+          Pagó {expense.payer?.display_name ?? 'alguien'}
+        </Text>
+        <Text className="text-lg font-bold text-gray-900">
+          {noAmount ? '—' : formatEuro(expense.amount)}
+        </Text>
+      </View>
+
+      {showDate ? (
+        <View className="gap-0.5">
+          <Text className="text-sm text-gray-600">
+            Programada:{' '}
+            {expense.due_at ? formatHistoryDateTime(expense.due_at) : 'Sin fecha'}
+          </Text>
+          <Text className="text-sm text-gray-600">
+            Realización:{' '}
+            {completedAt ? formatHistoryDateTime(completedAt) : '—'}
+          </Text>
+        </View>
+      ) : countdown && isOpen ? (
+        <Text className={`text-sm font-medium ${countdown.isOverdue ? 'text-red-600' : 'text-gray-700'}`}>
+          {countdown.label}
+        </Text>
+      ) : null}
+
+      {expense.receipt_image_url ? (
+        <Image
+          source={{ uri: expense.receipt_image_url }}
+          className="h-36 w-full rounded-xl bg-gray-100"
+          resizeMode="cover"
+        />
+      ) : null}
+
+      {debtors.length === 0 ? (
+        <Text className="text-xs text-gray-500">Nadie debe este gasto.</Text>
+      ) : (
+        <View className="gap-2">
+          {debtors.map((share) => {
+            const name = share.profiles?.display_name ?? 'Compañero';
+            const settled = isShareSettled(share);
+            const isDebtor = Boolean(currentUserId && currentUserId === share.user_id);
+            const showActions = isOpen && !noAmount && Boolean(currentUserId);
+
+            return (
+              <View
+                key={share.id}
+                className="flex-row items-center justify-between rounded-xl bg-gray-50 px-3 py-2 gap-2">
+                <Text className="flex-1 text-sm text-gray-800">
+                  {name}
+                  {settled ? ' · pagado' : ` · ${formatEuro(share.share_amount)}`}
+                </Text>
+
+                {/* Debtor request flow blocked for now (notifications later). */}
+                {showActions && isDebtor && !settled ? (
+                  <Text className="text-sm font-semibold text-gray-400">Solicitar</Text>
+                ) : null}
+
+                {showActions && isCreditor && onSettleShare ? (
+                  <Pressable
+                    onPress={() => onSettleShare(expense, share, !settled)}
+                    disabled={busy}
+                    hitSlop={8}>
+                    <Text className="text-sm font-semibold text-blue-700">
+                      {settled ? 'Deshacer' : 'Saldar'}
+                    </Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            );
+          })}
+        </View>
+      )}
+
+      {isOpen && onSettle && isCreditor ? (
+        <Button
+          label={noAmount ? 'Completar importe' : 'Saldar todo'}
+          loading={busy}
+          onPress={() => (noAmount ? onEdit?.(expense) : onSettle(expense))}
+        />
+      ) : null}
+
+      {onReopen || onRepeat ? (
+        <View className="flex-row gap-2">
+          {onRepeat ? (
+            <View className="flex-1">
+              <Button label="↻ Repetir" variant="secondary" loading={busy} onPress={() => onRepeat(expense)} />
+            </View>
+          ) : null}
+          {onReopen ? (
+            <View className="flex-1">
+              <Button label="Reabrir" loading={busy} onPress={() => onReopen(expense)} />
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+
+      <View className="flex-row gap-3">
+        {canEdit && onEdit && isOpen ? (
+          <Pressable onPress={() => onEdit(expense)} hitSlop={8}>
+            <Text className="text-sm font-semibold text-blue-700">Editar</Text>
+          </Pressable>
+        ) : null}
+      </View>
+    </View>
+  );
+}

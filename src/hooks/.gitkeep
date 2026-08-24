@@ -1,0 +1,2 @@
+# Placeholder for future home-scoped hooks (e.g. useActiveHome).
+export {};
