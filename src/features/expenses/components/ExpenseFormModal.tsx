@@ -1,32 +1,38 @@
 import { useEffect, useState } from 'react';
-import {
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 
+import { BottomSheetModal } from '@/components/ui/BottomSheetModal';
 import { Button } from '@/components/ui/Button';
-import { DueDateFields } from '@/components/ui/DueDateFields';
-import { RecurrenceEditor } from '@/components/ui/RecurrenceEditor';
+import { SafePressable } from '@/components/ui/SafePressable';
+import { ItemTypePicker } from '@/components/ui/ItemTypePicker';
+import { ScheduleEditor } from '@/components/ui/ScheduleEditor';
 import { TextField } from '@/components/ui/TextField';
 import type { ExpenseFormSubmitInput } from '@/features/expenses/hooks/useHomeExpenses';
 import { pickCompressedProofImage } from '@/features/expenses/api/receipt-upload';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
 import {
-  computeInitialDueAt,
-  defaultDueAtForMode,
+  defaultScheduleWindow,
   ensureRecurrenceConfigDefaults,
+  monthlyDays,
   parseRecurrenceConfig,
+  startOfLocalDay,
   stripCycleSuffix,
-  syncRecurrenceConfigFromDate,
-  type DueMode,
+  validateScheduleRangeAgainstRecurrence,
+  weeklyDays,
+  yearlyMonths,
   type RecurrenceConfig,
   type RecurrenceKind,
 } from '@/lib/recurrence';
+import type { HomeItemType } from '@/schemas/item-type.schema';
+import type { ExpenseSplitMode } from '@/schemas/expense.schema';
 import { EXPENSE_KIND, EXPENSE_KIND_LABEL, type ExpenseKind } from '@/types/expense';
+import { formatAppError } from '@/lib/error-message';
+import { interactive, mergeStyles } from '@/lib/interactive-styles';
+import { buildExpenseParticipantIds } from '@/features/expenses/lib/expense-filters';
+import {
+  amountsSumToTotal,
+  percentsSumToHundred,
+} from '@/features/expenses/lib/expense-balances';
 import type { ExpenseWithRelations } from '@/types/database.types';
 
 type ExpenseFormModalProps = {
@@ -34,6 +40,8 @@ type ExpenseFormModalProps = {
   members: HomeMemberWithProfile[];
   currentUserId?: string | null;
   initialExpense?: ExpenseWithRelations | null;
+  customTypes?: HomeItemType[];
+  onCreateType?: (name: string) => Promise<HomeItemType | void>;
   mode?: 'create' | 'edit' | 'repeat';
   onClose: () => void;
   onSubmit: (input: ExpenseFormSubmitInput) => Promise<void>;
@@ -61,6 +69,8 @@ export function ExpenseFormModal({
   members,
   currentUserId,
   initialExpense,
+  customTypes = [],
+  onCreateType,
   mode = 'create',
   onClose,
   onSubmit,
@@ -69,14 +79,18 @@ export function ExpenseFormModal({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [kind, setKind] = useState<ExpenseKind>('GROCERY');
+  const [itemTypeId, setItemTypeId] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState(currentUserId ?? '');
   const [debtorIds, setDebtorIds] = useState<string[]>([]);
   const [includePayer, setIncludePayer] = useState(true);
+  const [splitMode, setSplitMode] = useState<ExpenseSplitMode>('EQUAL');
+  const [shareDrafts, setShareDrafts] = useState<Record<string, string>>({});
   const [recurrence, setRecurrence] = useState<RecurrenceKind>('ONCE');
   const [recurrenceConfig, setRecurrenceConfig] = useState<RecurrenceConfig>({});
-  const [dueMode, setDueMode] = useState<DueMode>('DEADLINE');
-  const [dueAt, setDueAt] = useState(() => defaultDueAtForMode('DEADLINE'));
+  const [startsAt, setStartsAt] = useState(() => defaultScheduleWindow().startsAt);
+  const [dueAt, setDueAt] = useState(() => defaultScheduleWindow().dueAt);
+  const [allDay, setAllDay] = useState(true);
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const [receiptLocalUri, setReceiptLocalUri] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -92,6 +106,7 @@ export function ExpenseFormModal({
       setTitle(stripCycleSuffix(initialExpense.base_title ?? initialExpense.title));
       setDescription(initialExpense.description ?? '');
       setKind(initialExpense.kind);
+      setItemTypeId(initialExpense.item_type_id ?? null);
       setAmount(initialExpense.amount > 0 ? String(initialExpense.amount) : '');
       setPaidBy(initialExpense.paid_by);
       setDebtorIds(
@@ -102,28 +117,50 @@ export function ExpenseFormModal({
       setIncludePayer(
         initialExpense.expense_shares.some((share) => share.user_id === initialExpense.paid_by),
       );
+      setSplitMode(initialExpense.split_mode ?? 'EQUAL');
+      const drafts: Record<string, string> = {};
+      for (const share of initialExpense.expense_shares) {
+        if ((initialExpense.split_mode ?? 'EQUAL') === 'PERCENT') {
+          drafts[share.user_id] = share.share_percent != null ? String(share.share_percent) : '';
+        } else if ((initialExpense.split_mode ?? 'EQUAL') === 'AMOUNT') {
+          drafts[share.user_id] = String(share.share_amount);
+        }
+      }
+      setShareDrafts(drafts);
       setRecurrence(initialExpense.recurrence);
       setRecurrenceConfig(parseRecurrenceConfig(initialExpense.recurrence_config));
-      setDueMode(initialExpense.due_mode ?? 'DEADLINE');
       if (initialExpense.due_at) {
         setDueAt(new Date(initialExpense.due_at));
+        setStartsAt(
+          initialExpense.starts_at
+            ? new Date(initialExpense.starts_at)
+            : startOfLocalDay(new Date(initialExpense.due_at)),
+        );
       } else {
-        setDueAt(defaultDueAtForMode(initialExpense.due_mode ?? 'DEADLINE'));
+        const window = defaultScheduleWindow();
+        setStartsAt(window.startsAt);
+        setDueAt(window.dueAt);
       }
+      setAllDay(Boolean(initialExpense.all_day));
       setReceiptUrl(initialExpense.receipt_image_url);
       setReceiptLocalUri(null);
     } else {
       setTitle('');
       setDescription('');
       setKind('PEER');
+      setItemTypeId(null);
       setAmount('');
       setPaidBy(defaultPayer);
       setDebtorIds(otherMemberIds(members, defaultPayer));
       setIncludePayer(false);
+      setSplitMode('EQUAL');
+      setShareDrafts({});
       setRecurrence('ONCE');
       setRecurrenceConfig({});
-      setDueMode('DEADLINE');
-      setDueAt(defaultDueAtForMode('DEADLINE'));
+      const window = defaultScheduleWindow();
+      setStartsAt(window.startsAt);
+      setDueAt(window.dueAt);
+      setAllDay(true);
       setReceiptUrl(null);
       setReceiptLocalUri(null);
     }
@@ -140,6 +177,7 @@ export function ExpenseFormModal({
 
   function applyKind(nextKind: ExpenseKind) {
     setKind(nextKind);
+    setItemTypeId(null);
     const splitWithPayer = nextKind !== 'PEER';
     setIncludePayer(splitWithPayer);
     setDebtorIds(otherMemberIds(members, paidBy));
@@ -190,16 +228,59 @@ export function ExpenseFormModal({
       setError('Elige quién te debe (toca el nombre del compañero)');
       return;
     }
-    if (recurrence === 'WEEKLY' && !recurrenceConfig.day_of_week) {
-      setError('Elige el día de la semana');
+
+    const participantIds = buildExpenseParticipantIds({
+      paidBy,
+      debtorIds,
+      includePayerInSplit: includePayer,
+    });
+    let shareInputs: { user_id: string; share_percent?: number; share_amount?: number }[] | undefined;
+    if (splitMode === 'PERCENT') {
+      const values = participantIds.map((userId) => Number(shareDrafts[userId] ?? '0'));
+      if (!percentsSumToHundred(values)) {
+        setError('Los porcentajes deben sumar exactamente 100');
+        return;
+      }
+      shareInputs = participantIds.map((userId, index) => ({
+        user_id: userId,
+        share_percent: values[index],
+      }));
+    } else if (splitMode === 'AMOUNT') {
+      const values = participantIds.map((userId) => Number(String(shareDrafts[userId] ?? '0').replace(',', '.')));
+      if (!amountsSumToTotal(values, parsedAmount)) {
+        setError('Las cantidades deben sumar el total del gasto');
+        return;
+      }
+      shareInputs = participantIds.map((userId, index) => ({
+        user_id: userId,
+        share_amount: values[index],
+      }));
+    }
+
+    if (recurrence === 'WEEKLY' && weeklyDays(recurrenceConfig).length === 0) {
+      setError('Elige al menos un día de la semana');
       return;
     }
     if (
       recurrence === 'MONTHLY' &&
       (recurrenceConfig.due_day_type ?? 'SPECIFIC_DAY') === 'SPECIFIC_DAY' &&
-      !recurrenceConfig.day_of_month
+      monthlyDays(recurrenceConfig).length === 0
     ) {
-      setError('Elige el día del mes');
+      setError('Elige al menos un día del mes');
+      return;
+    }
+    if (recurrence === 'YEARLY' && yearlyMonths(recurrenceConfig, startsAt).length === 0) {
+      setError('Elige al menos un mes');
+      return;
+    }
+    const rangeError = validateScheduleRangeAgainstRecurrence({
+      startsAt,
+      dueAt,
+      recurrence,
+      recurrenceConfig,
+    });
+    if (rangeError) {
+      setError(rangeError);
       return;
     }
 
@@ -209,29 +290,27 @@ export function ExpenseFormModal({
         title: title.trim(),
         description: description.trim() || undefined,
         kind,
+        item_type_id: itemTypeId,
         amount: parsedAmount,
         paid_by: paidBy,
         debtor_ids: debtorIds,
         include_payer_in_split: includePayer,
+        split_mode: splitMode,
+        share_inputs: shareInputs,
         receipt_image_url: receiptUrl,
         receiptLocalUri,
         recurrence,
         recurrence_config: recurrenceConfig,
+        starts_at: startsAt.toISOString(),
         due_at: dueAt.toISOString(),
-        due_mode: dueMode,
+        due_mode: 'DEADLINE',
+        all_day: allDay,
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar');
+      setError(formatAppError(err, 'No se pudo guardar'));
     } finally {
       setLoading(false);
-    }
-  }
-
-  function applyExpenseDueMode(next: DueMode) {
-    setDueMode(next);
-    if (recurrence !== 'ONCE') {
-      setDueAt(computeInitialDueAt(recurrence, recurrenceConfig, new Date(), next));
     }
   }
 
@@ -240,27 +319,19 @@ export function ExpenseFormModal({
     if (next === 'ONCE') {
       return;
     }
-    const seeded = ensureRecurrenceConfigDefaults(next, recurrenceConfig, dueAt);
+    const seeded = ensureRecurrenceConfigDefaults(next, recurrenceConfig, startsAt);
     setRecurrenceConfig(seeded);
-    setDueAt(computeInitialDueAt(next, seeded, new Date(), dueMode));
   }
 
   function applyExpenseConfig(next: RecurrenceConfig) {
     const seeded =
-      recurrence === 'ONCE' ? next : ensureRecurrenceConfigDefaults(recurrence, next, dueAt);
+      recurrence === 'ONCE'
+        ? next
+        : ensureRecurrenceConfigDefaults(recurrence, next, startsAt);
     setRecurrenceConfig(seeded);
-    if (recurrence !== 'ONCE') {
-      setDueAt(computeInitialDueAt(recurrence, seeded, new Date(), dueMode));
-    }
   }
 
   function handleExpenseDueAtChange(next: Date) {
-    if (recurrence === 'ONCE') {
-      setDueAt(next);
-      return;
-    }
-    const synced = syncRecurrenceConfigFromDate(recurrence, next, recurrenceConfig);
-    setRecurrenceConfig(synced);
     setDueAt(next);
   }
 
@@ -268,20 +339,12 @@ export function ExpenseFormModal({
   const previewUri = receiptLocalUri ?? receiptUrl;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <Pressable className="flex-1 justify-end bg-black/40" onPress={onClose}>
-        <Pressable
-          className="max-h-[90%] w-full rounded-t-3xl bg-white p-4"
-          onPress={(event) => event.stopPropagation()}>
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            nestedScrollEnabled
-            showsVerticalScrollIndicator={false}>
-            <Text className="mb-3 text-xl font-bold text-gray-900">
-              {mode === 'edit' ? 'Editar gasto' : mode === 'repeat' ? 'Repetir gasto' : 'Nuevo gasto'}
-            </Text>
+    <BottomSheetModal visible={visible} onClose={onClose}>
+      <Text className="mb-3 text-xl font-bold text-gray-900">
+        {mode === 'edit' ? 'Editar gasto' : mode === 'repeat' ? 'Repetir gasto' : 'Nuevo gasto'}
+      </Text>
 
-            <View className="gap-3">
+      <View className="gap-3">
               <TextField label="Título" value={title} onChangeText={setTitle} />
               <TextField
                 label="Importe (€)"
@@ -292,25 +355,58 @@ export function ExpenseFormModal({
               />
 
               <Text className="text-sm font-medium text-gray-700">Tipo</Text>
+              <ItemTypePicker
+                builtin={[
+                  { key: EXPENSE_KIND.GROCERY, label: EXPENSE_KIND_LABEL.GROCERY },
+                  { key: EXPENSE_KIND.HOUSE, label: EXPENSE_KIND_LABEL.HOUSE },
+                  { key: EXPENSE_KIND.PEER, label: EXPENSE_KIND_LABEL.PEER },
+                ]}
+                customTypes={customTypes}
+                value={itemTypeId ?? kind}
+                onChange={(next) => {
+                  if (
+                    next === EXPENSE_KIND.GROCERY ||
+                    next === EXPENSE_KIND.HOUSE ||
+                    next === EXPENSE_KIND.PEER
+                  ) {
+                    applyKind(next);
+                    return;
+                  }
+                  setItemTypeId(next);
+                  setKind('HOUSE');
+                  setIncludePayer(true);
+                }}
+                onCreate={async (name) => {
+                  if (!onCreateType) {
+                    return;
+                  }
+                  return onCreateType(name);
+                }}
+              />
+
+              <Text className="text-sm font-medium text-gray-700">Cómo se reparte</Text>
               <View className="flex-row flex-wrap gap-2">
-                {(Object.keys(EXPENSE_KIND) as Array<keyof typeof EXPENSE_KIND>).map((key) => {
-                  const value = EXPENSE_KIND[key];
-                  const active = kind === value;
+                {(
+                  [
+                    { key: 'EQUAL' as const, label: 'Igualitario' },
+                    { key: 'PERCENT' as const, label: 'Porcentajes' },
+                    { key: 'AMOUNT' as const, label: 'Cantidades fijas' },
+                  ] as const
+                ).map((option) => {
+                  const active = splitMode === option.key;
                   return (
-                    <Pressable
-                      key={value}
-                      onPress={() => applyKind(value)}
-                      hitSlop={6}
-                      className={`rounded-full px-3 py-2 ${active ? 'bg-blue-600' : 'bg-gray-100'}`}>
+                    <SafePressable
+                      key={option.key}
+                      onPress={() => setSplitMode(option.key)}
+                      contentStyle={mergeStyles(
+                        interactive.chip,
+                        active ? interactive.chipActive : interactive.chipInactive,
+                      )}>
                       <Text
-                        className={
-                          active
-                            ? 'text-xs font-semibold text-white'
-                            : 'text-xs font-semibold text-gray-700'
-                        }>
-                        {EXPENSE_KIND_LABEL[value]}
+                        className={`text-xs font-semibold ${active ? 'text-white' : 'text-gray-700'}`}>
+                        {option.label}
                       </Text>
-                    </Pressable>
+                    </SafePressable>
                   );
                 })}
               </View>
@@ -329,32 +425,73 @@ export function ExpenseFormModal({
                     const selected = debtorIds.includes(member.user_id);
                     const name = member.profiles?.display_name ?? member.user_id.slice(0, 6);
                     return (
-                      <Pressable
+                      <SafePressable
                         key={`debtor-${member.id}`}
                         onPress={() => toggleDebtor(member.user_id)}
                         hitSlop={4}
-                        className={`flex-row items-center justify-between rounded-xl border px-3 py-3 ${selected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
+                        contentStyle={mergeStyles(
+                          interactive.borderedCard,
+                          interactive.rowBetween,
+                          selected ? interactive.borderedCardActive : undefined,
+                        )}>
                         <Text className="text-sm font-medium text-gray-900">{name}</Text>
                         <Text className="text-sm text-blue-700">
                           {selected ? '✓ Te debe' : 'Tocar'}
                         </Text>
-                      </Pressable>
+                      </SafePressable>
                     );
                   })}
                 </View>
               )}
 
-              <Pressable
+              <SafePressable
                 onPress={() => setIncludePayer((value) => !value)}
                 hitSlop={6}
-                className={`rounded-xl border px-3 py-3 ${includePayer ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
+                contentStyle={mergeStyles(
+                  interactive.borderedCard,
+                  includePayer ? interactive.borderedCardActive : undefined,
+                )}>
                 <Text className="text-sm font-medium text-gray-900">
-                  {includePayer ? '✓ ' : ''}También se reparte la parte de quien pagó
+                  {includePayer ? '✓ ' : ''}Dividir entre todos
                 </Text>
                 <Text className="mt-1 text-xs text-gray-500">
-                  Actívalo en alquiler o súper. Déjalo apagado si te deben el total.
+                  Activado: el total se reparte entre deudores y quien pagó. Desactivado: solo entre
+                  deudores (te deben el total).
                 </Text>
-              </Pressable>
+              </SafePressable>
+
+              {splitMode !== 'EQUAL' ? (
+                <View className="gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3">
+                  <Text className="text-xs text-gray-600">
+                    {splitMode === 'PERCENT'
+                      ? 'Escribe el % de cada participante. Debe sumar 100.'
+                      : 'Escribe la cantidad de cada uno. Debe sumar el total.'}
+                  </Text>
+                  {buildExpenseParticipantIds({
+                    paidBy,
+                    debtorIds,
+                    includePayerInSplit: includePayer,
+                  }).map((userId) => {
+                    const member = members.find((row) => row.user_id === userId);
+                    const name =
+                      userId === paidBy
+                        ? `${member?.profiles?.display_name ?? 'Pagador'} (pagó)`
+                        : (member?.profiles?.display_name ?? userId.slice(0, 6));
+                    return (
+                      <TextField
+                        key={`share-${userId}`}
+                        label={name}
+                        keyboardType="decimal-pad"
+                        value={shareDrafts[userId] ?? ''}
+                        onChangeText={(next) =>
+                          setShareDrafts((current) => ({ ...current, [userId]: next }))
+                        }
+                        placeholder={splitMode === 'PERCENT' ? '%' : '€'}
+                      />
+                    );
+                  })}
+                </View>
+              ) : null}
 
               <Text className="text-sm font-medium text-gray-700">¿Quién pagó / adelantó?</Text>
               <View className="gap-2">
@@ -362,32 +499,33 @@ export function ExpenseFormModal({
                   const selected = paidBy === member.user_id;
                   const name = member.profiles?.display_name ?? member.user_id.slice(0, 6);
                   return (
-                    <Pressable
+                    <SafePressable
                       key={`payer-${member.id}`}
                       onPress={() => applyPayer(member.user_id)}
                       hitSlop={4}
-                      className={`flex-row items-center justify-between rounded-xl border px-3 py-3 ${selected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
+                      contentStyle={mergeStyles(
+                        interactive.borderedCard,
+                        interactive.rowBetween,
+                        selected ? interactive.borderedCardActive : undefined,
+                      )}>
                       <Text className="text-sm font-medium text-gray-900">{name}</Text>
                       <Text className="text-sm text-blue-700">{selected ? '✓' : ''}</Text>
-                    </Pressable>
+                    </SafePressable>
                   );
                 })}
               </View>
 
-              <RecurrenceEditor
-                recurrence={recurrence}
-                config={recurrenceConfig}
-                onRecurrenceChange={applyExpenseRecurrence}
-                onConfigChange={applyExpenseConfig}
-              />
-
-              <DueDateFields
-                dueMode={dueMode}
+              <ScheduleEditor
+                startsAt={startsAt}
                 dueAt={dueAt}
+                allDay={allDay}
+                onStartsAtChange={setStartsAt}
+                onDueAtChange={handleExpenseDueAtChange}
+                onAllDayChange={setAllDay}
                 recurrence={recurrence}
                 recurrenceConfig={recurrenceConfig}
-                onDueModeChange={applyExpenseDueMode}
-                onDueAtChange={handleExpenseDueAtChange}
+                onRecurrenceChange={applyExpenseRecurrence}
+                onConfigChange={applyExpenseConfig}
               />
 
               <TextField
@@ -396,7 +534,7 @@ export function ExpenseFormModal({
                 onChangeText={setDescription}
               />
 
-              <Text className="text-sm font-medium text-gray-700">Ticket / recibo (opcional)</Text>
+              <Text className="text-sm font-medium text-gray-700">Ticket / recibo</Text>
               <Text className="text-xs text-gray-500">
                 Puedes guardar el gasto sin adjunto y añadirlo más tarde al editar.
               </Text>
@@ -443,10 +581,7 @@ export function ExpenseFormModal({
                   <Text className="text-center text-sm font-semibold text-red-600">Eliminar gasto</Text>
                 </Pressable>
               ) : null}
-            </View>
-          </ScrollView>
-        </Pressable>
-      </Pressable>
-    </Modal>
+      </View>
+    </BottomSheetModal>
   );
 }
