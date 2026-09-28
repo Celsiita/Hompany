@@ -30,6 +30,41 @@ export function splitAmountEvenly(amount: number, participantCount: number): num
 }
 
 /**
+ * Converts percentages (must sum ~100) into euro amounts that sum to `amount`.
+ */
+export function splitAmountByPercents(amount: number, percents: number[]): number[] {
+  if (percents.length === 0) {
+    return [];
+  }
+  const cents = Math.round(amount * 100);
+  const raw = percents.map((percent) => Math.floor((cents * percent) / 100));
+  let used = raw.reduce((sum, value) => sum + value, 0);
+  let index = 0;
+  while (used < cents && index < raw.length) {
+    raw[index] += 1;
+    used += 1;
+    index += 1;
+  }
+  return raw.map((value) => value / 100);
+}
+
+/**
+ * Validates percent shares sum to 100 (±0.01).
+ */
+export function percentsSumToHundred(percents: number[]): boolean {
+  const sum = percents.reduce((total, value) => total + value, 0);
+  return Math.abs(sum - 100) < 0.05;
+}
+
+/**
+ * Validates fixed amounts sum to the expense total (±1 cent).
+ */
+export function amountsSumToTotal(amounts: number[], total: number): boolean {
+  const sum = amounts.reduce((acc, value) => acc + Math.round(value * 100), 0);
+  return Math.abs(sum - Math.round(total * 100)) <= 1;
+}
+
+/**
  * Formats a euro amount with Spanish-style decimals.
  */
 export function formatEuro(amount: number): string {

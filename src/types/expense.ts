@@ -30,6 +30,7 @@ export const EXPENSE_STATUS = {
   OPEN: 'OPEN',
   SETTLED: 'SETTLED',
   ARCHIVED: 'ARCHIVED',
+  SKIPPED: 'SKIPPED',
 } as const;
 
 export type ExpenseStatus = (typeof EXPENSE_STATUS)[keyof typeof EXPENSE_STATUS];

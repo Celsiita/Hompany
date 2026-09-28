@@ -8,6 +8,13 @@ const homeA: Home = {
   created_by: '11111111-1111-1111-1111-111111111111',
   created_at: '2026-08-16T00:00:00.000Z',
   updated_at: '2026-08-16T00:00:00.000Z',
+  wifi_ssid: null,
+  wifi_password: null,
+  portal_code: null,
+  bin_day: null,
+  notes: null,
+  proof_mode: 'OPTIONAL',
+  proof_capture: 'CAMERA_OR_GALLERY',
 };
 
 const homeB: Home = {

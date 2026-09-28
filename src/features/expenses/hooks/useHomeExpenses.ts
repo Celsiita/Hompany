@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
+  cancelExpenseOccurrence,
   createExpense,
   deleteExpense,
   listExpensesByHome,
   patchExpenseReceipt,
+  reassignExpenseOccurrence,
   setExpenseShareSettled,
   setExpenseStatus,
   settleAllExpenseShares,
@@ -15,12 +17,24 @@ import {
   uploadExpenseReceipt,
 } from '@/features/expenses/api/receipt-upload';
 import { summarizeExpenseBalances } from '@/features/expenses/lib/expense-balances';
-import { applyExpenseBoardFilters, filterExpensesByInvolvement, filterExpensesByKind, filterExpensesByRecurrence, isExpensePaused, isUserInvolvedInExpense } from '@/features/expenses/lib/expense-filters';
+import {
+  applyExpenseBoardFilters,
+  filterExpensesByBoardStatus,
+  filterExpensesByInvolvement,
+  filterExpensesByKind,
+  filterExpensesByRecurrence,
+  isExpensePaused,
+  isUserInvolvedInExpense,
+  sortHistoryBoardExpenses,
+  sortOpenBoardExpenses,
+} from '@/features/expenses/lib/expense-filters';
 import { listHomeActivity, logHomeActivity } from '@/features/home/api/activity-api';
 import { listHomeMembers, type HomeMemberWithProfile } from '@/features/home/api/homes-api';
+import { expensesBoardSync } from '@/lib/board-sync';
 import { parseRecurrenceConfig } from '@/lib/recurrence';
 import { isHomeAdminRole } from '@/lib/roles';
 import type { RecurrenceFilter } from '@/components/ui/RecurrenceFilterChips';
+import type { ExpenseBoardStatusFilter } from '@/components/ui/StatusFilterChips';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
 import type {
@@ -47,6 +61,8 @@ type UseHomeExpensesResult = {
   setInvolvementFilter: (value: ExpenseInvolvementFilter) => void;
   recurrenceFilter: RecurrenceFilter;
   setRecurrenceFilter: (value: RecurrenceFilter) => void;
+  statusFilter: ExpenseBoardStatusFilter;
+  setStatusFilter: (value: ExpenseBoardStatusFilter) => void;
   isAdmin: boolean;
   activityEvents: import('@/types/database.types').HomeActivityEventWithActor[];
   isLoading: boolean;
@@ -60,6 +76,12 @@ type UseHomeExpensesResult = {
   repeatExpense: (expense: ExpenseWithRelations, input: ExpenseFormSubmitInput) => Promise<void>;
   /** Creditor: Saldar / Deshacer per share. */
   settleShare: (expenseId: string, shareId: string, isSettled: boolean) => Promise<void>;
+  cancelOccurrence: (expenseId: string, scheduledDueAt?: string) => Promise<void>;
+  reassignOccurrence: (
+    expenseId: string,
+    payerId: string,
+    scheduledDueAt?: string,
+  ) => Promise<void>;
 };
 
 /**
@@ -76,11 +98,13 @@ export function useHomeExpenses(): UseHomeExpensesResult {
   const [involvementFilter, setInvolvementFilter] =
     useState<ExpenseInvolvementFilter>('ALL');
   const [recurrenceFilter, setRecurrenceFilter] = useState<RecurrenceFilter>('ALL');
+  const [statusFilter, setStatusFilter] = useState<ExpenseBoardStatusFilter>('ALL');
   const [activityEvents, setActivityEvents] = useState<
     import('@/types/database.types').HomeActivityEventWithActor[]
   >([]);
+  const instanceId = useRef(Symbol('useHomeExpenses'));
 
-  const refresh = useCallback(async () => {
+  const load = useCallback(async () => {
     if (!activeHomeId) {
       setExpenses([]);
       setMembers([]);
@@ -109,9 +133,24 @@ export function useHomeExpenses(): UseHomeExpensesResult {
     }
   }, [activeHomeId]);
 
+  /** Reloads this screen and notifies other tab instances (agenda, etc.). */
+  const refresh = useCallback(async () => {
+    await load();
+    expensesBoardSync.notify(instanceId.current);
+  }, [load]);
+
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    void load();
+  }, [load]);
+
+  useEffect(() => {
+    return expensesBoardSync.subscribe((sourceId) => {
+      if (sourceId === instanceId.current) {
+        return;
+      }
+      void load();
+    });
+  }, [load]);
 
   const isAdmin = members.some(
     (member) => member.user_id === user?.id && isHomeAdminRole(member.role),
@@ -258,19 +297,11 @@ export function useHomeExpenses(): UseHomeExpensesResult {
   );
 
   const repeatExpense = useCallback(
-    async (expense: ExpenseWithRelations, input: ExpenseFormSubmitInput) => {
+    async (_expense: ExpenseWithRelations, input: ExpenseFormSubmitInput) => {
       if (!activeHomeId || !user) {
         throw new Error('home_id is required');
       }
       await addExpense(input);
-      await logHomeActivity({
-        homeId: activeHomeId,
-        actorId: user.id,
-        action: 'EXPENSE_REPEAT',
-        entityType: 'expense',
-        entityId: expense.id,
-        summary: `Repitió «${expense.title}» como nueva instancia`,
-      });
     },
     [activeHomeId, addExpense, user],
   );
@@ -292,26 +323,60 @@ export function useHomeExpenses(): UseHomeExpensesResult {
     [activeHomeId, refresh, user],
   );
 
+  const cancelOccurrence = useCallback(
+    async (expenseId: string, scheduledDueAt?: string) => {
+      if (!activeHomeId || !user) {
+        throw new Error('home_id is required');
+      }
+      await cancelExpenseOccurrence({
+        homeId: activeHomeId,
+        expenseId,
+        actorId: user.id,
+        scheduledDueAt,
+      });
+      await refresh();
+    },
+    [activeHomeId, refresh, user],
+  );
+
+  const reassignOccurrence = useCallback(
+    async (expenseId: string, payerId: string, scheduledDueAt?: string) => {
+      if (!activeHomeId || !user) {
+        throw new Error('home_id is required');
+      }
+      await reassignExpenseOccurrence({
+        homeId: activeHomeId,
+        expenseId,
+        actorId: user.id,
+        payerId,
+        scheduledDueAt,
+      });
+      await refresh();
+    },
+    [activeHomeId, refresh, user],
+  );
+
   const filteredExpenses = useMemo(
     () =>
-      applyExpenseBoardFilters({
-        expenses,
-        kind: kindFilter,
-        status: 'OPEN',
-        involvement: involvementFilter,
-        userId: user?.id,
-        recurrence: recurrenceFilter,
-      }),
-    [expenses, kindFilter, involvementFilter, recurrenceFilter, user?.id],
+      sortOpenBoardExpenses(
+        applyExpenseBoardFilters({
+          expenses,
+          kind: kindFilter,
+          status: 'OPEN',
+          boardStatus: statusFilter,
+          involvement: involvementFilter,
+          userId: user?.id,
+          recurrence: recurrenceFilter,
+        }),
+      ),
+    [expenses, kindFilter, statusFilter, involvementFilter, recurrenceFilter, user?.id],
   );
 
   const settledExpenses = useMemo(
     () =>
       expenses.filter(
         (expense) =>
-          (expense.status === 'SETTLED' ||
-            expense.status === 'ARCHIVED' ||
-            isExpensePaused(expense)) &&
+          (expense.status === 'SETTLED' || expense.status === 'SKIPPED') &&
           isUserInvolvedInExpense(expense, user?.id),
       ),
     [expenses, user?.id],
@@ -319,19 +384,21 @@ export function useHomeExpenses(): UseHomeExpensesResult {
 
   const filteredSettledExpenses = useMemo(() => {
     const historyPool = expenses.filter(
-      (expense) =>
-        expense.status === 'SETTLED' ||
-        expense.status === 'ARCHIVED' ||
-        isExpensePaused(expense),
+      (expense) => expense.status === 'SETTLED' || expense.status === 'SKIPPED',
     );
-    return filterExpensesByRecurrence(
-      filterExpensesByKind(
-        filterExpensesByInvolvement(historyPool, involvementFilter, user?.id),
-        kindFilter,
+    return sortHistoryBoardExpenses(
+      filterExpensesByBoardStatus(
+        filterExpensesByRecurrence(
+          filterExpensesByKind(
+            filterExpensesByInvolvement(historyPool, involvementFilter, user?.id),
+            kindFilter,
+          ),
+          recurrenceFilter,
+        ),
+        statusFilter,
       ),
-      recurrenceFilter,
     );
-  }, [expenses, kindFilter, involvementFilter, recurrenceFilter, user?.id]);
+  }, [expenses, kindFilter, statusFilter, involvementFilter, recurrenceFilter, user?.id]);
 
   const balances = useMemo(
     () => summarizeExpenseBalances(expenses, user?.id),
@@ -351,6 +418,8 @@ export function useHomeExpenses(): UseHomeExpensesResult {
     setInvolvementFilter,
     recurrenceFilter,
     setRecurrenceFilter,
+    statusFilter,
+    setStatusFilter,
     isAdmin,
     activityEvents,
     isLoading,
@@ -363,5 +432,7 @@ export function useHomeExpenses(): UseHomeExpensesResult {
     reopenExpense,
     repeatExpense,
     settleShare,
+    cancelOccurrence,
+    reassignOccurrence,
   };
 }

@@ -1,4 +1,13 @@
-import { cycleInstanceTitle, computeInitialDueAt, computeNextOccurrence, parseRecurrenceConfig, stripCycleSuffix } from '@/lib/recurrence';
+import {
+  cycleInstanceTitle,
+  computeNextOccurrence,
+  parseRecurrenceConfig,
+  shiftStartsAtForNextDue,
+  stripCycleSuffix,
+  withAssigneeOverride,
+  withSkippedOccurrenceDate,
+} from '@/lib/recurrence';
+import { generateUuid } from '@/lib/uuid';
 import { requireHomeId } from '@/lib/home/require-home-id';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import {
@@ -6,9 +15,15 @@ import {
   type UpsertExpenseInput,
 } from '@/schemas/expense.schema';
 import type { Expense, ExpenseWithRelations } from '@/types/database.types';
-import { splitAmountEvenly } from '@/features/expenses/lib/expense-balances';
+import {
+  amountsSumToTotal,
+  percentsSumToHundred,
+  splitAmountByPercents,
+  splitAmountEvenly,
+} from '@/features/expenses/lib/expense-balances';
 import { isShareSettled } from '@/features/expenses/lib/expense-settlement';
 import { buildExpenseParticipantIds } from '@/features/expenses/lib/expense-filters';
+import type { ExpenseSplitMode } from '@/schemas/expense.schema';
 
 const EXPENSE_SELECT = `
   *,
@@ -23,6 +38,7 @@ const EXPENSE_SELECT = `
     expense_id,
     user_id,
     share_amount,
+    share_percent,
     settlement_status,
     created_at,
     profiles (
@@ -37,9 +53,12 @@ function coerceExpense(row: ExpenseWithRelations): ExpenseWithRelations {
   return {
     ...row,
     amount: Number(row.amount),
+    split_mode: (row.split_mode as ExpenseSplitMode | undefined) ?? 'EQUAL',
     expense_shares: row.expense_shares.map((share) => ({
       ...share,
       share_amount: Number(share.share_amount),
+      share_percent:
+        share.share_percent == null ? null : Number(share.share_percent),
     })),
   };
 }
@@ -77,6 +96,8 @@ async function syncShares(params: {
   expenseId: string;
   participantIds: string[];
   amount: number;
+  splitMode: ExpenseSplitMode;
+  shareInputs?: { user_id: string; share_percent?: number; share_amount?: number }[];
 }): Promise<void> {
   const supabase = getSupabaseClient();
   const { error: deleteError } = await supabase
@@ -89,13 +110,33 @@ async function syncShares(params: {
     throw deleteError;
   }
 
-  const splits = splitAmountEvenly(params.amount, params.participantIds.length);
+  const inputByUser = new Map((params.shareInputs ?? []).map((row) => [row.user_id, row]));
+  let amounts: number[] = [];
+  let percents: (number | null)[] = params.participantIds.map(() => null);
+
+  if (params.splitMode === 'PERCENT') {
+    const values = params.participantIds.map((userId) => inputByUser.get(userId)?.share_percent ?? 0);
+    if (!percentsSumToHundred(values)) {
+      throw new Error('Los porcentajes deben sumar exactamente 100');
+    }
+    amounts = splitAmountByPercents(params.amount, values);
+    percents = values;
+  } else if (params.splitMode === 'AMOUNT') {
+    amounts = params.participantIds.map((userId) => inputByUser.get(userId)?.share_amount ?? 0);
+    if (!amountsSumToTotal(amounts, params.amount)) {
+      throw new Error('Las cantidades deben sumar el total del gasto');
+    }
+  } else {
+    amounts = splitAmountEvenly(params.amount, params.participantIds.length);
+  }
+
   const { error: insertError } = await supabase.from('expense_shares').insert(
     params.participantIds.map((userId, index) => ({
       home_id: params.homeId,
       expense_id: params.expenseId,
       user_id: userId,
-      share_amount: splits[index] ?? 0,
+      share_amount: amounts[index] ?? 0,
+      share_percent: percents[index],
       settlement_status: 'PENDING',
     })),
   );
@@ -115,42 +156,33 @@ export async function createExpense(input: UpsertExpenseInput): Promise<ExpenseW
   const participantIds = buildParticipantIds(parsed);
 
   const config = parsed.recurrence_config ?? {};
-  const dueAt =
-    parsed.due_at ??
-    (parsed.recurrence === 'ONCE'
-      ? null
-      : computeInitialDueAt(
-          parsed.recurrence,
-          config,
-          new Date(),
-          parsed.due_mode,
-        ).toISOString());
+  const dueAt = parsed.due_at;
   const baseTitle = stripCycleSuffix(parsed.title);
-  const title = cycleInstanceTitle(
-    baseTitle,
-    parsed.recurrence,
-    new Date(dueAt ?? new Date().toISOString()),
-  );
+  const title = cycleInstanceTitle(baseTitle, parsed.recurrence, new Date(dueAt));
 
-  const { data, error } = await supabase
-    .from('expenses')
-    .insert({
-      home_id: scopedHomeId,
-      title,
-      base_title: baseTitle,
-      description: parsed.description ?? null,
-      kind: parsed.kind,
-      amount: parsed.amount,
-      paid_by: parsed.paid_by,
-      status: 'OPEN',
-      receipt_image_url: parsed.receipt_image_url ?? null,
-      recurrence: parsed.recurrence,
-      recurrence_config: config,
-      due_at: dueAt,
-      due_mode: parsed.due_mode,
-    })
-    .select('id')
-    .single();
+  const expenseId = generateUuid();
+  const insertRow = {
+    id: expenseId,
+    home_id: scopedHomeId,
+    title,
+    base_title: baseTitle,
+    description: parsed.description ?? null,
+    kind: parsed.kind,
+    item_type_id: parsed.item_type_id ?? null,
+    amount: parsed.amount,
+    paid_by: parsed.paid_by,
+    status: 'OPEN' as const,
+    split_mode: parsed.split_mode,
+    recurrence: parsed.recurrence,
+    recurrence_config: config,
+    due_at: dueAt,
+    due_mode: parsed.due_mode,
+    starts_at: parsed.starts_at ?? dueAt,
+    all_day: parsed.all_day ?? false,
+    ...(parsed.receipt_image_url ? { receipt_image_url: parsed.receipt_image_url } : {}),
+  };
+
+  const { error } = await supabase.from('expenses').insert(insertRow);
 
   if (error) {
     throw error;
@@ -158,17 +190,25 @@ export async function createExpense(input: UpsertExpenseInput): Promise<ExpenseW
 
   await syncShares({
     homeId: scopedHomeId,
-    expenseId: data.id,
+    expenseId,
     participantIds,
     amount: parsed.amount,
+    splitMode: parsed.split_mode,
+    shareInputs: parsed.share_inputs,
   });
 
-  const expenses = await listExpensesByHome(scopedHomeId);
-  const created = expenses.find((item) => item.id === data.id);
-  if (!created) {
-    throw new Error('Expense created but not found');
+  const { data: createdRow, error: fetchError } = await supabase
+    .from('expenses')
+    .select(EXPENSE_SELECT)
+    .eq('home_id', scopedHomeId)
+    .eq('id', expenseId)
+    .single();
+
+  if (fetchError) {
+    throw fetchError;
   }
-  return created;
+
+  return coerceExpense(createdRow as ExpenseWithRelations);
 }
 
 /**
@@ -186,11 +226,7 @@ export async function updateExpense(
   const config = parsed.recurrence_config ?? {};
   const dueAt = parsed.due_at;
   const baseTitle = stripCycleSuffix(parsed.title);
-  const title = cycleInstanceTitle(
-    baseTitle,
-    parsed.recurrence,
-    new Date(dueAt ?? new Date().toISOString()),
-  );
+  const title = cycleInstanceTitle(baseTitle, parsed.recurrence, new Date(dueAt));
 
   const { error } = await supabase
     .from('expenses')
@@ -199,6 +235,7 @@ export async function updateExpense(
       base_title: baseTitle,
       description: parsed.description ?? null,
       kind: parsed.kind,
+      item_type_id: parsed.item_type_id ?? null,
       amount: parsed.amount,
       paid_by: parsed.paid_by,
       receipt_image_url: parsed.receipt_image_url ?? null,
@@ -206,6 +243,9 @@ export async function updateExpense(
       recurrence_config: config,
       due_at: dueAt,
       due_mode: parsed.due_mode,
+      starts_at: parsed.starts_at ?? dueAt,
+      all_day: parsed.all_day ?? false,
+      split_mode: parsed.split_mode,
     })
     .eq('id', expenseId)
     .eq('home_id', scopedHomeId);
@@ -219,6 +259,8 @@ export async function updateExpense(
     expenseId,
     participantIds,
     amount: parsed.amount,
+    splitMode: parsed.split_mode,
+    shareInputs: parsed.share_inputs,
   });
 
   const expenses = await listExpensesByHome(scopedHomeId);
@@ -309,11 +351,23 @@ async function spawnNextRecurringExpense(expense: ExpenseWithRelations): Promise
     paid_by: expense.paid_by,
     debtor_ids: debtorIds.length > 0 ? debtorIds : [expense.paid_by],
     include_payer_in_split: includePayer,
+    split_mode: expense.split_mode ?? 'EQUAL',
+    share_inputs: expense.expense_shares.map((share) => ({
+      user_id: share.user_id,
+      share_percent: share.share_percent ?? undefined,
+      share_amount: share.share_amount,
+    })),
     receipt_image_url: null,
     recurrence: expense.recurrence,
     recurrence_config: config,
     due_at: nextDue.toISOString(),
     due_mode: expense.due_mode ?? 'DEADLINE',
+    starts_at: shiftStartsAtForNextDue({
+      previousStartsAt: expense.starts_at,
+      previousDueAt: expense.due_at,
+      nextDueAt: nextDue,
+    }).toISOString(),
+    all_day: Boolean(expense.all_day),
   });
 
   const supabase = getSupabaseClient();
@@ -344,7 +398,9 @@ export async function setExpenseStatus(params: {
     .update({
       status: params.status,
       completed_at:
-        params.status === 'SETTLED' || params.status === 'ARCHIVED'
+        params.status === 'SETTLED' ||
+        params.status === 'ARCHIVED' ||
+        params.status === 'SKIPPED'
           ? new Date().toISOString()
           : null,
     })
@@ -355,7 +411,7 @@ export async function setExpenseStatus(params: {
     throw error;
   }
 
-  if (params.status === 'SETTLED' && current) {
+  if ((params.status === 'SETTLED' || params.status === 'SKIPPED') && current) {
     await spawnNextRecurringExpense(current);
   }
 }
@@ -644,4 +700,100 @@ export async function settleAllExpenseShares(params: {
   }
 
   await syncExpenseStatusFromShares(scopedHomeId, params.expenseId);
+}
+
+/**
+ * Cancels one expense occurrence (creditor). Open → SKIPPED (+ spawn); scheduled → skipped_dates.
+ */
+export async function cancelExpenseOccurrence(params: {
+  homeId: string;
+  expenseId: string;
+  actorId: string;
+  scheduledDueAt?: string;
+}): Promise<void> {
+  const scopedHomeId = requireHomeId(params.homeId);
+  const expenses = await listExpensesByHome(scopedHomeId);
+  const expense = expenses.find((item) => item.id === params.expenseId);
+  if (!expense) {
+    throw new Error('Gasto no encontrado');
+  }
+  if (expense.paid_by !== params.actorId) {
+    throw new Error('Solo el acreedor puede cancelar esta fecha del gasto');
+  }
+
+  if (params.scheduledDueAt) {
+    const config = withSkippedOccurrenceDate(
+      parseRecurrenceConfig(expense.recurrence_config),
+      new Date(params.scheduledDueAt),
+    );
+    const supabase = getSupabaseClient();
+    const { error } = await supabase
+      .from('expenses')
+      .update({ recurrence_config: config })
+      .eq('id', expense.id)
+      .eq('home_id', scopedHomeId);
+    if (error) {
+      throw error;
+    }
+    return;
+  }
+
+  if (expense.status !== 'OPEN') {
+    throw new Error('Solo se puede cancelar un gasto abierto o programado');
+  }
+
+  await setExpenseStatus({
+    homeId: scopedHomeId,
+    expenseId: expense.id,
+    status: 'SKIPPED',
+  });
+}
+
+/**
+ * Point reassignment of the payer for an open or scheduled expense.
+ */
+export async function reassignExpenseOccurrence(params: {
+  homeId: string;
+  expenseId: string;
+  actorId: string;
+  payerId: string;
+  scheduledDueAt?: string;
+}): Promise<void> {
+  const scopedHomeId = requireHomeId(params.homeId);
+  const expenses = await listExpensesByHome(scopedHomeId);
+  const expense = expenses.find((item) => item.id === params.expenseId);
+  if (!expense) {
+    throw new Error('Gasto no encontrado');
+  }
+  if (expense.paid_by !== params.actorId) {
+    throw new Error('Solo el acreedor puede reasignar este gasto');
+  }
+
+  if (params.scheduledDueAt) {
+    const config = withAssigneeOverride(
+      parseRecurrenceConfig(expense.recurrence_config),
+      new Date(params.scheduledDueAt),
+      params.payerId,
+    );
+    const supabase = getSupabaseClient();
+    const { error } = await supabase
+      .from('expenses')
+      .update({ recurrence_config: config })
+      .eq('id', expense.id)
+      .eq('home_id', scopedHomeId);
+    if (error) {
+      throw error;
+    }
+    return;
+  }
+
+  const supabase = getSupabaseClient();
+  const { error } = await supabase
+    .from('expenses')
+    .update({ paid_by: params.payerId })
+    .eq('id', expense.id)
+    .eq('home_id', scopedHomeId);
+  if (error) {
+    throw error;
+  }
 }

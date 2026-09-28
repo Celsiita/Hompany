@@ -19,6 +19,7 @@ function makeExpense(overrides: Partial<ExpenseWithRelations> = {}): ExpenseWith
     title: 'Test',
     description: null,
     kind: 'HOUSE',
+    item_type_id: null,
     amount: 10,
     currency: 'EUR',
     paid_by: ANA,
@@ -31,9 +32,12 @@ function makeExpense(overrides: Partial<ExpenseWithRelations> = {}): ExpenseWith
     series_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     due_at: '2026-08-16T00:00:00.000Z',
     due_mode: 'DEADLINE',
+    starts_at: null,
+    all_day: false,
     completed_at: null,
     recurrence_config: {},
     auto_assign: false,
+    split_mode: 'EQUAL',
     payer: { id: ANA, display_name: 'Ana', avatar_url: null },
     expense_shares: [
       {
@@ -42,6 +46,7 @@ function makeExpense(overrides: Partial<ExpenseWithRelations> = {}): ExpenseWith
         expense_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
         user_id: ANA,
         share_amount: 5,
+        share_percent: null,
         settlement_status: 'PENDING',
         created_at: '2026-08-16T00:00:00.000Z',
         profiles: { id: ANA, display_name: 'Ana', avatar_url: null },
@@ -52,6 +57,7 @@ function makeExpense(overrides: Partial<ExpenseWithRelations> = {}): ExpenseWith
         expense_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
         user_id: BRUNO,
         share_amount: 5,
+        share_percent: null,
         settlement_status: 'PENDING',
         created_at: '2026-08-16T00:00:00.000Z',
         profiles: { id: BRUNO, display_name: 'Bruno', avatar_url: null },
@@ -82,6 +88,7 @@ describe('summarizeExpenseBalances', () => {
               expense_id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
               user_id: BRUNO,
               share_amount: 0,
+        share_percent: null,
               settlement_status: 'PENDING',
               created_at: '2026-08-16T00:00:00.000Z',
               profiles: null,
@@ -107,6 +114,7 @@ describe('summarizeExpenseBalances', () => {
               expense_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
               user_id: ANA,
               share_amount: 5,
+        share_percent: null,
               settlement_status: 'PENDING',
               created_at: '2026-08-16T00:00:00.000Z',
               profiles: null,
@@ -117,6 +125,7 @@ describe('summarizeExpenseBalances', () => {
               expense_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
               user_id: BRUNO,
               share_amount: 5,
+        share_percent: null,
               settlement_status: 'SETTLED',
               created_at: '2026-08-16T00:00:00.000Z',
               profiles: null,
@@ -174,6 +183,7 @@ describe('expense filters', () => {
           expense_id: 'dddddddd-dddd-dddd-dddd-dddddddddddd',
           user_id: CARLA,
           share_amount: 10,
+        share_percent: null,
           settlement_status: 'PENDING',
           created_at: '2026-08-16T00:00:00.000Z',
           profiles: null,
@@ -220,8 +230,10 @@ describe('upsertExpenseInputSchema', () => {
       paid_by: ANA,
       debtor_ids: [BRUNO],
       include_payer_in_split: true,
+      due_at: '2026-08-20T22:00:00.000Z',
     });
     expect(parsed.title).toBe('Agua');
+    expect(parsed.due_at).toBe('2026-08-20T22:00:00.000Z');
     expect(() =>
       upsertExpenseInputSchema.parse({
         home_id: HOME_ID,
@@ -230,6 +242,18 @@ describe('upsertExpenseInputSchema', () => {
         amount: 42,
         paid_by: ANA,
         debtor_ids: [],
+        due_at: '2026-08-20T22:00:00.000Z',
+      }),
+    ).toThrow();
+    expect(() =>
+      upsertExpenseInputSchema.parse({
+        home_id: HOME_ID,
+        title: 'Agua',
+        kind: 'HOUSE',
+        amount: 42,
+        paid_by: ANA,
+        debtor_ids: [BRUNO],
+        include_payer_in_split: true,
       }),
     ).toThrow();
   });
