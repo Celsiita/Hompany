@@ -1,6 +1,6 @@
 /**
  * Task category taxonomy. GROCERY remains in the DB enum for compatibility
- * but the task board only uses ZONE / QUICK (cleaning & order).
+ * but the task board only uses QUICK plus custom home types.
  */
 export const TASK_CATEGORY = {
   ZONE: 'ZONE',
@@ -16,7 +16,6 @@ export const TASK_CATEGORY_VALUES = Object.values(TASK_CATEGORY) as [
 ];
 
 export const TASK_BOARD_CATEGORY = {
-  ZONE: 'ZONE',
   QUICK: 'QUICK',
 } as const;
 

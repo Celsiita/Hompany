@@ -1,0 +1,88 @@
+import { useState, type ReactNode } from 'react';
+import { Text, View } from 'react-native';
+
+import { SafePressable } from '@/components/ui/SafePressable';
+import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
+
+type CollapsibleFilterPanelProps = {
+  children: ReactNode;
+  /** Shown when one or more filters differ from default (e.g. "2 activos"). */
+  activeHint?: string | null;
+};
+
+/**
+ * Toggle button that shows/hides a filter block (Home, Tareas, Gastos).
+ */
+export function CollapsibleFilterPanel({ children, activeHint }: CollapsibleFilterPanelProps) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <View className="gap-2">
+      <SafePressable
+        onPress={() => setOpen((value) => !value)}
+        contentStyle={mergeStyles(interactive.rowBetween, interactive.borderedCard)}>
+        <Text className="text-sm font-semibold text-gray-800">
+          Filtros{activeHint ? ` · ${activeHint}` : ''}
+        </Text>
+        <Text className="text-base" accessibilityLabel={open ? 'Ocultar filtros' : 'Mostrar filtros'}>
+          {open ? '🐵' : '🙈'}
+        </Text>
+      </SafePressable>
+      {open ? <View className="gap-3">{children}</View> : null}
+    </View>
+  );
+}
+
+type CollapsibleSectionProps = {
+  title: string;
+  info?: ReactNode;
+  accent?: 'violet' | 'amber';
+  children: ReactNode;
+  defaultExpanded?: boolean;
+};
+
+const ACCENT = {
+  violet: {
+    border: 'border-violet-200',
+    bg: 'bg-violet-50/40',
+    title: 'text-violet-900',
+    chevron: 'text-violet-700',
+  },
+  amber: {
+    border: 'border-amber-200',
+    bg: 'bg-amber-50/30',
+    title: 'text-amber-950',
+    chevron: 'text-amber-800',
+  },
+} as const;
+
+/**
+ * Collapsible card section (Ausencias, Modo silencio).
+ */
+export function CollapsibleSection({
+  title,
+  info,
+  accent = 'violet',
+  children,
+  defaultExpanded = false,
+}: CollapsibleSectionProps) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const tone = ACCENT[accent];
+
+  return (
+    <View className={`gap-0 rounded-2xl border ${tone.border} ${tone.bg} overflow-hidden`}>
+      <SafePressable
+        onPress={() => setExpanded((value) => !value)}
+        contentStyle={mergeStyles(interactive.rowBetween, { paddingHorizontal: 16, paddingVertical: 12 })}>
+        <View className="flex-row flex-1 items-center gap-2">
+          <Text className={`text-sm font-semibold ${tone.title}`}>{title}</Text>
+          {info}
+        </View>
+        <Text className={`text-xs font-semibold ${tone.chevron}`}>
+          {expanded ? '▲' : '▼'}
+        </Text>
+      </SafePressable>
+      {expanded ? <View className="gap-3 border-t border-white/60 px-4 pb-4 pt-3">{children}</View> : null}
+    </View>
+  );
+}
