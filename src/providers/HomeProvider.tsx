@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Linking from 'expo-linking';
 import {
   createContext,
   PropsWithChildren,
@@ -13,12 +14,19 @@ import {
   createHome as createHomeRpc,
   joinHomeByInviteCode,
   listMyHomes,
+  updateHomePracticalInfo as updateHomePracticalInfoApi,
+  updateHomeProofSettings as updateHomeProofSettingsApi,
 } from '@/features/home/api/homes-api';
+import { parseInviteCodeFromUrl } from '@/lib/home-invite';
 import { ACTIVE_HOME_ID_KEY } from '@/lib/home/storage';
 import { requireHomeId } from '@/lib/home/require-home-id';
 import { useAuth } from '@/providers/AuthProvider';
 import type { CreateHomeInput, JoinHomeInput } from '@/schemas/onboarding.schema';
 import { createHomeInputSchema, joinHomeInputSchema } from '@/schemas/onboarding.schema';
+import type {
+  UpdateHomePracticalInfoInput,
+  UpdateHomeProofSettingsInput,
+} from '@/schemas/home.schema';
 import type { Home } from '@/types/database.types';
 
 type HomeContextValue = {
@@ -31,6 +39,8 @@ type HomeContextValue = {
   createHome: (input: CreateHomeInput) => Promise<Home>;
   joinHome: (input: JoinHomeInput) => Promise<Home>;
   clearActiveHome: () => Promise<void>;
+  updateHomePracticalInfo: (input: UpdateHomePracticalInfoInput) => Promise<Home>;
+  updateHomeProofSettings: (input: UpdateHomeProofSettingsInput) => Promise<Home>;
 };
 
 const HomeContext = createContext<HomeContextValue | null>(null);
@@ -179,6 +189,57 @@ export function HomeProvider({ children }: PropsWithChildren) {
     [refreshHomes, setActiveHomeId],
   );
 
+  const updateHomePracticalInfo = useCallback(
+    async (input: UpdateHomePracticalInfoInput) => {
+      const homeId = requireHomeId(activeHomeId);
+      const home = await updateHomePracticalInfoApi(homeId, input);
+      setHomes((current) =>
+        current.map((item) => (item.id === home.id ? { ...item, ...home } : item)),
+      );
+      return home;
+    },
+    [activeHomeId],
+  );
+
+  const updateHomeProofSettings = useCallback(
+    async (input: UpdateHomeProofSettingsInput) => {
+      const homeId = requireHomeId(activeHomeId);
+      const home = await updateHomeProofSettingsApi(homeId, input);
+      setHomes((current) =>
+        current.map((item) => (item.id === home.id ? { ...item, ...home } : item)),
+      );
+      return home;
+    },
+    [activeHomeId],
+  );
+
+  useEffect(() => {
+    if (!user || isAuthLoading) {
+      return;
+    }
+
+    async function handleUrl(url: string | null) {
+      if (!url) {
+        return;
+      }
+      const code = parseInviteCodeFromUrl(url);
+      if (!code) {
+        return;
+      }
+      try {
+        await joinHome({ inviteCode: code });
+      } catch {
+        // Ignore invalid/expired invite links; user can still join manually.
+      }
+    }
+
+    void Linking.getInitialURL().then((url) => void handleUrl(url));
+    const subscription = Linking.addEventListener('url', (event) => {
+      void handleUrl(event.url);
+    });
+    return () => subscription.remove();
+  }, [user, isAuthLoading, joinHome]);
+
   const activeHome = useMemo(
     () => homes.find((home) => home.id === activeHomeId) ?? null,
     [homes, activeHomeId],
@@ -195,6 +256,8 @@ export function HomeProvider({ children }: PropsWithChildren) {
       createHome,
       joinHome,
       clearActiveHome,
+      updateHomePracticalInfo,
+      updateHomeProofSettings,
     }),
     [
       homes,
@@ -207,6 +270,8 @@ export function HomeProvider({ children }: PropsWithChildren) {
       createHome,
       joinHome,
       clearActiveHome,
+      updateHomePracticalInfo,
+      updateHomeProofSettings,
     ],
   );
 

@@ -1,7 +1,13 @@
 import { requireHomeId } from '@/lib/home/require-home-id';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { Home, HomeMember, Profile } from '@/types/database.types';
-import { homeSchema } from '@/schemas/home.schema';
+import {
+  homeSchema,
+  updateHomePracticalInfoSchema,
+  updateHomeProofSettingsSchema,
+  type UpdateHomePracticalInfoInput,
+  type UpdateHomeProofSettingsInput,
+} from '@/schemas/home.schema';
 
 export type HomeMemberWithProfile = HomeMember & {
   profiles: Pick<Profile, 'id' | 'display_name' | 'avatar_url'> | null;
@@ -21,7 +27,7 @@ export async function listMyHomes(): Promise<Home[]> {
     throw error;
   }
 
-  return data ?? [];
+  return (data ?? []).map((row) => homeSchema.parse(row) as Home);
 }
 
 /**
@@ -140,4 +146,53 @@ export async function deleteOwnAccount(): Promise<void> {
   if (error) {
     throw error;
   }
+}
+
+/**
+ * Updates shared practical flat info (Wi‑Fi, portal, bins, notes).
+ */
+export async function updateHomePracticalInfo(
+  homeId: string,
+  input: UpdateHomePracticalInfoInput,
+): Promise<Home> {
+  const scopedHomeId = requireHomeId(homeId);
+  const payload = updateHomePracticalInfoSchema.parse(input);
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase.rpc('update_home_practical_info', {
+    p_home_id: scopedHomeId,
+    p_wifi_ssid: payload.wifi_ssid,
+    p_wifi_password: payload.wifi_password,
+    p_portal_code: payload.portal_code,
+    p_bin_day: payload.bin_day,
+    p_notes: payload.notes,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return homeSchema.parse(data) as Home;
+}
+
+/**
+ * Updates flat-wide proof photo policy (admin-only RPC).
+ */
+export async function updateHomeProofSettings(
+  homeId: string,
+  input: UpdateHomeProofSettingsInput,
+): Promise<Home> {
+  const scopedHomeId = requireHomeId(homeId);
+  const payload = updateHomeProofSettingsSchema.parse(input);
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase.rpc('update_home_proof_settings', {
+    p_home_id: scopedHomeId,
+    p_proof_mode: payload.proof_mode,
+    p_proof_capture: payload.proof_capture,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return homeSchema.parse(data) as Home;
 }

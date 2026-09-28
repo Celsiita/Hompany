@@ -15,6 +15,7 @@ function makeTask(overrides: Partial<TaskWithRelations> = {}): TaskWithRelations
     description: null,
     status: TASK_STATUS.PENDING,
     category: 'QUICK',
+    item_type_id: null,
     icon: 'checklist',
     recurrence: 'ONCE',
     is_template: false,
@@ -27,9 +28,13 @@ function makeTask(overrides: Partial<TaskWithRelations> = {}): TaskWithRelations
     completed_by: null,
     due_at: '2026-08-18T20:00:00.000Z',
     due_mode: 'DEADLINE',
+    starts_at: null,
+    all_day: false,
     completed_at: null,
     proof_image_url: null,
     points_value: 10,
+    review_note: null,
+    review_note_kind: null,
     created_at: '2026-08-16T00:00:00.000Z',
     updated_at: '2026-08-16T00:00:00.000Z',
     task_assignees: [
@@ -53,6 +58,7 @@ function makeExpense(overrides: Partial<ExpenseWithRelations> = {}): ExpenseWith
     title: 'Súper',
     description: null,
     kind: 'GROCERY',
+    item_type_id: null,
     amount: 20,
     currency: 'EUR',
     paid_by: BRUNO,
@@ -65,9 +71,12 @@ function makeExpense(overrides: Partial<ExpenseWithRelations> = {}): ExpenseWith
     series_id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
     due_at: '2026-08-19T12:00:00.000Z',
     due_mode: 'DEADLINE',
+    starts_at: null,
+    all_day: false,
     completed_at: null,
     recurrence_config: {},
     auto_assign: false,
+    split_mode: 'EQUAL',
     payer: { id: BRUNO, display_name: 'Bruno', avatar_url: null },
     expense_shares: [
       {
@@ -76,6 +85,7 @@ function makeExpense(overrides: Partial<ExpenseWithRelations> = {}): ExpenseWith
         expense_id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
         user_id: ANA,
         share_amount: 10,
+        share_percent: null,
         settlement_status: 'PENDING',
         created_at: '2026-08-18T10:00:00.000Z',
         profiles: { id: ANA, display_name: 'Ana', avatar_url: null },
@@ -135,5 +145,33 @@ describe('buildHomeAlerts', () => {
       now: NOW,
     });
     expect(alerts.some((alert) => alert.id.startsWith('expense-settled'))).toBe(true);
+  });
+
+  it('on system leave keeps only overdue expenses', () => {
+    const overdueExpense = makeExpense({
+      due_at: '2026-08-17T10:00:00.000Z',
+      status: 'OPEN',
+    });
+    const alerts = buildHomeAlerts({
+      tasks: [makeTask()],
+      expenses: [overdueExpense, makeExpense({ id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeee2' })],
+      systemLeaves: [
+        {
+          id: 'llllllll-llll-llll-llll-llllllllllll',
+          home_id: HOME_ID,
+          user_id: ANA,
+          kind: 'INDEFINITE',
+          start_date: '2026-08-01',
+          end_date: null,
+          reason: null,
+          created_at: '2026-08-01T00:00:00.000Z',
+          updated_at: '2026-08-01T00:00:00.000Z',
+        },
+      ],
+      currentUserId: ANA,
+      now: NOW,
+    });
+    expect(alerts.every((alert) => alert.id.startsWith('expense-overdue'))).toBe(true);
+    expect(alerts.some((alert) => alert.id.startsWith('task-'))).toBe(false);
   });
 });

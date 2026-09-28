@@ -1,6 +1,10 @@
 import { formatCountdown } from '@/features/tasks/lib/countdown';
 import { isTaskAssignedToUser } from '@/features/tasks/lib/board-filters';
+import { canViewerParticipateInTasks, isViewerAbsentOnDate } from '@/features/tasks/lib/absence-task-rules';
 import { isUserInvolvedInExpense } from '@/features/expenses/lib/expense-filters';
+import { isUserSystemFrozen } from '@/lib/presence';
+import type { MemberAbsence } from '@/schemas/absence.schema';
+import type { MemberPresencePeriod, MemberSystemLeave } from '@/schemas/presence.schema';
 import type { ExpenseWithRelations, TaskWithRelations } from '@/types/database.types';
 import { TASK_STATUS } from '@/types/task-status';
 
@@ -15,44 +19,74 @@ const RECENT_MS = 48 * 60 * 60 * 1000;
 
 /**
  * Builds in-app alerts for due work, reviews, new debts and overdue items.
+ * System leave freezes everything except overdue expenses.
  */
 export function buildHomeAlerts(params: {
   tasks: TaskWithRelations[];
   expenses: ExpenseWithRelations[];
+  absences?: readonly MemberAbsence[];
+  systemLeaves?: readonly MemberSystemLeave[];
+  presencePeriods?: readonly MemberPresencePeriod[];
   currentUserId?: string | null;
   now?: number;
 }): HomeAlert[] {
   const now = params.now ?? Date.now();
+  const nowDate = new Date(now);
+  const absences = params.absences ?? [];
+  const systemLeaves = params.systemLeaves ?? [];
+  const presencePeriods = params.presencePeriods ?? [];
+  const frozen = isUserSystemFrozen({
+    leaves: systemLeaves,
+    presencePeriods,
+    userId: params.currentUserId,
+    date: nowDate,
+  });
+  const canParticipateInTasks =
+    !frozen && canViewerParticipateInTasks(absences, params.currentUserId, nowDate);
   const alerts: HomeAlert[] = [];
 
-  for (const task of params.tasks) {
-    const remaining = new Date(task.due_at).getTime() - now;
-    const pastDue =
-      task.status === TASK_STATUS.OVERDUE ||
-      (task.status === TASK_STATUS.PENDING && remaining <= 0);
+  if (!frozen) {
+    for (const task of params.tasks) {
+      const dueDate = task.due_at ? new Date(task.due_at) : null;
+      const assigneeAbsent =
+        dueDate &&
+        params.currentUserId &&
+        isTaskAssignedToUser(task, params.currentUserId) &&
+        isViewerAbsentOnDate(absences, params.currentUserId, dueDate);
 
-    if (pastDue) {
-      alerts.push({
-        id: `task-overdue-${task.id}`,
-        tone: 'red',
-        message: `«${task.title}» ha pasado el límite de tiempo.`,
-      });
-    } else if (task.status === TASK_STATUS.PENDING && remaining > 0 && remaining <= SOON_MS) {
-      alerts.push({
-        id: `task-soon-${task.id}`,
-        tone: 'amber',
-        message: `«${task.title}» vence pronto (${formatCountdown(task.due_at, now).label}).`,
-      });
-    } else if (
-      task.status === TASK_STATUS.SUBMITTED &&
-      params.currentUserId &&
-      !isTaskAssignedToUser(task, params.currentUserId)
-    ) {
-      alerts.push({
-        id: `task-review-${task.id}`,
-        tone: 'blue',
-        message: `Un compañero subió foto de «${task.title}» para validar.`,
-      });
+      if (assigneeAbsent) {
+        continue;
+      }
+
+      const remaining = dueDate ? dueDate.getTime() - now : 0;
+      const pastDue =
+        task.status === TASK_STATUS.OVERDUE ||
+        (task.status === TASK_STATUS.PENDING && remaining <= 0);
+
+      if (pastDue) {
+        alerts.push({
+          id: `task-overdue-${task.id}`,
+          tone: 'red',
+          message: `«${task.title}» ha pasado el límite de tiempo.`,
+        });
+      } else if (task.status === TASK_STATUS.PENDING && remaining > 0 && remaining <= SOON_MS) {
+        alerts.push({
+          id: `task-soon-${task.id}`,
+          tone: 'amber',
+          message: `«${task.title}» vence pronto (${formatCountdown(task.due_at, now).label}).`,
+        });
+      } else if (
+        task.status === TASK_STATUS.SUBMITTED &&
+        params.currentUserId &&
+        canParticipateInTasks &&
+        !isTaskAssignedToUser(task, params.currentUserId)
+      ) {
+        alerts.push({
+          id: `task-review-${task.id}`,
+          tone: 'blue',
+          message: `Un compañero subió foto de «${task.title}» para validar.`,
+        });
+      }
     }
   }
 
@@ -60,6 +94,21 @@ export function buildHomeAlerts(params: {
     const involved = isUserInvolvedInExpense(expense, params.currentUserId);
     const createdAgo = now - new Date(expense.created_at).getTime();
     const updatedAgo = now - new Date(expense.updated_at || expense.created_at).getTime();
+    const isOverdue =
+      expense.status === 'OPEN' &&
+      Boolean(expense.due_at) &&
+      new Date(expense.due_at).getTime() - now <= 0;
+
+    if (frozen) {
+      if (isOverdue && involved) {
+        alerts.push({
+          id: `expense-overdue-${expense.id}`,
+          tone: 'red',
+          message: `El gasto «${expense.title}» ha pasado la fecha límite.`,
+        });
+      }
+      continue;
+    }
 
     if (
       expense.status === 'OPEN' &&
@@ -125,21 +174,21 @@ export const NOTIFICATION_CATALOG = [
   {
     id: 'task_proof_review',
     title: 'Foto para validar',
-    when: 'Un compañero pasa la tarea a SUBMITTED',
+    when: 'Compañero en SUBMITTED',
   },
   {
     id: 'expense_created',
     title: 'Nuevo gasto',
-    when: 'Al crear un gasto que te incluye',
+    when: 'Alta que te incluye (≤ 48 h)',
   },
   {
     id: 'expense_settled',
     title: 'Deuda saldada',
-    when: 'Cuando se marca un share o el gasto entero',
+    when: 'Gasto SETTLED reciente (≤ 48 h)',
   },
   {
     id: 'expense_overdue',
     title: 'Gasto fuera de plazo',
-    when: 'Si due_at pasó y el gasto sigue OPEN',
+    when: 'OPEN y due_at pasado — también en ausencia de sistema',
   },
-] as const;
+];

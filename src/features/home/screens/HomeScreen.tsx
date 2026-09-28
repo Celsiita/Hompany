@@ -1,20 +1,35 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 
 import { HealthMeter, MetricsBar } from '@/components/ui/HealthMeter';
 import { HomeSectionBar, type HomeSection } from '@/components/ui/HomeSectionBar';
+import { MascotLoading } from '@/components/ui/MascotLoading';
 import { OverflowMenu } from '@/components/ui/OverflowMenu';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { AlertsModal } from '@/features/home/components/AlertsModal';
+import { HomeAgenda } from '@/features/home/components/HomeAgenda';
+import { HomeInfoCard } from '@/features/home/components/HomeInfoCard';
 import { HomeLeaderboard } from '@/features/home/components/HomeLeaderboard';
-import { MonthCalendar } from '@/features/home/components/MonthCalendar';
-import { WeekAgenda } from '@/features/home/components/WeekAgenda';
+import { HomeNoticesPanel } from '@/features/home/components/HomeNoticesPanel';
+import { useHomeAbsences } from '@/features/home/hooks/useHomeAbsences';
+import { useHomeExamPeriods } from '@/features/home/hooks/useHomeExamPeriods';
+import { useHomeNotices } from '@/features/home/hooks/useHomeNotices';
+import { useHomePresence } from '@/features/home/hooks/useHomePresence';
 import { BalanceSummary } from '@/features/expenses/components/BalanceSummary';
 import { useHomeExpenses } from '@/features/expenses/hooks/useHomeExpenses';
 import { useHomeLeaderboard } from '@/features/home/hooks/useHomeLeaderboard';
 import { buildHomeAlerts } from '@/features/home/lib/alerts';
+import {
+  excludeAbsentAssigneeTasks,
+  filterTasksForAbsentViewer,
+} from '@/features/tasks/lib/absence-task-rules';
+import { reassignRotatingTasksForPunctualAbsence } from '@/features/tasks/api/tasks-api';
+import { filterExpensesForViewer, type AgendaItem } from '@/features/home/lib/agenda-items';
 import { useHomeTasks } from '@/features/tasks/hooks/useHomeTasks';
+import { canRequestTaskSwap } from '@/features/tasks/lib/board-filters';
+import { summarizeTasks } from '@/features/tasks/lib/task-summary';
+import { isUserSystemFrozen } from '@/lib/presence';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
 import { useIconPack } from '@/providers/IconPackProvider';
@@ -24,9 +39,49 @@ import { useIconPack } from '@/providers/IconPackProvider';
  */
 export function HomeScreen() {
   const { user } = useAuth();
-  const { activeHome } = useHome();
-  const { summary, tasks, isLoading } = useHomeTasks();
-  const { balances, members, expenses, isLoading: expensesLoading } = useHomeExpenses();
+  const { activeHome, updateHomePracticalInfo } = useHome();
+  const {
+    tasks,
+    isLoading,
+    isAdmin,
+    members: taskMembers,
+    cancelOccurrence: cancelTaskOccurrence,
+    reassignOccurrence: reassignTaskOccurrence,
+    requestSwap,
+  } = useHomeTasks();
+  const {
+    balances,
+    members,
+    expenses,
+    isLoading: expensesLoading,
+    cancelOccurrence: cancelExpenseOccurrence,
+    reassignOccurrence: reassignExpenseOccurrence,
+  } = useHomeExpenses();
+  const {
+    absences,
+    isLoading: absencesLoading,
+    addAbsence,
+    removeAbsence,
+  } = useHomeAbsences();
+  const {
+    examPeriods,
+    isLoading: examPeriodsLoading,
+    addExamPeriod,
+    removeExamPeriod,
+  } = useHomeExamPeriods();
+  const {
+    systemLeaves,
+    isLoading: presenceLoading,
+    addSystemLeave,
+    removeSystemLeave,
+  } = useHomePresence();
+  const {
+    feedNotices,
+    calendarNotices,
+    isLoading: noticesLoading,
+    addNotice,
+    removeNotice,
+  } = useHomeNotices();
   const {
     rows: leaderboard,
     isLoading: leaderboardLoading,
@@ -38,24 +93,92 @@ export function HomeScreen() {
   const [packOpen, setPackOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
 
-  const alerts = useMemo(
-    () => buildHomeAlerts({ tasks, expenses, currentUserId: user?.id }),
-    [tasks, expenses, user?.id],
+  const visibleExpenses = useMemo(
+    () => filterExpensesForViewer(expenses, user?.id),
+    [expenses, user?.id],
   );
 
+  const systemFrozen = useMemo(
+    () =>
+      isUserSystemFrozen({
+        leaves: systemLeaves,
+        userId: user?.id,
+      }),
+    [systemLeaves, user?.id],
+  );
+
+  const agendaTasks = useMemo(
+    () =>
+      systemFrozen
+        ? []
+        : filterTasksForAbsentViewer(tasks, absences, user?.id),
+    [tasks, absences, user?.id, systemFrozen],
+  );
+
+  const agendaExpenses = useMemo(
+    () => (systemFrozen ? [] : visibleExpenses),
+    [systemFrozen, visibleExpenses],
+  );
+
+  const healthSummary = useMemo(
+    () => summarizeTasks(excludeAbsentAssigneeTasks(tasks, absences)),
+    [tasks, absences],
+  );
+
+  const alerts = useMemo(
+    () =>
+      buildHomeAlerts({
+        tasks,
+        expenses: visibleExpenses,
+        absences,
+        systemLeaves,
+        currentUserId: user?.id,
+      }),
+    [tasks, visibleExpenses, absences, systemLeaves, user?.id],
+  );
+
+  const agendaMembers = members.length > 0 ? members : taskMembers;
+
+  const memberDisplayName = (userId: string) =>
+    agendaMembers.find((member) => member.user_id === userId)?.profiles?.display_name ??
+    'Compañero';
+
   const subtitle =
-    section === 'FEED'
-      ? 'Salud, clasificación y cuentas del piso'
-      : 'Agenda de 7 días y calendario del mes';
+    section === 'FEED' ? 'Salud, info del piso y cuentas' : 'Calendario y eventos';
+
+  async function handleCancelOccurrence(item: AgendaItem) {
+    if (item.kind === 'task') {
+      await cancelTaskOccurrence(
+        item.entityId,
+        item.lifecycle === 'scheduled' ? item.when.toISOString() : undefined,
+      );
+      return;
+    }
+    await cancelExpenseOccurrence(
+      item.entityId,
+      item.lifecycle === 'scheduled' ? item.when.toISOString() : undefined,
+    );
+  }
+
+  async function handleReassignOccurrence(item: AgendaItem, userId: string) {
+    if (item.kind === 'task') {
+      await reassignTaskOccurrence(
+        item.entityId,
+        userId,
+        item.lifecycle === 'scheduled' ? item.when.toISOString() : undefined,
+      );
+      return;
+    }
+    await reassignExpenseOccurrence(
+      item.entityId,
+      userId,
+      item.lifecycle === 'scheduled' ? item.when.toISOString() : undefined,
+    );
+  }
 
   return (
     <Screen>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        bounces={false}
-        overScrollMode="never"
-        contentInsetAdjustmentBehavior="never"
-        contentContainerClassName="gap-4 pb-8 pt-2">
+      <View className="flex-1 gap-4 pt-2">
         <ScreenHeader
           title={activeHome?.name ?? 'El piso'}
           subtitle={subtitle}
@@ -65,19 +188,43 @@ export function HomeScreen() {
         <HomeSectionBar section={section} onSectionChange={setSection} />
 
         {section === 'FEED' ? (
-          <>
-            {isLoading ? <ActivityIndicator color="#2563eb" /> : <HealthMeter summary={summary} />}
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            overScrollMode="never"
+            contentInsetAdjustmentBehavior="never"
+            contentContainerClassName="gap-4 pb-8">
+            {isLoading ? <MascotLoading /> : <HealthMeter summary={healthSummary} />}
 
             {!isLoading ? (
               <MetricsBar
-                pending={summary.pending}
-                submitted={summary.submitted}
-                completed={summary.completed}
+                pending={healthSummary.pending}
+                submitted={healthSummary.submitted}
+                completed={healthSummary.completed}
               />
             ) : null}
 
+            <HomeInfoCard
+              home={activeHome}
+              onSave={async (input) => {
+                await updateHomePracticalInfo(input);
+              }}
+            />
+
+            <HomeNoticesPanel
+              notices={feedNotices}
+              isLoading={noticesLoading}
+              currentUserId={user?.id}
+              isAdmin={isAdmin}
+              authorName={memberDisplayName}
+              onAdd={async (input) => {
+                await addNotice(input);
+              }}
+              onRemove={removeNotice}
+            />
+
             {leaderboardLoading ? (
-              <ActivityIndicator color="#2563eb" />
+              <MascotLoading label="Ordenando el ranking…" />
             ) : leaderboardError ? (
               <Text className="text-sm text-red-600">{leaderboardError}</Text>
             ) : (
@@ -85,24 +232,75 @@ export function HomeScreen() {
             )}
 
             {expensesLoading ? (
-              <ActivityIndicator color="#2563eb" />
+              <MascotLoading label="Sumando quién debe a quién…" />
             ) : (
               <BalanceSummary balances={balances} members={members} currentUserId={user?.id} />
             )}
 
             {alerts.length > 0 ? (
               <Text className="text-xs text-gray-500">
-                Tienes {alerts.length} aviso{alerts.length === 1 ? '' : 's'}. Ábrelos desde el menú ⋮.
+                Tienes {alerts.length} aviso{alerts.length === 1 ? '' : 's'}. Ábrelos desde el
+                menú ⋮.
               </Text>
             ) : null}
-          </>
+          </ScrollView>
         ) : (
-          <>
-            <WeekAgenda tasks={tasks} expenses={expenses} currentUserId={user?.id} />
-            <MonthCalendar tasks={tasks} expenses={expenses} currentUserId={user?.id} />
-          </>
+          <HomeAgenda
+            tasks={agendaTasks}
+            expenses={agendaExpenses}
+            members={agendaMembers}
+            absences={absences}
+            absencesLoading={absencesLoading}
+            systemLeaves={systemLeaves}
+            systemLeavesLoading={presenceLoading}
+            examPeriods={examPeriods}
+            examPeriodsLoading={examPeriodsLoading}
+            calendarNotices={calendarNotices}
+            calendarNoticesLoading={noticesLoading}
+            currentUserId={user?.id}
+            isAdmin={isAdmin}
+            onCancelOccurrence={handleCancelOccurrence}
+            onReassignOccurrence={handleReassignOccurrence}
+            onAddAbsence={async (input) => {
+              await addAbsence(input);
+              if (user?.id && activeHome?.id) {
+                await reassignRotatingTasksForPunctualAbsence({
+                  homeId: activeHome.id,
+                  actorId: user.id,
+                  absentUserId: user.id,
+                  startDate: input.start_date,
+                  endDate: input.end_date,
+                });
+              }
+            }}
+            onRemoveAbsence={removeAbsence}
+            onAddSystemLeave={addSystemLeave}
+            onRemoveSystemLeave={removeSystemLeave}
+            onAddExamPeriod={async (input) => {
+              await addExamPeriod(input);
+            }}
+            onRemoveExamPeriod={removeExamPeriod}
+            onAddCalendarNotice={async (input) => {
+              await addNotice(input);
+            }}
+            onRemoveCalendarNotice={removeNotice}
+            onRequestSwap={(item) => {
+              if (item.kind !== 'task') {
+                return;
+              }
+              const task = tasks.find((row) => row.id === item.entityId);
+              if (!task || !canRequestTaskSwap(task)) {
+                return;
+              }
+              const other = agendaMembers.find((member) => member.user_id !== user?.id);
+              if (!other) {
+                return;
+              }
+              void requestSwap(task, other.user_id);
+            }}
+          />
         )}
-      </ScrollView>
+      </View>
 
       <OverflowMenu
         visible={menuOpen}
