@@ -32,6 +32,8 @@ describe('domain schemas', () => {
     });
 
     expect(home.name).toBe('Piso Demo');
+    expect(home.proof_mode).toBe('OPTIONAL');
+    expect(home.proof_capture).toBe('CAMERA_OR_GALLERY');
   });
 
   it('validates a home member row', () => {
@@ -85,8 +87,8 @@ describe('domain schemas', () => {
 
   it('accepts board category filter chips', () => {
     expect(taskBoardCategoryFilterSchema.parse('ALL')).toBe('ALL');
-    expect(taskBoardCategoryFilterSchema.parse('ZONE')).toBe('ZONE');
+    expect(taskBoardCategoryFilterSchema.parse('QUICK')).toBe('QUICK');
+    expect(() => taskBoardCategoryFilterSchema.parse('ZONE')).toThrow();
     expect(() => taskBoardCategoryFilterSchema.parse('GROCERY')).toThrow();
-    expect(() => taskBoardCategoryFilterSchema.parse('OTHER')).toThrow();
   });
 });

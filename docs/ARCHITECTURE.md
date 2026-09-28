@@ -50,6 +50,11 @@ Documentado en [`src/lib/supabase/client.ts`](../src/lib/supabase/client.ts) y e
 | `profiles` | Perfil 1:1 con `auth.users` (trigger al signup) |
 | `homes` | Hogar / piso compartido (`invite_code`) |
 | `home_members` | Membresía (`owner` \| `member`) + reputación |
+| `member_absences` | Ausencias puntuales (solo tareas) |
+| `member_presence_periods` | Estancia en el piso (meses o fechas) |
+| `member_system_leaves` | Ausencia indefinida/planificada (congela el sistema) |
+| `home_item_types` | Tipos personalizados de tareas/gastos |
+| `member_exam_periods` | Periodos de exámenes / estudio intenso (`label`) |
 | `tasks` | Instancia de tarea con `home_id` obligatorio y `task_status` |
 
 RLS: solo miembros del piso pueden leer/escribir datos de ese `home_id`. Helpers SQL: `is_home_member`, `is_home_owner`.
@@ -104,7 +109,11 @@ Documentación de producto: [`PRODUCT.md`](./PRODUCT.md), periodicidad: [`recurr
 
 - Listado/creación siempre filtrados por `activeHomeId`
 - Cards con countdown y acciones `PENDING → SUBMITTED → COMPLETED`
-- Home feed con salud del piso (`summarizeTasks`), clasificación (`get_home_leaderboard`); pestañas Feed / Agenda y calendario mensual
+- Home feed con salud del piso (`summarizeTasks`), clasificación (`get_home_leaderboard`), agenda con calendario colapsable (`AgendaCalendar`) y lista sincronizada (`AgendaList`); filtros Mis cosas / Compañeros (`toAgendaScopeFilter`); Estancia + leave de sistema en menú ⋮ (`StayModal`); pestañas Feed / Agenda
+- Tipos personalizados de tareas/gastos (`home_item_types` + `item_type_id`); tablero de tareas sin Zonas (solo QUICK + custom)
+- Gastos visibles solo para involucrados (RLS vía `is_expense_participant`); omitir fecha (`SKIPPED` / `skipped_dates`) sin romper la serie
+- **Ausencias** (`member_absences`): registro en Agenda; la rotación automática excluye ausentes; si todos están ausentes en una fecha, se omite la ocurrencia (`skipped_dates`)
+- **Exámenes / modo silencio** (`member_exam_periods`): registro en Agenda; **no** altera rotación; calendario con franjas `📚 Exámenes: [Label]`; aviso antes de impugnar/notificar directamente al compañero en exámenes
 - Historial con tareas cerradas
 
 ### Seed local (desarrollo)

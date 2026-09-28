@@ -1,4 +1,7 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
+
+import { SafePressable } from '@/components/ui/SafePressable';
+import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
 
 type Chip<T extends string> = {
   key: T;
@@ -21,14 +24,17 @@ export function ToggleChipRow<T extends string>({ value, chips, onChange }: Togg
         {chips.map((chip) => {
           const active = value === chip.key;
           return (
-            <Pressable
+            <SafePressable
               key={chip.key}
               onPress={() => onChange(active ? 'ALL' : chip.key)}
-              className={`rounded-full px-4 py-2 ${active ? 'bg-blue-600' : 'bg-gray-100'}`}>
-              <Text className={`text-sm font-semibold ${active ? 'text-white' : 'text-gray-700'}`}>
+              contentStyle={mergeStyles(
+                interactive.pill,
+                active ? interactive.pillActive : interactive.pillInactive,
+              )}>
+              <Text style={{ fontWeight: '600', color: active ? palette.white : palette.gray700 }}>
                 {chip.label}
               </Text>
-            </Pressable>
+            </SafePressable>
           );
         })}
       </View>

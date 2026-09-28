@@ -38,7 +38,7 @@ export function TextField({
             accessibilityLabel={hidden ? 'Mostrar contraseña' : 'Ocultar contraseña'}
             className="absolute right-3 top-3"
             hitSlop={8}>
-            <Text className="text-sm font-semibold text-blue-700">{hidden ? '👁' : '🙈'}</Text>
+            <Text className="text-sm font-semibold text-blue-700">{hidden ? '🙈' : '🐵'}</Text>
           </Pressable>
         ) : null}
       </View>

@@ -41,3 +41,40 @@ Identificadores sugeridos: `task:{id}:soon`, `task:{id}:due`, `expense:{id}:soon
 - RLS: solo el dueño del token escribe su fila.
 
 Hasta entonces, el contrato de producto es la hoja de avisos del menú Home ⋮ + countdown. No hay envío silencioso en segundo plano en Expo Go SDK 57.
+
+## Ausencias puntuales vs ausencia de sistema
+
+| Tipo | Tabla | Efecto en avisos |
+|------|-------|------------------|
+| Puntual | `member_absences` | Solo tareas: sin avisos de tareas propias en fechas ausentes; gastos siguen |
+| Indefinida / planificada | `member_system_leaves` | Congela avisos de tareas y gastos **excepto** `expense_overdue` |
+
+UI: panel **Ausencias** en Agenda (tipos Puntual | Indefinida/planificada). Sin estancia en el piso.
+
+Helpers: [`src/lib/presence.ts`](../src/lib/presence.ts), plan [`23-presencia-ausencia-sistema.md`](./plans/23-presencia-ausencia-sistema.md).
+
+## Modo silencio (periodo de exámenes)
+
+Tabla `member_exam_periods` (ver [`src/lib/exam-periods.ts`](../src/lib/exam-periods.ts)).
+
+| Regla | Comportamiento |
+|-------|----------------|
+| Rotación de tareas | **Sin cambios** — el compañero sigue recibiendo su turno |
+| Calendario común | Franjas celestes `📚 Exámenes: [Label] · [Nombre]` |
+| Quejas / mensajes directos | Antes de enviar, mostrar: `Recuerda que [Nombre] está en periodo de exámenes` |
+
+### Implementado hoy
+
+- **Impugnar tarea** (`TasksScreen`): diálogo de confirmación si el asignado está en periodo de exámenes (`shouldWarnExamSilence` + `examSilenceWarning`).
+
+### Contrato para push / mensajería (futuro)
+
+Al implementar notificaciones directas o quejas entre compañeros:
+
+1. Resolver `member_exam_periods` del destinatario para la fecha del evento.
+2. Si `shouldWarnExamSilence({ actorUserId, targetUserId, periods })` → interstitial o banner con `examSilenceWarning(displayName)` antes de confirmar el envío.
+3. **No** bloquear el envío por defecto (solo aviso empático), salvo que producto decida endurecerlo.
+4. No suprimir avisos de sistema del propio usuario (sus tareas, sus gastos).
+5. Identificador sugerido en catálogo: `exam_silence_hint` (in-app toast / modal previo).
+
+Helpers reutilizables: `isUserInExamPeriodOnDate`, `examSilenceWarning`, `shouldWarnExamSilence`.

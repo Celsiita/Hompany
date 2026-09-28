@@ -1,9 +1,18 @@
-import { Pressable, Text, type PressableProps } from 'react-native';
+import { Text, type PressableProps, type TextStyle } from 'react-native';
+
+import { SafePressable } from '@/components/ui/SafePressable';
+import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
 
 type ButtonProps = PressableProps & {
   label: string;
   variant?: 'primary' | 'secondary' | 'ghost';
   loading?: boolean;
+};
+
+const labelStyles: Record<NonNullable<ButtonProps['variant']>, TextStyle> = {
+  primary: { color: palette.white, fontWeight: '600' },
+  secondary: { color: palette.blue700, fontWeight: '600' },
+  ghost: { color: palette.blue700, fontWeight: '600' },
 };
 
 /**
@@ -17,25 +26,20 @@ export function Button({
   ...props
 }: ButtonProps) {
   const isDisabled = disabled || loading;
-
-  const baseClass = 'items-center justify-center rounded-xl px-4 py-3';
-  const variantClass =
+  const surface =
     variant === 'primary'
-      ? 'bg-blue-600'
+      ? interactive.primaryButton
       : variant === 'secondary'
-        ? 'bg-gray-100'
-        : 'bg-transparent';
-
-  const textClass =
-    variant === 'primary' ? 'text-white font-semibold' : 'text-blue-700 font-semibold';
+        ? interactive.secondaryButton
+        : interactive.ghostButton;
 
   return (
-    <Pressable
+    <SafePressable
       accessibilityRole="button"
-      className={`${baseClass} ${variantClass} ${isDisabled ? 'opacity-50' : ''}`}
+      contentStyle={mergeStyles(surface, isDisabled ? interactive.disabled : undefined)}
       disabled={isDisabled}
       {...props}>
-      <Text className={textClass}>{loading ? 'Espera…' : label}</Text>
-    </Pressable>
+      <Text style={labelStyles[variant]}>{loading ? 'Espera…' : label}</Text>
+    </SafePressable>
   );
 }

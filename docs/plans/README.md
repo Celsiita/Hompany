@@ -32,3 +32,15 @@ Aquí se versionan los planes de implementación del proyecto.
 | 16 | [Liquidación de deudas por solicitud](./16-liquidacion-deudas-solicitud.md) | completed |
 | 17 | [Ranking en Home Feed](./17-home-feed-ranking.md) | completed |
 | 18 | [Fechas, periodicidad y calendario](./18-fechas-periodicidad-calendario.md) | completed |
+| 19 | [Instancias programadas y agenda](./19-instancias-programadas-agenda.md) | completed |
+| 20 | [Ausencias y rotación de tareas](./20-ausencias-rotacion.md) | completed |
+| 21 | [Calendario de exámenes / Modo silencio](./21-calendario-examenes-modo-silencio.md) | completed |
+| 22 | [Refactor UI Agenda Home](./22-agenda-ui-refactor.md) | completed |
+| 23 | [Presencia y ausencias de sistema](./23-presencia-ausencia-sistema.md) | completed |
+| 24 | [Filtros, tipos personalizados y Estancia](./24-filtros-tipos-estancia.md) | completed |
+| 25 | [Ausencias, splits, invite y listas](./25-ausencias-splits-listas.md) | completed |
+| 26 | [Ventana temporal, recurrencia y agenda](./26-ventana-temporal-recurrencia-agenda.md) | in_progress |
+| 27 | [Mascota Mico (mono del piso)](./27-mascota-mono.md) | in_progress |
+| 28 | [Info práctica del piso en Feed](./28-info-piso-feed.md) | completed |
+| 29 | [Avisos, validación y UX tableros](./29-avisos-validacion-ux.md) | completed |
+| 30 | [Tutorial Mico (onboarding)](./30-tutorial-mico.md) | completed |

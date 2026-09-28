@@ -6,10 +6,10 @@ Guía de producto para quien use o revise la app. La periodicidad está detallad
 
 | Tab | Para qué sirve |
 |-----|----------------|
-| **Home** | Pestañas **Feed** (salud, métricas, **clasificación**, deudas) y **Agenda** (7 días + calendario mensual). Menú ⋮: avisos e iconos. |
-| **Tareas** | Tablero En curso / Historial. Filtros, intercambios, foto de prueba. Menú ⋮: crear, ver pausadas/archivadas. |
-| **Gastos** | Súper, casa y ocio. En curso / Historial. Menú ⋮: crear, ver pausados/archivados. |
-| **Ajustes** | Perfil, iconos, código de invitación, compañeros, abandonar piso, borrar cuenta, sesión. |
+| **Home** | **Feed** (salud, info del piso, reglas/quejas, ranking, deudas) y **Agenda** (calendario + lista). Menú ⋮: avisos del sistema e iconos. |
+| **Tareas** | En curso / Historial. Botón **+** para crear. Filtros, tipos, intercambios, foto. |
+| **Gastos** | Súper, casa, ocio + tipos. Botón **+** para crear. |
+| **Ajustes** | Perfil, iconos, invitación, compañeros, **prueba de foto del piso** (admin), abandonar, cuenta. |
 
 No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 
@@ -29,35 +29,55 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 - Recurrentes: el calendario fija el **primer vencimiento**; semanal/mensual sincronizan día de la semana o día del mes (obligatorios). Sin «meses activos» en UI; **pausa indefinida** sí.
 - Recurrentes: primer vencimiento en el **periodo actual** si el día aún no ha pasado; cuenta atrás al próximo `due_at` de la instancia abierta.
 - Historial: **Programada** + **Realización** (`completed_at`).
-- Completar con foto **opcional** (cámara, galería o sin foto).
-- Títulos de ciclo: `Alquiler - Agosto 2026`; diaria/semanal con el primer día del periodo.
-- **Intercambiar** es un botón ⇄. **Eliminar** está dentro de Editar. Crear solo desde el menú ⋮.
-- En tarjetas se ve el **nombre** del asignado, no solo la inicial.
-- Countdown = fecha exacta + días de calendario (`Vence el 15 mar (en 3 días)`).
-- Badges: Pendiente (ámbar), En revisión (azul), Completada (verde), etc.
+- Completar con foto según ajustes del piso: **opcional/obligatoria** y **cámara o galería / solo cámara**.
+- Al **impugnar**: motivo obligatorio → banner *Requiere revisión: motivo…* hasta nueva entrega.
+- Al **aprobar**: sugerencia opcional.
+- **Intercambiar** solo en pendientes/vencidas. **Eliminar** dentro de Editar. Crear con **+**.
+- **No se puede reabrir** una tarea cerrada. **Repetir** crea una nueva (sin movimiento “repetí” en historial de actividad).
+- Badges: Pendiente, En revisión, Completado, Atrasado, Omitido, etc.
 
 ## Filtros
 
 No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tareas / Compañeros) o dirección de deuda está activa, se lista todo. Pulsar de nuevo la píldora activa la desmarca.
 
+- **Tareas:** tipos = **Tareas rápidas** + tipos personalizados del hogar (`home_item_types`). Sin Zonas. Estados en curso: Pendiente / En revisión / Pausada. Historial: Completada / Atrasado / Por compañero / Omitida.
+- **Gastos:** kinds builtin (Súper, Casa, Ocio) + tipos personalizados. Dirección: **Mis deudas** / **Mis cobros**. Estados en curso: Pendiente / Pausado. Historial: Saldado / Atrasado / Omitido.
+- La pausa de recurrencia se filtra con el chip **Pausada/Pausado** (ya no hay «Ver pausadas y archivadas» en el menú ⋮).
+
 ## Gastos
 
-- Tipos: Supermercado, Casa, **Ocio**.
+- Tipos: Supermercado, Casa, **Ocio**, más personalizados del hogar.
+- **Reparto:** Igualitario | Porcentajes (suman 100) | Cantidades fijas (suman el total). «Dividir entre todos» incluye o excluye al pagador del pool.
+- **Listas compartidas:** participantes elegibles, gasto vinculado obligatorio, aviso de lo que falta y rotación opcional del comprador.
 - **Una vez**: mismo selector de fecha y hora que en tareas. Recurrentes usan el motor compartido y el título de periodo (p. ej. `Alquiler - Agosto 2026`).
-- Ticket/recibo **opcional**.
+- Ticket/recibo sin etiqueta «opcional».
 - Countdown si hay fecha límite («Quedan Xd para saldar»).
-- Estado UI: gastos `OPEN` se muestran como **Pendiente** (no «Abierto»); **Saldado** en verde.
-- **Liquidación:** en **Me deben**, el acreedor usa **Saldar** / **Saldar todo** / **Deshacer**. En **Lo que debo**, **Solicitar** liquidación está bloqueada de momento (avisos al acreedor más adelante).
-- Eliminar también va dentro de Editar. Crear solo desde el menú ⋮.
+- Estado UI: gastos `OPEN` → **Pendiente**; vencidos por fecha → **Atrasado**; **Saldado** en verde.
+- **Liquidación:** en **Mis cobros**, el acreedor usa **Saldar** / **Saldar todo** / **Deshacer**. En **Mis deudas**, **Solicitar** liquidación está bloqueada de momento (avisos al acreedor más adelante).
+- Eliminar dentro de Editar. Crear con **+**. **No reabrir**. **Repetir** sin log de actividad “repetí”.
 
 ## Salud y agenda
 
-- Barra de salud: **Excelente** (verde ≥ 70 %), **Regular** (ámbar), **Crítico** (rojo < 40 % o hay vencidas).
+- **Mico**: voz del tutorial de onboarding (1ª apertura + Ajustes → Ver tutorial). El Feed no muestra cara ni bocadillos «Mico dice».
+- **Info del piso** en Feed: Wi‑Fi, portal, basura, notas.
+- **Reglas y quejas** en Feed (quejas pueden ser anónimas).
+- **Agenda — avisos del piso**: visitas, reparaciones, eventos (rango de fechas, marcadores en calendario).
+- Barra de salud: **Excelente** / **Regular** / **Crítico**.
 - Una sola franja: Pendientes | Entregadas | Completadas.
 - **Clasificación** del piso: ranking por `reputation_points`, con nombre e info de tareas (hechas, pendientes, en revisión, vencidas). Calculado en Postgres (`get_home_leaderboard`).
-- Home se divide en **Feed** (resumen) y **Agenda** (vistas temporales).
-- Agenda de 7 días (sin cambios de diseño): tus ítems en azul, los de compañeros en gris. Tocar un ítem abre su tarjeta en Tareas/Gastos (resaltada), sin abrir edición.
-- Calendario mensual: navegación mes a mes; puntos **azul** (tuyos) y **verde** (compañeros). Pulsar un día abre la lista; un ítem abre el tablero con la tarjeta enfocada.
+- Home se divide en **Feed** (resumen) y **Agenda** (calendario + lista sincronizada).
+- **Filtros Agenda:** botón Filtros (🙈/🐵) con `Mis cosas` | `Compañeros` (sin selección = Todo el piso) + chips `Tareas` / `Gastos`.
+- **Calendario:** vista semanal = **7 días desde hoy** (sin días pasados; la flecha atrás se bloquea en hoy) o mes completo (botón Mes/Semana). Puntos: azul (tuyas), teal hueco (compañeros), ámbar (gastos), violeta (ausencias), celeste (exámenes).
+- **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Nada previsto».
+- Tareas (azul) y gastos (ámbar); **abiertas** vs **programadas** (tarjetas atenuadas). Gastos solo si estás involucrado.
+- **Ausencias** (Agenda): dos tipos — **Puntual** (solo tareas + reasignación) e **Indefinida/planificada** (congela la app salvo gastos atrasados). Sin «Estancia en el piso».
+- **Modo silencio** (morado): periodos de baja presión. Franjas violetas en calendario/lista con `🔇`.
+- **Modo silencio:** al impugnar una tarea de alguien en exámenes, el resto ve: «Recuerda que [Nombre] está en periodo de exámenes» (también documentado para notificaciones push futuras).
+- Asignación manual a alguien ausente en la fecha: bloqueo con `⚠️ [Nombre] estará ausente en esta fecha` (formulario de tarea y reasignación en agenda).
+- Si todos los del pool están ausentes en una fecha recurrente, esa ejecución se omite automáticamente.
+- Programada: sheet con cancelar esta fecha / reasignar (admin o acreedor) / intercambiar (asignado).
+- Tocar una tarjeta abierta en Tareas/Gastos abre **Editar** (sin menú ⋮).
+- Tocar un ítem abierto en Agenda abre su tarjeta en Tareas/Gastos (resaltada). Programadas abren sheet de acciones.
 - Al **crear** una tarea o gasto, la app salta a su tarjeta en el tablero (feedback visual breve).
 - Avisos: ya no van en el Feed; se abren desde el menú ⋮ → **Avisos / Notificaciones**.
 
@@ -68,4 +88,4 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 
 ## Iconos
 
-Tres paquetes incluidos (Clásico, Hogar, Play) en Ajustes o en Home ⋮. También puedes **importar un pack JSON** (emojis por clave de tarea/gasto); se guarda en el dispositivo y se usa en tarjetas y en la agenda de 7 días.
+Tres paquetes incluidos (Clásico, Hogar, Play) en Ajustes o en Home ⋮. También puedes **importar un pack JSON** (emojis por clave de tarea/gasto); se guarda en el dispositivo y se usa en tarjetas y en la agenda.
