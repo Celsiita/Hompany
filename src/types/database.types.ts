@@ -47,6 +47,13 @@ export type Database = {
           created_by: string;
           created_at: string;
           updated_at: string;
+          wifi_ssid: string | null;
+          wifi_password: string | null;
+          portal_code: string | null;
+          bin_day: string | null;
+          notes: string | null;
+          proof_mode: 'OPTIONAL' | 'REQUIRED';
+          proof_capture: 'CAMERA_OR_GALLERY' | 'CAMERA_ONLY';
         };
         Insert: {
           id?: string;
@@ -55,6 +62,13 @@ export type Database = {
           created_by: string;
           created_at?: string;
           updated_at?: string;
+          wifi_ssid?: string | null;
+          wifi_password?: string | null;
+          portal_code?: string | null;
+          bin_day?: string | null;
+          notes?: string | null;
+          proof_mode?: 'OPTIONAL' | 'REQUIRED';
+          proof_capture?: 'CAMERA_OR_GALLERY' | 'CAMERA_ONLY';
         };
         Update: {
           id?: string;
@@ -63,6 +77,13 @@ export type Database = {
           created_by?: string;
           created_at?: string;
           updated_at?: string;
+          wifi_ssid?: string | null;
+          wifi_password?: string | null;
+          portal_code?: string | null;
+          bin_day?: string | null;
+          notes?: string | null;
+          proof_mode?: 'OPTIONAL' | 'REQUIRED';
+          proof_capture?: 'CAMERA_OR_GALLERY' | 'CAMERA_ONLY';
         };
         Relationships: [];
       };
@@ -108,6 +129,243 @@ export type Database = {
           },
         ];
       };
+      member_absences: {
+        Row: {
+          id: string;
+          home_id: string;
+          user_id: string;
+          start_date: string;
+          end_date: string;
+          reason: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          home_id: string;
+          user_id: string;
+          start_date: string;
+          end_date: string;
+          reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          home_id?: string;
+          user_id?: string;
+          start_date?: string;
+          end_date?: string;
+          reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'member_absences_home_id_fkey';
+            columns: ['home_id'];
+            isOneToOne: false;
+            referencedRelation: 'homes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'member_absences_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      home_item_types: {
+        Row: {
+          id: string;
+          home_id: string;
+          domain: 'task' | 'expense';
+          name: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          home_id: string;
+          domain: 'task' | 'expense';
+          name: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          home_id?: string;
+          domain?: 'task' | 'expense';
+          name?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      member_presence_periods: {
+        Row: {
+          id: string;
+          home_id: string;
+          user_id: string;
+          start_date: string;
+          end_date: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          home_id: string;
+          user_id: string;
+          start_date: string;
+          end_date: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          home_id?: string;
+          user_id?: string;
+          start_date?: string;
+          end_date?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      member_presence_months: {
+        Row: {
+          id: string;
+          home_id: string;
+          user_id: string;
+          year_month: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          home_id: string;
+          user_id: string;
+          year_month: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          home_id?: string;
+          user_id?: string;
+          year_month?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'member_presence_months_home_id_fkey';
+            columns: ['home_id'];
+            isOneToOne: false;
+            referencedRelation: 'homes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'member_presence_months_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      member_system_leaves: {
+        Row: {
+          id: string;
+          home_id: string;
+          user_id: string;
+          kind: Database['public']['Enums']['system_leave_kind'];
+          start_date: string;
+          end_date: string | null;
+          reason: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          home_id: string;
+          user_id: string;
+          kind: Database['public']['Enums']['system_leave_kind'];
+          start_date: string;
+          end_date?: string | null;
+          reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          home_id?: string;
+          user_id?: string;
+          kind?: Database['public']['Enums']['system_leave_kind'];
+          start_date?: string;
+          end_date?: string | null;
+          reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'member_system_leaves_home_id_fkey';
+            columns: ['home_id'];
+            isOneToOne: false;
+            referencedRelation: 'homes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'member_system_leaves_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      member_exam_periods: {
+        Row: {
+          id: string;
+          home_id: string;
+          user_id: string;
+          start_date: string;
+          end_date: string;
+          label: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          home_id: string;
+          user_id: string;
+          start_date: string;
+          end_date: string;
+          label: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          home_id?: string;
+          user_id?: string;
+          start_date?: string;
+          end_date?: string;
+          label?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'member_exam_periods_home_id_fkey';
+            columns: ['home_id'];
+            isOneToOne: false;
+            referencedRelation: 'homes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'member_exam_periods_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       tasks: {
         Row: {
           id: string;
@@ -116,6 +374,7 @@ export type Database = {
           description: string | null;
           status: Database['public']['Enums']['task_status'];
           category: Database['public']['Enums']['task_category'];
+          item_type_id: string | null;
           icon: string;
           recurrence: Database['public']['Enums']['task_recurrence'];
           is_template: boolean;
@@ -128,9 +387,13 @@ export type Database = {
           completed_by: string | null;
           due_at: string;
           due_mode: Database['public']['Enums']['due_mode'];
+          starts_at: string | null;
+          all_day: boolean;
           completed_at: string | null;
           proof_image_url: string | null;
           points_value: number;
+          review_note: string | null;
+          review_note_kind: 'DISPUTE' | 'APPROVE' | null;
           created_at: string;
           updated_at: string;
         };
@@ -141,6 +404,7 @@ export type Database = {
           description?: string | null;
           status?: Database['public']['Enums']['task_status'];
           category?: Database['public']['Enums']['task_category'];
+          item_type_id?: string | null;
           icon?: string;
           recurrence?: Database['public']['Enums']['task_recurrence'];
           is_template?: boolean;
@@ -153,9 +417,13 @@ export type Database = {
           completed_by?: string | null;
           due_at: string;
           due_mode?: Database['public']['Enums']['due_mode'];
+          starts_at?: string | null;
+          all_day?: boolean;
           completed_at?: string | null;
           proof_image_url?: string | null;
           points_value?: number;
+          review_note?: string | null;
+          review_note_kind?: 'DISPUTE' | 'APPROVE' | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -166,6 +434,7 @@ export type Database = {
           description?: string | null;
           status?: Database['public']['Enums']['task_status'];
           category?: Database['public']['Enums']['task_category'];
+          item_type_id?: string | null;
           icon?: string;
           recurrence?: Database['public']['Enums']['task_recurrence'];
           is_template?: boolean;
@@ -178,9 +447,13 @@ export type Database = {
           completed_by?: string | null;
           due_at?: string;
           due_mode?: Database['public']['Enums']['due_mode'];
+          starts_at?: string | null;
+          all_day?: boolean;
           completed_at?: string | null;
           proof_image_url?: string | null;
           points_value?: number;
+          review_note?: string | null;
+          review_note_kind?: 'DISPUTE' | 'APPROVE' | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -208,6 +481,7 @@ export type Database = {
           title: string;
           description: string | null;
           category: Database['public']['Enums']['task_category'];
+          item_type_id: string | null;
           icon: string;
           recurrence: Database['public']['Enums']['task_recurrence'];
           points_value: number;
@@ -216,6 +490,8 @@ export type Database = {
           auto_assign: boolean;
           recurrence_config: Json;
           due_mode: Database['public']['Enums']['due_mode'];
+          starts_at: string | null;
+          all_day: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -225,6 +501,7 @@ export type Database = {
           title: string;
           description?: string | null;
           category?: Database['public']['Enums']['task_category'];
+          item_type_id?: string | null;
           icon?: string;
           recurrence?: Database['public']['Enums']['task_recurrence'];
           points_value?: number;
@@ -233,6 +510,8 @@ export type Database = {
           auto_assign?: boolean;
           recurrence_config?: Json;
           due_mode?: Database['public']['Enums']['due_mode'];
+          starts_at?: string | null;
+          all_day?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -242,6 +521,7 @@ export type Database = {
           title?: string;
           description?: string | null;
           category?: Database['public']['Enums']['task_category'];
+          item_type_id?: string | null;
           icon?: string;
           recurrence?: Database['public']['Enums']['task_recurrence'];
           points_value?: number;
@@ -250,6 +530,8 @@ export type Database = {
           auto_assign?: boolean;
           recurrence_config?: Json;
           due_mode?: Database['public']['Enums']['due_mode'];
+          starts_at?: string | null;
+          all_day?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -363,6 +645,7 @@ export type Database = {
           reviewer_id: string;
           vote: Database['public']['Enums']['task_review_vote'];
           emoji: string;
+          comment: string | null;
           created_at: string;
         };
         Insert: {
@@ -372,6 +655,7 @@ export type Database = {
           reviewer_id: string;
           vote: Database['public']['Enums']['task_review_vote'];
           emoji?: string;
+          comment?: string | null;
           created_at?: string;
         };
         Update: {
@@ -381,7 +665,50 @@ export type Database = {
           reviewer_id?: string;
           vote?: Database['public']['Enums']['task_review_vote'];
           emoji?: string;
+          comment?: string | null;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      home_notices: {
+        Row: {
+          id: string;
+          home_id: string;
+          kind: Database['public']['Enums']['home_notice_kind'];
+          title: string;
+          body: string | null;
+          is_anonymous: boolean;
+          author_id: string | null;
+          starts_on: string | null;
+          ends_on: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          home_id: string;
+          kind: Database['public']['Enums']['home_notice_kind'];
+          title: string;
+          body?: string | null;
+          is_anonymous?: boolean;
+          author_id?: string | null;
+          starts_on?: string | null;
+          ends_on?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          home_id?: string;
+          kind?: Database['public']['Enums']['home_notice_kind'];
+          title?: string;
+          body?: string | null;
+          is_anonymous?: boolean;
+          author_id?: string | null;
+          starts_on?: string | null;
+          ends_on?: string | null;
+          created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };
@@ -392,6 +719,7 @@ export type Database = {
           title: string;
           description: string | null;
           kind: Database['public']['Enums']['expense_kind'];
+          item_type_id: string | null;
           amount: number;
           currency: string;
           paid_by: string;
@@ -400,11 +728,14 @@ export type Database = {
           recurrence: Database['public']['Enums']['expense_recurrence'];
           base_title: string | null;
           series_id: string | null;
-          due_at: string | null;
+          due_at: string;
           due_mode: Database['public']['Enums']['due_mode'];
+          starts_at: string | null;
+          all_day: boolean;
           completed_at: string | null;
           recurrence_config: Json;
           auto_assign: boolean;
+          split_mode: Database['public']['Enums']['expense_split_mode'];
           created_at: string;
           updated_at: string;
         };
@@ -414,6 +745,7 @@ export type Database = {
           title: string;
           description?: string | null;
           kind: Database['public']['Enums']['expense_kind'];
+          item_type_id?: string | null;
           amount?: number;
           currency?: string;
           paid_by: string;
@@ -424,9 +756,12 @@ export type Database = {
           series_id?: string | null;
           due_at?: string | null;
           due_mode?: Database['public']['Enums']['due_mode'];
+          starts_at?: string | null;
+          all_day?: boolean;
           completed_at?: string | null;
           recurrence_config?: Json;
           auto_assign?: boolean;
+          split_mode?: Database['public']['Enums']['expense_split_mode'];
           created_at?: string;
           updated_at?: string;
         };
@@ -436,6 +771,7 @@ export type Database = {
           title?: string;
           description?: string | null;
           kind?: Database['public']['Enums']['expense_kind'];
+          item_type_id?: string | null;
           amount?: number;
           currency?: string;
           paid_by?: string;
@@ -446,9 +782,12 @@ export type Database = {
           series_id?: string | null;
           due_at?: string | null;
           due_mode?: Database['public']['Enums']['due_mode'];
+          starts_at?: string | null;
+          all_day?: boolean;
           completed_at?: string | null;
           recurrence_config?: Json;
           auto_assign?: boolean;
+          split_mode?: Database['public']['Enums']['expense_split_mode'];
           created_at?: string;
           updated_at?: string;
         };
@@ -476,6 +815,7 @@ export type Database = {
           expense_id: string;
           user_id: string;
           share_amount: number;
+          share_percent: number | null;
           settlement_status: Database['public']['Enums']['expense_share_settlement_status'];
           created_at: string;
         };
@@ -485,6 +825,7 @@ export type Database = {
           expense_id: string;
           user_id: string;
           share_amount?: number;
+          share_percent?: number | null;
           settlement_status?: Database['public']['Enums']['expense_share_settlement_status'];
           created_at?: string;
         };
@@ -494,6 +835,7 @@ export type Database = {
           expense_id?: string;
           user_id?: string;
           share_amount?: number;
+          share_percent?: number | null;
           settlement_status?: Database['public']['Enums']['expense_share_settlement_status'];
           created_at?: string;
         };
@@ -520,6 +862,99 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      home_shopping_lists: {
+        Row: {
+          id: string;
+          home_id: string;
+          name: string;
+          rotation_enabled: boolean;
+          current_buyer_user_id: string | null;
+          expense_id: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          home_id: string;
+          name: string;
+          rotation_enabled?: boolean;
+          current_buyer_user_id?: string | null;
+          expense_id?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          home_id?: string;
+          name?: string;
+          rotation_enabled?: boolean;
+          current_buyer_user_id?: string | null;
+          expense_id?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      home_shopping_list_members: {
+        Row: {
+          list_id: string;
+          home_id: string;
+          user_id: string;
+          created_at: string;
+        };
+        Insert: {
+          list_id: string;
+          home_id: string;
+          user_id: string;
+          created_at?: string;
+        };
+        Update: {
+          list_id?: string;
+          home_id?: string;
+          user_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      home_shopping_list_items: {
+        Row: {
+          id: string;
+          home_id: string;
+          list_id: string;
+          title: string;
+          needed: boolean;
+          sort_order: number;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          home_id: string;
+          list_id: string;
+          title: string;
+          needed?: boolean;
+          sort_order?: number;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          home_id?: string;
+          list_id?: string;
+          title?: string;
+          needed?: boolean;
+          sort_order?: number;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       task_swap_requests: {
         Row: {
@@ -689,6 +1124,25 @@ export type Database = {
         Args: { p_home_id: string };
         Returns: undefined;
       };
+      update_home_practical_info: {
+        Args: {
+          p_home_id: string;
+          p_wifi_ssid?: string | null;
+          p_wifi_password?: string | null;
+          p_portal_code?: string | null;
+          p_bin_day?: string | null;
+          p_notes?: string | null;
+        };
+        Returns: Database['public']['Tables']['homes']['Row'];
+      };
+      update_home_proof_settings: {
+        Args: {
+          p_home_id: string;
+          p_proof_mode: string;
+          p_proof_capture: string;
+        };
+        Returns: Database['public']['Tables']['homes']['Row'];
+      };
       kick_home_member: {
         Args: { p_home_id: string; p_user_id: string };
         Returns: undefined;
@@ -724,14 +1178,17 @@ export type Database = {
         | 'SKIPPED';
       home_member_role: 'owner' | 'admin' | 'member';
       task_category: 'ZONE' | 'QUICK' | 'GROCERY';
-      task_recurrence: 'ONCE' | 'DAILY' | 'WEEKLY' | 'MONTHLY';
+      task_recurrence: 'ONCE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
       task_review_vote: 'APPROVE' | 'DISPUTE';
       task_swap_status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+      home_notice_kind: 'RULE' | 'COMPLAINT' | 'VISIT' | 'REPAIR' | 'EVENT';
       expense_kind: 'GROCERY' | 'HOUSE' | 'PEER';
-      expense_status: 'OPEN' | 'SETTLED' | 'ARCHIVED';
-      expense_recurrence: 'ONCE' | 'DAILY' | 'WEEKLY' | 'MONTHLY';
+      expense_status: 'OPEN' | 'SETTLED' | 'ARCHIVED' | 'SKIPPED';
+      expense_recurrence: 'ONCE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
       expense_share_settlement_status: 'PENDING' | 'REQUESTED' | 'SETTLED';
+      expense_split_mode: 'EQUAL' | 'PERCENT' | 'AMOUNT';
       due_mode: 'DEADLINE' | 'EXECUTION';
+      system_leave_kind: 'INDEFINITE' | 'PLANNED';
     };
     CompositeTypes: Record<string, never>;
   };
@@ -757,6 +1214,7 @@ export type Profile = Tables<'profiles'>;
 export type TaskAssignee = Tables<'task_assignees'>;
 export type TaskTemplateAssignee = Tables<'task_template_assignees'>;
 export type TaskReview = Tables<'task_reviews'>;
+export type HomeNotice = Tables<'home_notices'>;
 export type Expense = Tables<'expenses'>;
 export type ExpenseShare = Tables<'expense_shares'>;
 export type TaskSwapRequest = Tables<'task_swap_requests'>;

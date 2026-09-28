@@ -171,17 +171,28 @@ where home_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
 
 -- Demo money: filled amounts so balances are visible
 update public.expenses
-set amount = 18.40, paid_by = '11111111-1111-1111-1111-111111111111'
+set amount = 18.40, paid_by = '11111111-1111-1111-1111-111111111111',
+    due_at = coalesce(due_at, timezone('utc', now()) + interval '2 days')
 where home_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
   and title = 'Comprar productos de limpieza comunes';
 
 update public.expenses
-set amount = 800.00, paid_by = '11111111-1111-1111-1111-111111111111'
+set amount = 800.00, paid_by = '11111111-1111-1111-1111-111111111111',
+    recurrence = 'MONTHLY',
+    recurrence_config = jsonb_build_object('day_of_month', 1),
+    due_at = date_trunc('month', timezone('utc', now())) + interval '1 month' + interval '23 hours 59 minutes',
+    due_mode = 'DEADLINE'
 where home_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
   and title = 'Alquiler';
 
 update public.expenses
-set amount = 42.00, paid_by = '22222222-2222-2222-2222-222222222222'
+set amount = 42.00, paid_by = '22222222-2222-2222-2222-222222222222',
+    recurrence = 'MONTHLY',
+    recurrence_config = jsonb_build_object('day_of_month', 15),
+    due_at = date_trunc('month', timezone('utc', now()))
+      + case when extract(day from timezone('utc', now())) > 15 then interval '1 month' else interval '0' end
+      + interval '14 days' + interval '23 hours 59 minutes',
+    due_mode = 'DEADLINE'
 where home_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
   and title = 'Agua / luz';
 
@@ -191,7 +202,7 @@ from public.expenses e
 where es.expense_id = e.id
   and e.home_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 
-insert into public.expenses (home_id, title, description, kind, amount, paid_by, status)
+insert into public.expenses (home_id, title, description, kind, amount, paid_by, status, due_at, due_mode)
 values (
   'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
   'Cena del viernes',
@@ -199,7 +210,9 @@ values (
   'PEER',
   14.00,
   '11111111-1111-1111-1111-111111111111',
-  'OPEN'
+  'OPEN',
+  timezone('utc', now()) + interval '5 days',
+  'DEADLINE'
 );
 
 insert into public.expense_shares (home_id, expense_id, user_id, share_amount)
