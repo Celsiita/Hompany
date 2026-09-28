@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { ActivityListModal } from '@/components/ui/ActivityListModal';
 import { Button } from '@/components/ui/Button';
+import { FilterTogglePair } from '@/components/ui/FilterTogglePair';
 import { OverflowMenu, OverflowMenuButton } from '@/components/ui/OverflowMenu';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
@@ -18,12 +19,14 @@ import {
 } from '@/features/home/api/homes-api';
 import { getProfileById, updateDisplayName } from '@/features/settings/api/profiles-api';
 import { copyToClipboard } from '@/lib/clipboard';
+import { homeInviteQrImageUrl, homeInviteUrl } from '@/lib/home-invite';
 import { isBuiltinIconPackId } from '@/lib/icons/packs';
 import { isHomeAdminRole, homeRoleLabel } from '@/lib/roles';
 import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useHome } from '@/providers/HomeProvider';
 import { useIconPack } from '@/providers/IconPackProvider';
+import { useTutorial } from '@/providers/TutorialProvider';
 import { registerSchema } from '@/schemas/auth.schema';
 import {
   createHomeInputSchema,
@@ -36,8 +39,17 @@ import type { HomeActivityEventWithActor } from '@/types/database.types';
  */
 export function SettingsScreen() {
   const { user, signOut } = useAuth();
-  const { activeHome, homes, setActiveHomeId, createHome, joinHome, clearActiveHome, refreshHomes } =
-    useHome();
+  const { openTutorial } = useTutorial();
+  const {
+    activeHome,
+    homes,
+    setActiveHomeId,
+    createHome,
+    joinHome,
+    clearActiveHome,
+    refreshHomes,
+    updateHomeProofSettings,
+  } = useHome();
   const confirm = useConfirmDialog();
   const { packId, setPackId, packs, importPackFromJson, removeCustomPack } = useIconPack();
 
@@ -51,8 +63,10 @@ export function SettingsScreen() {
   const [status, setStatus] = useState<string | null>(null);
   const [savingName, setSavingName] = useState(false);
   const [homeBusy, setHomeBusy] = useState(false);
+  const [proofBusy, setProofBusy] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
   const [menuMember, setMenuMember] = useState<HomeMemberWithProfile | null>(null);
   const [activityFor, setActivityFor] = useState<HomeMemberWithProfile | null>(null);
   const [memberActivity, setMemberActivity] = useState<HomeActivityEventWithActor[]>([]);
@@ -159,8 +173,16 @@ export function SettingsScreen() {
     }
     const ok = await copyToClipboard(activeHome.invite_code);
     setCopied(ok);
-    setStatus(ok ? '¡Copiado!' : 'No se pudo copiar');
+    setStatus(ok ? '¡Código copiado!' : 'No se pudo copiar');
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function handleCopyInviteLink() {
+    if (!activeHome) {
+      return;
+    }
+    const ok = await copyToClipboard(homeInviteUrl(activeHome.invite_code));
+    setStatus(ok ? '¡Enlace de invitación copiado!' : 'No se pudo copiar el enlace');
   }
 
   async function handleImportIconPack() {
@@ -249,6 +271,44 @@ export function SettingsScreen() {
     setMemberActivity(events.filter((event) => event.actor_id === member.user_id));
   }
 
+  async function handleProofMode(next: 'OPTIONAL' | 'REQUIRED' | 'ALL') {
+    if (!activeHome || next === 'ALL') {
+      return;
+    }
+    setError(null);
+    setProofBusy(true);
+    try {
+      await updateHomeProofSettings({
+        proof_mode: next,
+        proof_capture: activeHome.proof_capture ?? 'CAMERA_OR_GALLERY',
+      });
+      setStatus('Ajuste de prueba actualizado');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo guardar la prueba');
+    } finally {
+      setProofBusy(false);
+    }
+  }
+
+  async function handleProofCapture(next: 'CAMERA_OR_GALLERY' | 'CAMERA_ONLY' | 'ALL') {
+    if (!activeHome || next === 'ALL') {
+      return;
+    }
+    setError(null);
+    setProofBusy(true);
+    try {
+      await updateHomeProofSettings({
+        proof_mode: activeHome.proof_mode ?? 'OPTIONAL',
+        proof_capture: next,
+      });
+      setStatus('Fuente de foto actualizada');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo guardar la fuente');
+    } finally {
+      setProofBusy(false);
+    }
+  }
+
   return (
     <Screen>
       <ScrollView
@@ -332,15 +392,33 @@ export function SettingsScreen() {
           <Text className="text-sm font-semibold text-gray-500">Piso activo</Text>
           <Text className="text-lg font-semibold text-gray-900">{activeHome?.name ?? 'Sin piso'}</Text>
           {activeHome ? (
-            <View className="flex-row items-center gap-2">
-              <Text className="flex-1 text-sm text-gray-600">
-                Código: {activeHome.invite_code}
-              </Text>
-              <Pressable onPress={() => void handleCopyCode()} className="rounded-lg bg-gray-100 px-3 py-2">
-                <Text className="text-xs font-semibold text-blue-700">
-                  {copied ? '¡Copiado!' : 'Copiar'}
+            <View className="gap-3">
+              <View className="flex-row items-center gap-2">
+                <Text className="flex-1 text-sm text-gray-600">
+                  Código: {activeHome.invite_code}
                 </Text>
-              </Pressable>
+                <Pressable onPress={() => void handleCopyCode()} className="rounded-lg bg-gray-100 px-3 py-2">
+                  <Text className="text-xs font-semibold text-blue-700">
+                    {copied ? '¡Copiado!' : 'Copiar código'}
+                  </Text>
+                </Pressable>
+              </View>
+              <Text className="text-sm font-medium text-gray-700">Invitar con enlace o QR</Text>
+              <Text className="text-xs text-gray-500">
+                Comparte el enlace o el QR para que un compañero se una sin rellenar formularios largos.
+              </Text>
+              <View className="flex-row gap-2">
+                <View className="flex-1">
+                  <Button
+                    label="Copiar enlace"
+                    variant="secondary"
+                    onPress={() => void handleCopyInviteLink()}
+                  />
+                </View>
+                <View className="flex-1">
+                  <Button label="Mostrar QR" variant="secondary" onPress={() => setQrOpen(true)} />
+                </View>
+              </View>
             </View>
           ) : null}
 
@@ -379,6 +457,41 @@ export function SettingsScreen() {
               );
             })
           )}
+
+          {activeHome && canManage ? (
+            <View className="gap-3 border-t border-gray-100 pt-3">
+              <Text className="text-sm font-medium text-gray-700">Prueba de tareas</Text>
+              <Text className="text-xs text-gray-500">
+                Cómo se entrega la foto al completar una tarea en este piso.
+              </Text>
+              <FilterTogglePair
+                value={activeHome.proof_mode ?? 'OPTIONAL'}
+                clearable={false}
+                options={[
+                  { value: 'OPTIONAL', label: 'Foto opcional' },
+                  { value: 'REQUIRED', label: 'Foto obligatoria' },
+                ]}
+                onChange={(value) => {
+                  if (!proofBusy) {
+                    void handleProofMode(value);
+                  }
+                }}
+              />
+              <FilterTogglePair
+                value={activeHome.proof_capture ?? 'CAMERA_OR_GALLERY'}
+                clearable={false}
+                options={[
+                  { value: 'CAMERA_OR_GALLERY', label: 'Cámara o galería' },
+                  { value: 'CAMERA_ONLY', label: 'Solo cámara' },
+                ]}
+                onChange={(value) => {
+                  if (!proofBusy) {
+                    void handleProofCapture(value);
+                  }
+                }}
+              />
+            </View>
+          ) : null}
 
           {activeHome ? (
             <Button
@@ -420,6 +533,14 @@ export function SettingsScreen() {
 
         {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
         {status ? <Text className="text-sm text-emerald-700">{status}</Text> : null}
+
+        <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
+          <Text className="text-sm font-semibold text-gray-500">Ayuda</Text>
+          <Text className="text-sm text-gray-600">
+            Repasa Feed, Agenda, Tareas y Gastos con el tutorial de Mico.
+          </Text>
+          <Button label="Ver tutorial" variant="secondary" onPress={openTutorial} />
+        </View>
 
         <Button
           label="Cerrar sesión"
@@ -518,6 +639,29 @@ export function SettingsScreen() {
         events={memberActivity}
         onClose={() => setActivityFor(null)}
       />
+
+      <Modal visible={qrOpen && Boolean(activeHome)} transparent animationType="fade" onRequestClose={() => setQrOpen(false)}>
+        <Pressable className="flex-1 items-center justify-center bg-black/50 px-6" onPress={() => setQrOpen(false)}>
+          <Pressable
+            className="w-full max-w-sm items-center gap-3 rounded-3xl bg-white p-5"
+            onPress={(event) => event.stopPropagation()}>
+            <Text className="text-base font-semibold text-gray-900">QR de invitación</Text>
+            {activeHome ? (
+              <>
+                <Image
+                  source={{ uri: homeInviteQrImageUrl(activeHome.invite_code) }}
+                  style={{ width: 220, height: 220 }}
+                  accessibilityLabel="Código QR de invitación"
+                />
+                <Text className="text-center text-xs text-gray-500" selectable>
+                  {homeInviteUrl(activeHome.invite_code)}
+                </Text>
+              </>
+            ) : null}
+            <Button label="Cerrar" variant="secondary" onPress={() => setQrOpen(false)} />
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Screen>
   );
 }
