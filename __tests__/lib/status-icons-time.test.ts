@@ -21,10 +21,14 @@ describe('parseTimeInput', () => {
 });
 
 describe('sanitizeTimeDraft', () => {
-  it('strips non time characters including plus/minus', () => {
+  it('keeps a visible colon while typing digits', () => {
+    expect(sanitizeTimeDraft('1830')).toBe('18:30');
+    expect(sanitizeTimeDraft('18:30')).toBe('18:30');
     expect(sanitizeTimeDraft('+18:30')).toBe('18:30');
-    expect(sanitizeTimeDraft('18-30')).toBe('1830');
-    expect(sanitizeTimeDraft('9:5a')).toBe('9:5');
+    expect(sanitizeTimeDraft('9')).toBe('9');
+    expect(sanitizeTimeDraft('93')).toBe('93');
+    expect(sanitizeTimeDraft('930')).toBe('93:0');
+    expect(sanitizeTimeDraft('0930')).toBe('09:30');
   });
 });
 
@@ -32,7 +36,7 @@ describe('status badges', () => {
   it('maps task statuses to semantic labels', () => {
     expect(taskStatusBadge(TASK_STATUS.PENDING).label).toBe('Pendiente');
     expect(taskStatusBadge(TASK_STATUS.SUBMITTED).label).toBe('En revisión');
-    expect(taskStatusBadge(TASK_STATUS.COMPLETED).label).toBe('Completada');
+    expect(taskStatusBadge(TASK_STATUS.COMPLETED).label).toBe('Completado');
   });
 
   it('shows Pendiente for open expenses instead of Abierto', () => {

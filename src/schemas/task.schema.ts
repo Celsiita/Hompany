@@ -18,6 +18,7 @@ export const taskSchema = z.object({
   description: z.string().nullable(),
   status: taskStatusSchema,
   category: taskCategorySchema,
+  item_type_id: z.string().uuid().nullable().optional(),
   icon: z.string().min(1),
   recurrence: taskRecurrenceSchema,
   is_template: z.boolean(),
@@ -28,11 +29,21 @@ export const taskSchema = z.object({
   recurrence_config: recurrenceConfigSchema,
   assigned_to: z.string().uuid().nullable(),
   completed_by: z.string().uuid().nullable(),
-  due_at: z.string(),
+  due_at: z.string().datetime({ offset: true }),
   due_mode: dueModeSchema.default('DEADLINE'),
+  starts_at: z.string().datetime({ offset: true }).optional(),
+  all_day: z.boolean().default(false),
   completed_at: z.string().nullable(),
   proof_image_url: z.string().nullable(),
   points_value: z.number().int().min(0),
+  review_note: z
+    .string()
+    .nullish()
+    .transform((value) => value ?? null),
+  review_note_kind: z
+    .enum(['DISPUTE', 'APPROVE'])
+    .nullish()
+    .transform((value) => value ?? null),
   created_at: z.string(),
   updated_at: z.string(),
 });
@@ -45,10 +56,13 @@ export const upsertTaskInputSchema = z.object({
   title: z.string().min(1).max(80),
   description: z.string().max(400).optional(),
   category: taskCategorySchema.default('QUICK'),
+  item_type_id: z.string().uuid().nullable().optional(),
   icon: z.string().min(1).default('checklist'),
   recurrence: taskRecurrenceSchema.default('ONCE'),
   due_at: z.string().datetime({ offset: true }),
   due_mode: dueModeSchema.default('DEADLINE'),
+  starts_at: z.string().datetime({ offset: true }).optional(),
+  all_day: z.boolean().default(false),
   points_value: z.number().int().min(0).max(100).default(10),
   assignee_ids: z.array(z.string().uuid()).default([]),
   auto_assign: z.boolean().default(false),
@@ -63,7 +77,10 @@ export type CreateTaskInput = UpsertTaskInput;
 export const upsertTaskTemplateInputSchema = upsertTaskInputSchema.omit({ due_at: true });
 export type UpsertTaskTemplateInput = z.infer<typeof upsertTaskTemplateInputSchema>;
 
-export const taskBoardCategoryFilterSchema = z.enum(['ALL', 'ZONE', 'QUICK']);
+export const taskBoardCategoryFilterSchema = z.union([
+  z.enum(['ALL', 'QUICK']),
+  z.string().uuid(),
+]);
 
 export const taskAssigneeScopeSchema = z.enum(['ALL', 'MINE', 'OTHERS']);
 

@@ -1,9 +1,11 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { SafePressable } from '@/components/ui/SafePressable';
+import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { formatEuro } from '@/features/expenses/lib/expense-balances';
-import { isExpensePaused } from '@/features/expenses/lib/expense-filters';
+import { isExpenseOverdue, isExpensePaused, isExpenseSettledLate, isExpenseSettlementRequested } from '@/features/expenses/lib/expense-filters';
 import { isShareSettled } from '@/features/expenses/lib/expense-settlement';
 import { formatDueSummary } from '@/features/tasks/lib/countdown';
 import { glyphForExpenseKind } from '@/lib/icons/packs';
@@ -19,9 +21,9 @@ type ExpenseCardProps = {
   busy?: boolean;
   /** Temporary visual focus from calendar / create redirect. */
   highlighted?: boolean;
+  /** Tap the card body to edit (when allowed). */
   onEdit?: (expense: ExpenseWithRelations) => void;
   onSettle?: (expense: ExpenseWithRelations) => void;
-  onReopen?: (expense: ExpenseWithRelations) => void;
   onRepeat?: (expense: ExpenseWithRelations) => void;
   showDate?: boolean;
   canEdit?: boolean;
@@ -35,6 +37,7 @@ type ExpenseCardProps = {
 
 /**
  * Interactive expense card with payer, debtor requests and creditor settle actions.
+ * Tap the card (outside action buttons) to edit when `onEdit` is set.
  */
 export function ExpenseCard({
   expense,
@@ -43,7 +46,6 @@ export function ExpenseCard({
   highlighted = false,
   onEdit,
   onSettle,
-  onReopen,
   onRepeat,
   showDate = false,
   canEdit = true,
@@ -60,17 +62,37 @@ export function ExpenseCard({
     status: expense.status,
     paused: isExpensePaused(expense),
     noAmount: isOpen && noAmount,
+    overdue: (isOpen && isExpenseOverdue(expense)) || isExpenseSettledLate(expense),
+    requested: isOpen && isExpenseSettlementRequested(expense),
   });
   const completedAt =
     expense.completed_at ??
-    (expense.status === 'SETTLED' || expense.status === 'ARCHIVED' ? expense.updated_at : null);
+    (expense.status === 'SETTLED' ||
+    expense.status === 'ARCHIVED' ||
+    expense.status === 'SKIPPED'
+      ? expense.updated_at
+      : null);
   const isCreditor = Boolean(currentUserId && currentUserId === expense.paid_by);
+  const editable = Boolean(canEdit && onEdit);
 
   return (
-    <View
-      className={`rounded-2xl border bg-white p-4 gap-3 ${
-        highlighted ? 'border-emerald-400 bg-emerald-50' : 'border-gray-200'
-      }`}>
+    <SafePressable
+      disabled={!editable}
+      onPress={() => onEdit?.(expense)}
+      accessibilityRole={editable ? 'button' : undefined}
+      accessibilityHint={editable ? 'Editar gasto' : undefined}
+      contentStyle={mergeStyles(
+        {
+          gap: 12,
+          borderRadius: 16,
+          borderWidth: 1,
+          backgroundColor: palette.white,
+          padding: 16,
+        },
+        highlighted
+          ? { borderColor: palette.emerald400, backgroundColor: palette.emerald50 }
+          : { borderColor: palette.gray200 },
+      )}>
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-row items-start gap-3 flex-1">
           <View className="h-11 w-11 items-center justify-center rounded-xl bg-emerald-50">
@@ -109,11 +131,15 @@ export function ExpenseCard({
             {completedAt ? formatHistoryDateTime(completedAt) : '—'}
           </Text>
         </View>
-      ) : countdown && isOpen ? (
-        <Text className={`text-sm font-medium ${countdown.isOverdue ? 'text-red-600' : 'text-gray-700'}`}>
-          {countdown.label}
+      ) : (
+        <Text
+          className={`text-sm font-medium ${
+            countdown?.isOverdue ? 'text-red-600' : 'text-gray-700'
+          }`}>
+          {countdown?.label ??
+            (expense.due_at ? formatHistoryDateTime(expense.due_at) : 'Fecha obligatoria')}
         </Text>
-      ) : null}
+      )}
 
       {expense.receipt_image_url ? (
         <Image
@@ -171,28 +197,9 @@ export function ExpenseCard({
         />
       ) : null}
 
-      {onReopen || onRepeat ? (
-        <View className="flex-row gap-2">
-          {onRepeat ? (
-            <View className="flex-1">
-              <Button label="↻ Repetir" variant="secondary" loading={busy} onPress={() => onRepeat(expense)} />
-            </View>
-          ) : null}
-          {onReopen ? (
-            <View className="flex-1">
-              <Button label="Reabrir" loading={busy} onPress={() => onReopen(expense)} />
-            </View>
-          ) : null}
-        </View>
+      {onRepeat ? (
+        <Button label="↻ Repetir" variant="secondary" loading={busy} onPress={() => onRepeat(expense)} />
       ) : null}
-
-      <View className="flex-row gap-3">
-        {canEdit && onEdit && isOpen ? (
-          <Pressable onPress={() => onEdit(expense)} hitSlop={8}>
-            <Text className="text-sm font-semibold text-blue-700">Editar</Text>
-          </Pressable>
-        ) : null}
-      </View>
-    </View>
+    </SafePressable>
   );
 }

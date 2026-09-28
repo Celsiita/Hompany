@@ -65,7 +65,7 @@ export function useBoardItemFocus<T extends { id: string }>(
     if (routeFocusId) {
       clearRouteParamRef.current();
     }
-  }, [activeId, isLoading, routeFocusId]);
+  }, [activeId, isLoading, routeFocusId, findItem]);
 
   useEffect(() => {
     if (!highlightedId) {

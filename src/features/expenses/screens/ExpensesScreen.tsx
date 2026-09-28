@@ -10,9 +10,11 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { BoardSectionBar, type BoardSection } from '@/components/ui/BoardSectionBar';
-import { OverflowMenu } from '@/components/ui/OverflowMenu';
+import { CollapsibleFilterPanel } from '@/components/ui/CollapsibleFilterPanel';
+import { MascotEmpty } from '@/components/ui/MascotEmpty';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { useHomeItemTypes } from '@/features/home/hooks/useHomeItemTypes';
 import { ExpenseCard } from '@/features/expenses/components/ExpenseCard';
 import { ExpenseFilterBar } from '@/features/expenses/components/ExpenseFilterBar';
 import { ExpenseFormModal } from '@/features/expenses/components/ExpenseFormModal';
@@ -21,7 +23,6 @@ import { useBoardItemFocus } from '@/hooks/useBoardItemFocus';
 import { parseFocusId } from '@/lib/navigation/board-focus';
 import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
-import { useHome } from '@/providers/HomeProvider';
 import { formatHistoryDate } from '@/lib/recurrence';
 import type { ExpenseWithRelations } from '@/types/database.types';
 
@@ -30,7 +31,6 @@ import type { ExpenseWithRelations } from '@/types/database.types';
  */
 export function ExpensesScreen() {
   const { user } = useAuth();
-  const { activeHome } = useHome();
   const confirm = useConfirmDialog();
   const router = useRouter();
   const params = useLocalSearchParams<{ focusId?: string | string[] }>();
@@ -48,7 +48,6 @@ export function ExpensesScreen() {
     editExpense,
     removeExpense,
     settleExpense,
-    reopenExpense,
     repeatExpense,
     settleShare,
     kindFilter,
@@ -57,9 +56,12 @@ export function ExpensesScreen() {
     setInvolvementFilter,
     recurrenceFilter,
     setRecurrenceFilter,
+    statusFilter,
+    setStatusFilter,
     isAdmin,
     activityEvents,
   } = useHomeExpenses();
+  const { types: expenseTypes, addType: addExpenseType } = useHomeItemTypes('expense');
 
   const [section, setSection] = useState<BoardSection>('ACTIVE');
   const [formVisible, setFormVisible] = useState(false);
@@ -67,7 +69,6 @@ export function ExpensesScreen() {
   const [formMode, setFormMode] = useState<'create' | 'edit' | 'repeat'>('create');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const findExpense = useCallback(
     (id: string) => expenses.find((expense) => expense.id === id),
@@ -80,11 +81,12 @@ export function ExpensesScreen() {
       setKindFilter('ALL');
       setInvolvementFilter('ALL');
       setRecurrenceFilter('ALL');
+      setStatusFilter('ALL');
       setFormVisible(false);
       setEditing(null);
       setFormMode('create');
     },
-    [setKindFilter, setInvolvementFilter, setRecurrenceFilter],
+    [setKindFilter, setInvolvementFilter, setRecurrenceFilter, setStatusFilter],
   );
 
   const clearRouteParam = useCallback(() => {
@@ -140,13 +142,29 @@ export function ExpensesScreen() {
     await runAction(expense.id, () => removeExpense(expense.id));
   }
 
-  const emptyHint = isHistory
-    ? 'Aún no hay gastos en el historial.'
-    : involvementFilter === 'I_OWE'
-      ? 'No debes nada ahora mismo.'
-      : involvementFilter === 'THEY_OWE_ME'
-        ? 'Nadie te debe nada ahora mismo.'
-        : 'No hay gastos abiertos.';
+  const activeFilterCount = [
+    involvementFilter !== 'ALL',
+    kindFilter !== 'ALL',
+    recurrenceFilter !== 'ALL',
+    statusFilter !== 'ALL',
+  ].filter(Boolean).length;
+  const filterHint =
+    activeFilterCount > 0
+      ? `${activeFilterCount} activo${activeFilterCount === 1 ? '' : 's'}`
+      : null;
+
+  const emptyKind =
+    isHistory
+      ? activeFilterCount > 0
+        ? 'expenses_filtered'
+        : 'expenses_history'
+      : involvementFilter === 'I_OWE'
+        ? 'expenses_i_owe'
+        : involvementFilter === 'THEY_OWE_ME'
+          ? 'expenses_they_owe'
+          : activeFilterCount > 0
+            ? 'expenses_filtered'
+            : 'expenses_open';
 
   return (
     <Screen>
@@ -170,8 +188,13 @@ export function ExpensesScreen() {
           <View className="gap-4 mb-4 pt-2">
             <ScreenHeader
               title="Gastos"
-              subtitle={`${activeHome?.name ?? 'Piso'} · súper, casa y ocio`}
-              onMenuPress={() => setMenuOpen(true)}
+              subtitle="Súper, casa y ocio"
+              createAccessibilityLabel="Nuevo gasto"
+              onCreatePress={() => {
+                setEditing(null);
+                setFormMode('create');
+                setFormVisible(true);
+              }}
             />
 
             <BoardSectionBar
@@ -180,14 +203,20 @@ export function ExpensesScreen() {
               activeLabel="En curso"
             />
 
-            <ExpenseFilterBar
-              involvement={involvementFilter}
-              onInvolvementChange={setInvolvementFilter}
-              kind={kindFilter}
-              onKindChange={setKindFilter}
-              recurrence={recurrenceFilter}
-              onRecurrenceChange={setRecurrenceFilter}
-            />
+            <CollapsibleFilterPanel activeHint={filterHint}>
+              <ExpenseFilterBar
+                involvement={involvementFilter}
+                onInvolvementChange={setInvolvementFilter}
+                kind={kindFilter}
+                onKindChange={setKindFilter}
+                customTypes={expenseTypes}
+                recurrence={recurrenceFilter}
+                onRecurrenceChange={setRecurrenceFilter}
+                status={statusFilter}
+                onStatusChange={setStatusFilter}
+                history={isHistory}
+              />
+            </CollapsibleFilterPanel>
 
             {error || actionError ? (
               <Text className="text-sm text-red-600">{error ?? actionError}</Text>
@@ -209,7 +238,7 @@ export function ExpensesScreen() {
           isLoading ? (
             <ActivityIndicator color="#2563eb" />
           ) : (
-            <Text className="text-center text-gray-500 py-8">{emptyHint}</Text>
+            <MascotEmpty kind={emptyKind} />
           )
         }
         renderItem={({ item }) => (
@@ -252,43 +281,18 @@ export function ExpensesScreen() {
                     }
                   : undefined
               }
-              onReopen={
-                isHistory
-                  ? (expense) => void runAction(expense.id, () => reopenExpense(expense.id))
-                  : undefined
-              }
             />
           </View>
         )}
         contentContainerClassName="pb-8"
       />
 
-      <OverflowMenu
-        visible={menuOpen}
-        title="Gastos"
-        onClose={() => setMenuOpen(false)}
-        actions={[
-          {
-            key: 'create',
-            label: 'Nuevo gasto',
-            onPress: () => {
-              setEditing(null);
-              setFormMode('create');
-              setFormVisible(true);
-            },
-          },
-          {
-            key: 'paused',
-            label: 'Ver pausados y archivados',
-            onPress: () => setSection('HISTORY'),
-          },
-        ]}
-      />
-
       <ExpenseFormModal
         visible={formVisible}
         members={members}
         currentUserId={user?.id}
+        customTypes={expenseTypes}
+        onCreateType={addExpenseType}
         initialExpense={editing}
         mode={formMode}
         onClose={() => {

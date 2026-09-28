@@ -22,7 +22,7 @@ export const STATUS_BADGE = {
     text: 'text-sky-900',
   },
   completed: {
-    label: 'Completada',
+    label: 'Completado',
     bg: 'bg-emerald-100',
     text: 'text-emerald-900',
   },
@@ -32,12 +32,12 @@ export const STATUS_BADGE = {
     text: 'text-emerald-900',
   },
   overdue: {
-    label: 'Vencida',
+    label: 'Atrasado',
     bg: 'bg-red-100',
     text: 'text-red-900',
   },
   late: {
-    label: 'Tarde',
+    label: 'Atrasado',
     bg: 'bg-orange-100',
     text: 'text-orange-900',
   },
@@ -47,14 +47,19 @@ export const STATUS_BADGE = {
     text: 'text-violet-900',
   },
   skipped: {
-    label: 'Archivada',
+    label: 'Omitida',
     bg: 'bg-slate-200',
     text: 'text-slate-800',
   },
   paused: {
-    label: 'Pausada',
+    label: 'Pausado',
     bg: 'bg-indigo-100',
     text: 'text-indigo-900',
+  },
+  requested: {
+    label: 'Solicitado',
+    bg: 'bg-sky-100',
+    text: 'text-sky-900',
   },
   archived: {
     label: 'Archivado',
@@ -73,10 +78,13 @@ export const STATUS_BADGE = {
  */
 export function taskStatusBadge(
   status: TaskStatus,
-  options?: { paused?: boolean },
+  options?: { paused?: boolean; openOverdue?: boolean },
 ): StatusBadgeTone {
   if (options?.paused) {
     return STATUS_BADGE.paused;
+  }
+  if (options?.openOverdue && (status === TASK_STATUS.PENDING || status === TASK_STATUS.OVERDUE)) {
+    return STATUS_BADGE.overdue;
   }
   switch (status) {
     case TASK_STATUS.PENDING:
@@ -84,39 +92,52 @@ export function taskStatusBadge(
     case TASK_STATUS.SUBMITTED:
       return STATUS_BADGE.review;
     case TASK_STATUS.COMPLETED:
+    case TASK_STATUS.RESOLVED_BY_PEER:
       return STATUS_BADGE.completed;
     case TASK_STATUS.OVERDUE:
       return STATUS_BADGE.overdue;
     case TASK_STATUS.RESOLVED_LATE:
       return STATUS_BADGE.late;
-    case TASK_STATUS.RESOLVED_BY_PEER:
-      return STATUS_BADGE.peer;
     case TASK_STATUS.SKIPPED:
-      return STATUS_BADGE.skipped;
+      return { ...STATUS_BADGE.skipped, label: 'Omitido' };
     default:
       return STATUS_BADGE.pending;
   }
 }
 
 /**
- * Resolves the badge for an expense. DB keeps OPEN; UI shows Pendiente.
+ * Resolves the badge for an expense. DB keeps OPEN; UI shows Pendiente / Solicitado / Atrasado.
  */
 export function expenseStatusBadge(params: {
-  status: 'OPEN' | 'SETTLED' | 'ARCHIVED';
+  status: 'OPEN' | 'SETTLED' | 'ARCHIVED' | 'SKIPPED';
   paused?: boolean;
   noAmount?: boolean;
+  overdue?: boolean;
+  requested?: boolean;
 }): StatusBadgeTone {
   if (params.paused) {
-    return { ...STATUS_BADGE.paused, label: 'Pausado' };
+    return STATUS_BADGE.paused;
   }
-  if (params.status === 'ARCHIVED') {
-    return STATUS_BADGE.archived;
+  if (params.status === 'SKIPPED') {
+    return { ...STATUS_BADGE.skipped, label: 'Omitido' };
   }
   if (params.status === 'SETTLED') {
+    if (params.overdue) {
+      return STATUS_BADGE.late;
+    }
     return STATUS_BADGE.settled;
+  }
+  if (params.status === 'ARCHIVED') {
+    return STATUS_BADGE.settled;
+  }
+  if (params.requested) {
+    return STATUS_BADGE.requested;
   }
   if (params.noAmount) {
     return STATUS_BADGE.reminder;
+  }
+  if (params.overdue) {
+    return STATUS_BADGE.overdue;
   }
   return STATUS_BADGE.pending;
 }

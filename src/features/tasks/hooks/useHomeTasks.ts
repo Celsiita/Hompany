@@ -1,16 +1,19 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { RecurrenceFilter } from '@/components/ui/RecurrenceFilterChips';
+import type { TaskBoardStatusFilter } from '@/components/ui/StatusFilterChips';
 import { listHomeActivity, logHomeActivity } from '@/features/home/api/activity-api';
 import { listHomeMembers, type HomeMemberWithProfile } from '@/features/home/api/homes-api';
 import { pickCompressedProofImage, uploadTaskProof } from '@/features/tasks/api/proof-upload';
 import {
+  cancelTaskOccurrence,
   createTask,
   createTaskSwapRequest,
   deleteTask,
   ensureRecurringTaskInstances,
   listTaskSwapRequests,
   listTasksByHome,
+  reassignTaskOccurrence,
   reopenTask,
   respondToTaskSwap,
   submitTaskReview,
@@ -21,9 +24,13 @@ import {
   applyTaskBoardFilters,
   filterOpenBoardTasks,
   filterReviewBoardTasks,
+  sortHistoryBoardTasks,
+  sortOpenBoardTasks,
 } from '@/features/tasks/lib/board-filters';
-import { isPausedRecurring } from '@/features/tasks/lib/recurrence';
+import { canViewerParticipateInTasks, filterTasksForAbsentViewer } from '@/features/tasks/lib/absence-task-rules';
+import { useHomeAbsences } from '@/features/home/hooks/useHomeAbsences';
 import { partitionTasks, summarizeTasks } from '@/features/tasks/lib/task-summary';
+import { tasksBoardSync } from '@/lib/board-sync';
 import { parseRecurrenceConfig } from '@/lib/recurrence';
 import { isHomeAdminRole } from '@/lib/roles';
 import { useAuth } from '@/providers/AuthProvider';
@@ -60,6 +67,8 @@ type UseHomeTasksResult = {
   setAssigneeScope: (value: TaskAssigneeScope) => void;
   recurrenceFilter: RecurrenceFilter;
   setRecurrenceFilter: (value: RecurrenceFilter) => void;
+  statusFilter: TaskBoardStatusFilter;
+  setStatusFilter: (value: TaskBoardStatusFilter) => void;
   isLoading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
@@ -70,6 +79,12 @@ type UseHomeTasksResult = {
   repeatTask: (task: TaskWithRelations, input: Omit<CreateTaskInput, 'home_id'>) => Promise<void>;
   requestSwap: (task: TaskWithRelations, toUserId: string) => Promise<void>;
   answerSwap: (requestId: string, accept: boolean) => Promise<void>;
+  cancelOccurrence: (taskId: string, scheduledDueAt?: string) => Promise<void>;
+  reassignOccurrence: (
+    taskId: string,
+    assigneeId: string,
+    scheduledDueAt?: string,
+  ) => Promise<void>;
   changeStatus: (
     task: TaskWithRelations,
     toStatus: TaskStatus,
@@ -83,6 +98,7 @@ type UseHomeTasksResult = {
     task: TaskWithRelations,
     vote: 'APPROVE' | 'DISPUTE',
     emoji: string,
+    comment?: string | null,
   ) => Promise<void>;
 };
 
@@ -91,7 +107,8 @@ type UseHomeTasksResult = {
  */
 export function useHomeTasks(): UseHomeTasksResult {
   const { user } = useAuth();
-  const { activeHomeId } = useHome();
+  const { activeHomeId, activeHome } = useHome();
+  const { absences } = useHomeAbsences();
   const [tasks, setTasks] = useState<TaskWithRelations[]>([]);
   const [members, setMembers] = useState<HomeMemberWithProfile[]>([]);
   const [activityEvents, setActivityEvents] = useState<HomeActivityEventWithActor[]>([]);
@@ -101,8 +118,10 @@ export function useHomeTasks(): UseHomeTasksResult {
   const [categoryFilter, setCategoryFilter] = useState<TaskBoardCategoryFilter>('ALL');
   const [assigneeScope, setAssigneeScope] = useState<TaskAssigneeScope>('ALL');
   const [recurrenceFilter, setRecurrenceFilter] = useState<RecurrenceFilter>('ALL');
+  const [statusFilter, setStatusFilter] = useState<TaskBoardStatusFilter>('ALL');
+  const instanceId = useRef(Symbol('useHomeTasks'));
 
-  const refresh = useCallback(async () => {
+  const load = useCallback(async () => {
     if (!activeHomeId) {
       setTasks([]);
       setMembers([]);
@@ -133,9 +152,24 @@ export function useHomeTasks(): UseHomeTasksResult {
     }
   }, [activeHomeId]);
 
+  /** Reloads this screen and notifies other tab instances (agenda, etc.). */
+  const refresh = useCallback(async () => {
+    await load();
+    tasksBoardSync.notify(instanceId.current);
+  }, [load]);
+
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    void load();
+  }, [load]);
+
+  useEffect(() => {
+    return tasksBoardSync.subscribe((sourceId) => {
+      if (sourceId === instanceId.current) {
+        return;
+      }
+      void load();
+    });
+  }, [load]);
 
   const isAdmin = useMemo(() => {
     const mine = members.find((member) => member.user_id === user?.id);
@@ -227,19 +261,11 @@ export function useHomeTasks(): UseHomeTasksResult {
   );
 
   const repeatTask = useCallback(
-    async (task: TaskWithRelations, input: Omit<CreateTaskInput, 'home_id'>) => {
+    async (_task: TaskWithRelations, input: Omit<CreateTaskInput, 'home_id'>) => {
       if (!activeHomeId || !user) {
         throw new Error('home_id is required');
       }
       await createTask({ ...input, home_id: activeHomeId });
-      await logHomeActivity({
-        homeId: activeHomeId,
-        actorId: user.id,
-        action: 'TASK_REPEAT',
-        entityType: 'task',
-        entityId: task.id,
-        summary: `Repitió «${task.title}» como nueva instancia`,
-      });
       await refresh();
     },
     [activeHomeId, refresh, user],
@@ -272,6 +298,39 @@ export function useHomeTasks(): UseHomeTasksResult {
     [activeHomeId, refresh],
   );
 
+  const cancelOccurrence = useCallback(
+    async (taskId: string, scheduledDueAt?: string) => {
+      if (!activeHomeId || !user) {
+        throw new Error('home_id is required');
+      }
+      await cancelTaskOccurrence({
+        homeId: activeHomeId,
+        taskId,
+        actorId: user.id,
+        scheduledDueAt,
+      });
+      await refresh();
+    },
+    [activeHomeId, refresh, user],
+  );
+
+  const reassignOccurrence = useCallback(
+    async (taskId: string, assigneeId: string, scheduledDueAt?: string) => {
+      if (!activeHomeId || !user) {
+        throw new Error('home_id is required');
+      }
+      await reassignTaskOccurrence({
+        homeId: activeHomeId,
+        taskId,
+        actorId: user.id,
+        assigneeId,
+        scheduledDueAt,
+      });
+      await refresh();
+    },
+    [activeHomeId, refresh, user],
+  );
+
   const changeStatus = useCallback(
     async (task: TaskWithRelations, toStatus: TaskStatus, completedBy?: string | null) => {
       if (!activeHomeId) {
@@ -295,6 +354,20 @@ export function useHomeTasks(): UseHomeTasksResult {
         throw new Error('Sesión u hogar no disponibles');
       }
 
+      const isAssignee =
+        task.assigned_to === user.id ||
+        task.task_assignees.some((assignee) => assignee.user_id === user.id);
+      if (!isAssignee) {
+        throw new Error('Solo puedes completar tus propias tareas');
+      }
+
+      if (activeHome?.proof_mode === 'REQUIRED' && !source) {
+        throw new Error('Este piso exige una foto de prueba.');
+      }
+      if (activeHome?.proof_capture === 'CAMERA_ONLY' && source === 'library') {
+        throw new Error('Este piso solo admite foto con la cámara.');
+      }
+
       let publicUrl: string | null = null;
       if (source) {
         const picked = await pickCompressedProofImage(source);
@@ -310,22 +383,42 @@ export function useHomeTasks(): UseHomeTasksResult {
         });
       }
 
-      await updateTaskStatus({
-        homeId: activeHomeId,
-        taskId: task.id,
-        fromStatus: task.status,
-        toStatus: TASK_STATUS.SUBMITTED,
-        proofImageUrl: publicUrl,
-      });
+      // Assignee late completion closes as RESOLVED_LATE; peers never complete overdue tasks.
+      if (task.status === TASK_STATUS.OVERDUE) {
+        await updateTaskStatus({
+          homeId: activeHomeId,
+          taskId: task.id,
+          fromStatus: task.status,
+          toStatus: TASK_STATUS.RESOLVED_LATE,
+          completedBy: user.id,
+          proofImageUrl: publicUrl,
+        });
+      } else {
+        await updateTaskStatus({
+          homeId: activeHomeId,
+          taskId: task.id,
+          fromStatus: task.status,
+          toStatus: TASK_STATUS.SUBMITTED,
+          proofImageUrl: publicUrl,
+        });
+      }
       await refresh();
     },
-    [activeHomeId, refresh, user],
+    [activeHome, activeHomeId, refresh, user],
   );
 
   const reviewTask = useCallback(
-    async (task: TaskWithRelations, vote: 'APPROVE' | 'DISPUTE', emoji: string) => {
+    async (
+      task: TaskWithRelations,
+      vote: 'APPROVE' | 'DISPUTE',
+      emoji: string,
+      comment?: string | null,
+    ) => {
       if (!activeHomeId || !user) {
         throw new Error('Sesión u hogar no disponibles');
+      }
+      if (!canViewerParticipateInTasks(absences, user.id)) {
+        throw new Error('No puedes validar tareas durante una ausencia.');
       }
       await submitTaskReview({
         homeId: activeHomeId,
@@ -333,40 +426,54 @@ export function useHomeTasks(): UseHomeTasksResult {
         reviewerId: user.id,
         vote,
         emoji,
+        comment,
       });
       await refresh();
     },
-    [activeHomeId, refresh, user],
+    [activeHomeId, absences, refresh, user],
   );
 
-  const { open, closed } = useMemo(() => partitionTasks(tasks), [tasks]);
-  const summary = useMemo(() => summarizeTasks(tasks), [tasks]);
+  const viewerTasks = useMemo(
+    () => filterTasksForAbsentViewer(tasks, absences, user?.id),
+    [tasks, absences, user?.id],
+  );
+  const canParticipateInTasks = useMemo(
+    () => canViewerParticipateInTasks(absences, user?.id),
+    [absences, user?.id],
+  );
+
+  const { open, closed } = useMemo(() => partitionTasks(viewerTasks), [viewerTasks]);
+  const summary = useMemo(() => summarizeTasks(viewerTasks), [viewerTasks]);
   const submittedForReview = useMemo(() => filterReviewBoardTasks(open), [open]);
-  const historyTasks = useMemo(() => {
-    const pausedOpen = open.filter((task) => isPausedRecurring(task));
-    return [...closed, ...pausedOpen].sort(
-      (a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at),
-    );
-  }, [closed, open]);
+  const historyTasks = useMemo(() => [...closed], [closed]);
 
   const boardFilters = {
     category: categoryFilter,
     scope: assigneeScope,
     userId: user?.id,
     recurrence: recurrenceFilter,
+    status: statusFilter,
   };
 
   const filteredOpenTasks = useMemo(
-    () => applyTaskBoardFilters({ tasks: filterOpenBoardTasks(open), ...boardFilters }),
-    [open, categoryFilter, assigneeScope, recurrenceFilter, user?.id],
+    () =>
+      sortOpenBoardTasks(
+        applyTaskBoardFilters({ tasks: filterOpenBoardTasks(open), ...boardFilters }),
+      ),
+    [open, categoryFilter, assigneeScope, recurrenceFilter, statusFilter, user?.id],
   );
-  const filteredReviewTasks = useMemo(
-    () => applyTaskBoardFilters({ tasks: submittedForReview, ...boardFilters }),
-    [submittedForReview, categoryFilter, assigneeScope, recurrenceFilter, user?.id],
-  );
+  const filteredReviewTasks = useMemo(() => {
+    if (!canParticipateInTasks) {
+      return [];
+    }
+    return filteredOpenTasks.filter((task) => task.status === TASK_STATUS.SUBMITTED);
+  }, [canParticipateInTasks, filteredOpenTasks]);
   const filteredClosedTasks = useMemo(
-    () => applyTaskBoardFilters({ tasks: historyTasks, ...boardFilters }),
-    [historyTasks, categoryFilter, assigneeScope, recurrenceFilter, user?.id],
+    () =>
+      sortHistoryBoardTasks(
+        applyTaskBoardFilters({ tasks: historyTasks, ...boardFilters }),
+      ),
+    [historyTasks, categoryFilter, assigneeScope, recurrenceFilter, statusFilter, user?.id],
   );
 
   return {
@@ -388,6 +495,8 @@ export function useHomeTasks(): UseHomeTasksResult {
     setAssigneeScope,
     recurrenceFilter,
     setRecurrenceFilter,
+    statusFilter,
+    setStatusFilter,
     isLoading,
     error,
     refresh,
@@ -398,6 +507,8 @@ export function useHomeTasks(): UseHomeTasksResult {
     repeatTask,
     requestSwap,
     answerSwap,
+    cancelOccurrence,
+    reassignOccurrence,
     changeStatus,
     submitProof,
     reviewTask,

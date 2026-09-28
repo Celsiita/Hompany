@@ -11,6 +11,8 @@ import { MissingHomeIdError } from '@/lib/home/require-home-id';
 import type { TaskWithRelations } from '@/types/database.types';
 import { TASK_STATUS } from '@/types/task-status';
 
+const CUSTOM_TYPE = 'dddddddd-dddd-dddd-dddd-dddddddddddd';
+
 function makeTask(overrides: Partial<TaskWithRelations> = {}): TaskWithRelations {
   return {
     id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
@@ -19,6 +21,7 @@ function makeTask(overrides: Partial<TaskWithRelations> = {}): TaskWithRelations
     description: null,
     status: TASK_STATUS.PENDING,
     category: 'QUICK',
+    item_type_id: null,
     icon: 'checklist',
     recurrence: 'ONCE',
     is_template: false,
@@ -31,9 +34,13 @@ function makeTask(overrides: Partial<TaskWithRelations> = {}): TaskWithRelations
     completed_by: null,
     due_at: '2026-08-18T10:00:00.000Z',
     due_mode: 'DEADLINE',
+    starts_at: null,
+    all_day: false,
     completed_at: null,
     proof_image_url: null,
     points_value: 10,
+    review_note: null,
+    review_note_kind: null,
     created_at: '2026-08-16T00:00:00.000Z',
     updated_at: '2026-08-16T00:00:00.000Z',
     task_assignees: [],
@@ -71,7 +78,7 @@ describe('board filters', () => {
   const tasks = [
     makeTask({
       id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
-      category: 'ZONE',
+      item_type_id: CUSTOM_TYPE,
       title: 'Cocina',
       assigned_to: userId,
       task_assignees: [
@@ -86,8 +93,8 @@ describe('board filters', () => {
       ],
     }),
     makeTask({
-      id: 'dddddddd-dddd-dddd-dddd-dddddddddddd',
-      category: 'ZONE',
+      id: 'dddddddd-dddd-dddd-dddd-ddddddddddd2',
+      item_type_id: CUSTOM_TYPE,
       title: 'Baño',
       status: TASK_STATUS.SUBMITTED,
       assigned_to: otherId,
@@ -95,7 +102,7 @@ describe('board filters', () => {
         {
           id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2',
           home_id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-          task_id: 'dddddddd-dddd-dddd-dddd-dddddddddddd',
+          task_id: 'dddddddd-dddd-dddd-dddd-ddddddddddd2',
           user_id: otherId,
           created_at: '2026-08-16T00:00:00.000Z',
           profiles: null,
@@ -104,8 +111,18 @@ describe('board filters', () => {
     }),
     makeTask({
       id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
-      category: 'QUICK',
       title: 'Basura',
+      assigned_to: otherId,
+      task_assignees: [
+        {
+          id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3',
+          home_id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+          task_id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+          user_id: otherId,
+          created_at: '2026-08-16T00:00:00.000Z',
+          profiles: null,
+        },
+      ],
     }),
     makeTask({
       id: 'ffffffff-ffff-ffff-ffff-ffffffffffff',
@@ -115,13 +132,16 @@ describe('board filters', () => {
     }),
   ];
 
-  it('filters by category chip and hides grocery from the board', () => {
+  it('filters by type chip and hides grocery from the board', () => {
     expect(filterTasksByCategory(tasks, 'ALL').map((t) => t.title)).toEqual([
       'Cocina',
       'Baño',
       'Basura',
     ]);
-    expect(filterTasksByCategory(tasks, 'ZONE').map((t) => t.title)).toEqual(['Cocina', 'Baño']);
+    expect(filterTasksByCategory(tasks, CUSTOM_TYPE).map((t) => t.title)).toEqual([
+      'Cocina',
+      'Baño',
+    ]);
     expect(filterTasksByCategory(tasks, 'QUICK').map((t) => t.title)).toEqual(['Basura']);
   });
 
@@ -143,26 +163,27 @@ describe('board filters', () => {
   });
 
   it('applies both filters together', () => {
-    const mineZones = applyTaskBoardFilters({
+    const mineCustom = applyTaskBoardFilters({
       tasks,
-      category: 'ZONE',
+      category: CUSTOM_TYPE,
       scope: 'MINE',
       userId,
     });
-    expect(mineZones.map((t) => t.title)).toEqual(['Cocina']);
+    expect(mineCustom.map((t) => t.title)).toEqual(['Cocina']);
 
-    const othersZones = applyTaskBoardFilters({
+    const othersCustom = applyTaskBoardFilters({
       tasks,
-      category: 'ZONE',
+      category: CUSTOM_TYPE,
       scope: 'OTHERS',
       userId,
     });
-    expect(othersZones.map((t) => t.title)).toEqual(['Baño']);
+    expect(othersCustom.map((t) => t.title)).toEqual(['Baño']);
   });
 
   it('splits open work from the review feed', () => {
     expect(filterOpenBoardTasks(tasks).map((t) => t.title)).toEqual([
       'Cocina',
+      'Baño',
       'Basura',
       'Compra',
     ]);

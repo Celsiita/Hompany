@@ -10,7 +10,9 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { BoardSectionBar, type BoardSection } from '@/components/ui/BoardSectionBar';
+import { CollapsibleFilterPanel } from '@/components/ui/CollapsibleFilterPanel';
 import { Button } from '@/components/ui/Button';
+import { MascotEmpty } from '@/components/ui/MascotEmpty';
 import { OverflowMenu } from '@/components/ui/OverflowMenu';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
@@ -18,7 +20,17 @@ import { ProofSourceModal } from '@/features/tasks/components/ProofSourceModal';
 import { TaskCard } from '@/features/tasks/components/TaskCard';
 import { TaskFilterBar } from '@/features/tasks/components/TaskFilterBar';
 import { TaskFormModal } from '@/features/tasks/components/TaskFormModal';
+import { TaskReviewCommentModal } from '@/features/tasks/components/TaskReviewCommentModal';
+import { useHomeAbsences } from '@/features/home/hooks/useHomeAbsences';
+import { useHomeExamPeriods } from '@/features/home/hooks/useHomeExamPeriods';
+import { useHomeItemTypes } from '@/features/home/hooks/useHomeItemTypes';
 import { useHomeTasks } from '@/features/tasks/hooks/useHomeTasks';
+import { canRequestTaskSwap } from '@/features/tasks/lib/board-filters';
+import {
+  canViewerParticipateInTasks,
+  isViewerAbsentOnDate,
+} from '@/features/tasks/lib/absence-task-rules';
+import { examSilenceWarning, shouldWarnExamSilence } from '@/lib/exam-periods';
 import { useBoardItemFocus } from '@/hooks/useBoardItemFocus';
 import { parseFocusId } from '@/lib/navigation/board-focus';
 import { formatHistoryDate } from '@/lib/recurrence';
@@ -43,7 +55,6 @@ export function TasksScreen() {
   const {
     tasks,
     filteredOpenTasks,
-    filteredReviewTasks,
     filteredClosedTasks,
     activityEvents,
     swapRequests,
@@ -55,7 +66,6 @@ export function TasksScreen() {
     addTask,
     editTask,
     removeTask,
-    reopenClosedTask,
     repeatTask,
     requestSwap,
     answerSwap,
@@ -67,16 +77,24 @@ export function TasksScreen() {
     setAssigneeScope,
     recurrenceFilter,
     setRecurrenceFilter,
+    statusFilter,
+    setStatusFilter,
   } = useHomeTasks();
+  const { absences } = useHomeAbsences();
+  const { examPeriods } = useHomeExamPeriods();
+  const { types: taskTypes, addType: addTaskType } = useHomeItemTypes('task');
 
   const [section, setSection] = useState<BoardSection>('ACTIVE');
   const [formVisible, setFormVisible] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit' | 'repeat'>('create');
   const [formTask, setFormTask] = useState<TaskWithRelations | null>(null);
   const [proofTask, setProofTask] = useState<TaskWithRelations | null>(null);
+  const [reviewTarget, setReviewTarget] = useState<{
+    task: TaskWithRelations;
+    mode: 'APPROVE' | 'DISPUTE';
+  } | null>(null);
   const [busyTaskId, setBusyTaskId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [swapTask, setSwapTask] = useState<TaskWithRelations | null>(null);
 
   const findTask = useCallback((id: string) => tasks.find((task) => task.id === id), [tasks]);
@@ -92,11 +110,12 @@ export function TasksScreen() {
       setCategoryFilter('ALL');
       setAssigneeScope('ALL');
       setRecurrenceFilter('ALL');
+      setStatusFilter('ALL');
       setFormVisible(false);
       setFormTask(null);
       setFormMode('create');
     },
-    [setCategoryFilter, setAssigneeScope, setRecurrenceFilter],
+    [setCategoryFilter, setAssigneeScope, setRecurrenceFilter, setStatusFilter],
   );
 
   const clearRouteParam = useCallback(() => {
@@ -110,6 +129,18 @@ export function TasksScreen() {
     onFocus: onFocusTask,
     clearRouteParam,
   });
+
+  const activeFilterCount = [
+    assigneeScope !== 'ALL',
+    categoryFilter !== 'ALL',
+    recurrenceFilter !== 'ALL',
+    statusFilter !== 'ALL',
+  ].filter(Boolean).length;
+
+  const filterHint =
+    activeFilterCount > 0
+      ? `${activeFilterCount} activo${activeFilterCount === 1 ? '' : 's'}`
+      : null;
 
   const isHistory = section === 'HISTORY';
   const listData = isHistory ? filteredClosedTasks : filteredOpenTasks;
@@ -150,6 +181,35 @@ export function TasksScreen() {
     );
   }
 
+  function taskAssigneeId(task: TaskWithRelations): string | null {
+    return task.assigned_to ?? task.task_assignees[0]?.user_id ?? null;
+  }
+
+  async function disputeTaskWithSilenceCheck(task: TaskWithRelations) {
+    const assigneeId = taskAssigneeId(task);
+    if (
+      assigneeId &&
+      shouldWarnExamSilence({
+        actorUserId: user?.id,
+        targetUserId: assigneeId,
+        periods: examPeriods,
+      })
+    ) {
+      const name =
+        members.find((member) => member.user_id === assigneeId)?.profiles?.display_name ??
+        'Compañero';
+      const ok = await confirm({
+        title: 'Modo silencio',
+        message: `${examSilenceWarning(name)}. ¿Impugnar igualmente?`,
+        confirmLabel: 'Continuar',
+      });
+      if (!ok) {
+        return;
+      }
+    }
+    setReviewTarget({ task, mode: 'DISPUTE' });
+  }
+
   async function confirmDelete(task: TaskWithRelations) {
     const ok = await confirm({
       title: 'Eliminar tarea',
@@ -163,6 +223,10 @@ export function TasksScreen() {
   }
 
   function proposeSwap(task: TaskWithRelations) {
+    if (!canRequestTaskSwap(task)) {
+      setActionError('No se puede intercambiar una tarea ya completada o en revisión.');
+      return;
+    }
     const others = members.filter((member) => member.user_id !== user?.id);
     if (others.length === 0) {
       setActionError('No hay compañeros para intercambiar.');
@@ -171,14 +235,12 @@ export function TasksScreen() {
     setSwapTask(task);
   }
 
-  const reviewHint =
-    assigneeScope === 'MINE'
-      ? 'Tus fotos esperando que un compañero las valide.'
-      : assigneeScope === 'OTHERS'
-        ? 'Valida las fotos de tus compañeros.'
-        : 'Fotos pendientes de validación.';
+  const incomingSwaps = swapRequests.filter(
+    (item) =>
+      item.to_user_id === user?.id && canViewerParticipateInTasks(absences, user?.id),
+  );
 
-  const incomingSwaps = swapRequests.filter((item) => item.to_user_id === user?.id);
+  const viewerAbsentToday = !canViewerParticipateInTasks(absences, user?.id);
 
   return (
     <Screen>
@@ -201,8 +263,13 @@ export function TasksScreen() {
           <View className="gap-4 mb-4 pt-2">
             <ScreenHeader
               title="Tareas"
-              subtitle={`${activeHome?.name ?? 'Piso'} · limpieza y orden`}
-              onMenuPress={() => setMenuOpen(true)}
+              subtitle="Cuadrante · foto y puntos"
+              onCreatePress={() => {
+                setFormTask(null);
+                setFormMode('create');
+                setFormVisible(true);
+              }}
+              createAccessibilityLabel="Nueva tarea"
             />
 
             <BoardSectionBar
@@ -211,14 +278,26 @@ export function TasksScreen() {
               activeLabel="En curso"
             />
 
-            <TaskFilterBar
-              category={categoryFilter}
-              onCategoryChange={setCategoryFilter}
-              scope={assigneeScope}
-              onScopeChange={setAssigneeScope}
-              recurrence={recurrenceFilter}
-              onRecurrenceChange={setRecurrenceFilter}
-            />
+            <CollapsibleFilterPanel activeHint={filterHint}>
+              <TaskFilterBar
+                category={categoryFilter}
+                onCategoryChange={setCategoryFilter}
+                customTypes={taskTypes}
+                scope={assigneeScope}
+                onScopeChange={setAssigneeScope}
+                recurrence={recurrenceFilter}
+                onRecurrenceChange={setRecurrenceFilter}
+                status={statusFilter}
+                onStatusChange={setStatusFilter}
+                history={isHistory}
+              />
+            </CollapsibleFilterPanel>
+
+            {viewerAbsentToday ? (
+              <Text className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
+                Estás de ausencia: no verás tareas ni validaciones hasta que vuelvas.
+              </Text>
+            ) : null}
 
             {error || actionError ? (
               <Text className="text-sm text-red-600">{error ?? actionError}</Text>
@@ -254,33 +333,6 @@ export function TasksScreen() {
               </View>
             ) : null}
 
-            {!isHistory && filteredReviewTasks.length > 0 ? (
-              <View className="gap-2">
-                <Text className="text-lg font-semibold text-gray-900">Feed de revisiones</Text>
-                <Text className="text-sm text-gray-600">{reviewHint}</Text>
-                {filteredReviewTasks.map((task) => (
-                  <TaskCard
-                    key={`review-${task.id}`}
-                    task={task}
-                    highlighted={highlightedId === task.id}
-                    busy={busyTaskId === task.id}
-                    onApprove={
-                      !isAssigneeOf(task)
-                        ? (item) =>
-                            void runTaskAction(item.id, () => reviewTask(item, 'APPROVE', '👏'))
-                        : undefined
-                    }
-                    onDispute={
-                      !isAssigneeOf(task)
-                        ? (item) =>
-                            void runTaskAction(item.id, () => reviewTask(item, 'DISPUTE', '🤨'))
-                        : undefined
-                    }
-                  />
-                ))}
-              </View>
-            ) : null}
-
             {isHistory && activityEvents.length > 0 ? (
               <View className="gap-2">
                 <Text className="text-sm font-semibold text-gray-500">Movimientos</Text>
@@ -297,12 +349,18 @@ export function TasksScreen() {
         ListEmptyComponent={
           isLoading ? (
             <ActivityIndicator color="#2563eb" />
-          ) : !isHistory && filteredReviewTasks.length > 0 ? null : (
-            <Text className="text-center text-gray-500 py-8">
-              {isHistory
-                ? 'Aún no hay tareas en el historial.'
-                : 'No hay tareas con estos filtros.'}
-            </Text>
+          ) : (
+            <MascotEmpty
+              kind={
+                isHistory
+                  ? activeFilterCount > 0
+                    ? 'tasks_filtered'
+                    : 'tasks_history'
+                  : activeFilterCount > 0
+                    ? 'tasks_filtered'
+                    : 'tasks_open'
+              }
+            />
           )
         }
         renderItem={({ item }) => {
@@ -319,17 +377,16 @@ export function TasksScreen() {
                     setFormMode('repeat');
                     setFormVisible(true);
                   }}
-                  onReopen={(task) => void runTaskAction(task.id, () => reopenClosedTask(task))}
                 />
               </View>
             );
           }
 
           const canSubmit =
-            item.status === TASK_STATUS.PENDING &&
-            (assigneeScope === 'MINE'
-              ? isAssigneeOf(item) || item.task_assignees.length === 0
-              : true);
+            (item.status === TASK_STATUS.PENDING || item.status === TASK_STATUS.OVERDUE) &&
+            isAssigneeOf(item) &&
+            (!item.due_at ||
+              !isViewerAbsentOnDate(absences, user?.id, new Date(item.due_at)));
           const canMutate = isAdmin || isAssigneeOf(item) || item.created_by === user?.id;
 
           return (
@@ -348,7 +405,19 @@ export function TasksScreen() {
                       }
                     : undefined
                 }
-                onRequestSwap={isAssigneeOf(item) ? proposeSwap : undefined}
+                onApprove={
+                  item.status === TASK_STATUS.SUBMITTED && !isAssigneeOf(item)
+                    ? (task) => setReviewTarget({ task, mode: 'APPROVE' })
+                    : undefined
+                }
+                onDispute={
+                  item.status === TASK_STATUS.SUBMITTED && !isAssigneeOf(item)
+                    ? (task) => void disputeTaskWithSilenceCheck(task)
+                    : undefined
+                }
+                onRequestSwap={
+                  isAssigneeOf(item) && canRequestTaskSwap(item) ? proposeSwap : undefined
+                }
                 onSubmitProof={
                   canSubmit
                     ? (task) => {
@@ -361,28 +430,6 @@ export function TasksScreen() {
           );
         }}
         contentContainerClassName="pb-8"
-      />
-
-      <OverflowMenu
-        visible={menuOpen}
-        title="Tareas"
-        onClose={() => setMenuOpen(false)}
-        actions={[
-          {
-            key: 'create',
-            label: 'Nueva tarea',
-            onPress: () => {
-              setFormTask(null);
-              setFormMode('create');
-              setFormVisible(true);
-            },
-          },
-          {
-            key: 'paused',
-            label: 'Ver pausadas y archivadas',
-            onPress: () => setSection('HISTORY'),
-          },
-        ]}
       />
 
       <OverflowMenu
@@ -406,6 +453,9 @@ export function TasksScreen() {
       <TaskFormModal
         visible={formVisible}
         members={members}
+        absences={absences}
+        customTypes={taskTypes}
+        onCreateType={addTaskType}
         initialTask={formTask}
         mode={formMode}
         onClose={() => {
@@ -437,6 +487,8 @@ export function TasksScreen() {
 
       <ProofSourceModal
         visible={proofTask !== null}
+        proofRequired={activeHome?.proof_mode === 'REQUIRED'}
+        cameraOnly={activeHome?.proof_capture === 'CAMERA_ONLY'}
         onClose={() => setProofTask(null)}
         onPick={(source) => {
           const task = proofTask;
@@ -445,6 +497,23 @@ export function TasksScreen() {
             return;
           }
           void runTaskAction(task.id, () => submitProof(task, source));
+        }}
+      />
+
+      <TaskReviewCommentModal
+        visible={reviewTarget !== null}
+        mode={reviewTarget?.mode ?? 'APPROVE'}
+        busy={Boolean(reviewTarget && busyTaskId === reviewTarget.task.id)}
+        onClose={() => setReviewTarget(null)}
+        onConfirm={(comment) => {
+          if (!reviewTarget) {
+            return;
+          }
+          const { task, mode } = reviewTarget;
+          setReviewTarget(null);
+          void runTaskAction(task.id, () =>
+            reviewTask(task, mode, mode === 'APPROVE' ? '👏' : '🤨', comment || null),
+          );
         }}
       />
     </Screen>

@@ -1,59 +1,63 @@
+import { View } from 'react-native';
+
+import { FilterTogglePair } from '@/components/ui/FilterTogglePair';
 import { RecurrenceFilterChips, type RecurrenceFilter } from '@/components/ui/RecurrenceFilterChips';
+import { ExpenseStatusFilterChips, type ExpenseBoardStatusFilter } from '@/components/ui/StatusFilterChips';
 import { ToggleChipRow } from '@/components/ui/ToggleChipRow';
-import { Pressable, Text, View } from 'react-native';
+import { EXPENSE_KIND, EXPENSE_KIND_LABEL } from '@/types/expense';
+import type { HomeItemType } from '@/schemas/item-type.schema';
+import type { ExpenseInvolvementFilter, ExpenseKindFilter } from '@/schemas/expense.schema';
 
-import {
-  EXPENSE_KIND,
-  EXPENSE_KIND_LABEL,
-} from '@/types/expense';
-import type {
-  ExpenseInvolvementFilter,
-  ExpenseKindFilter,
-} from '@/schemas/expense.schema';
-
-const KIND_CHIPS: { key: Exclude<ExpenseKindFilter, 'ALL'>; label: string }[] = [
-  { key: EXPENSE_KIND.GROCERY, label: EXPENSE_KIND_LABEL.GROCERY },
-  { key: EXPENSE_KIND.HOUSE, label: EXPENSE_KIND_LABEL.HOUSE },
-  { key: EXPENSE_KIND.PEER, label: EXPENSE_KIND_LABEL.PEER },
-];
+const INVOLVEMENT_OPTIONS = [
+  { value: 'I_OWE' as const, label: 'Mis deudas' },
+  { value: 'THEY_OWE_ME' as const, label: 'Mis cobros' },
+] as const;
 
 type ExpenseFilterBarProps = {
   involvement: ExpenseInvolvementFilter;
   onInvolvementChange: (value: ExpenseInvolvementFilter) => void;
   kind: ExpenseKindFilter;
   onKindChange: (value: ExpenseKindFilter) => void;
+  customTypes?: HomeItemType[];
   recurrence: RecurrenceFilter;
   onRecurrenceChange: (value: RecurrenceFilter) => void;
+  status: ExpenseBoardStatusFilter;
+  onStatusChange: (value: ExpenseBoardStatusFilter) => void;
+  history?: boolean;
 };
 
 /**
- * Personal debt toggle + kind chips for the open expenses board.
+ * Expense board filters: involvement, kind, recurrence and status.
  */
 export function ExpenseFilterBar({
   involvement,
   onInvolvementChange,
   kind,
   onKindChange,
+  customTypes = [],
   recurrence,
   onRecurrenceChange,
+  status,
+  onStatusChange,
+  history = false,
 }: ExpenseFilterBarProps) {
+  const kindChips = [
+    { key: EXPENSE_KIND.GROCERY, label: EXPENSE_KIND_LABEL.GROCERY },
+    { key: EXPENSE_KIND.HOUSE, label: EXPENSE_KIND_LABEL.HOUSE },
+    { key: EXPENSE_KIND.PEER, label: EXPENSE_KIND_LABEL.PEER },
+    ...customTypes.map((type) => ({ key: type.id, label: type.name })),
+  ];
+
   return (
     <View className="gap-3">
-      <View className="flex-row gap-2">
-        <Pressable
-          onPress={() => onInvolvementChange(involvement === 'I_OWE' ? 'ALL' : 'I_OWE')}
-          className={`flex-1 rounded-xl px-3 py-2 ${involvement === 'I_OWE' ? 'bg-blue-50 border border-blue-300' : 'bg-gray-50 border border-gray-200'}`}>
-          <Text className="text-center text-sm font-semibold text-gray-800">Lo que debo</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => onInvolvementChange(involvement === 'THEY_OWE_ME' ? 'ALL' : 'THEY_OWE_ME')}
-          className={`flex-1 rounded-xl px-3 py-2 ${involvement === 'THEY_OWE_ME' ? 'bg-blue-50 border border-blue-300' : 'bg-gray-50 border border-gray-200'}`}>
-          <Text className="text-center text-sm font-semibold text-gray-800">Me deben</Text>
-        </Pressable>
-      </View>
-
-      <ToggleChipRow value={kind} chips={KIND_CHIPS} onChange={onKindChange} />
+      <FilterTogglePair
+        value={involvement === 'I_OWE' || involvement === 'THEY_OWE_ME' ? involvement : 'ALL'}
+        options={INVOLVEMENT_OPTIONS}
+        onChange={onInvolvementChange}
+      />
+      <ToggleChipRow value={kind} chips={kindChips} onChange={onKindChange} />
       <RecurrenceFilterChips value={recurrence} onChange={onRecurrenceChange} />
+      <ExpenseStatusFilterChips value={status} onChange={onStatusChange} history={history} />
     </View>
   );
 }

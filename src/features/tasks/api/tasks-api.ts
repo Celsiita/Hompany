@@ -25,16 +25,33 @@ import {
   countOpenInstancesForTemplate,
   OPEN_INSTANCE_STATUSES,
   parseRecurrenceConfig,
-  pickNextAssignee,
   shouldSpawnRecurringInstance,
   SPAWN_ON_CLOSE_STATUSES,
 } from '@/features/tasks/lib/recurrence';
 import { logHomeActivity } from '@/features/home/api/activity-api';
+import { listHomeMembers } from '@/features/home/api/homes-api';
 import {
+  assigneeOverrideForDate,
   cycleInstanceTitle,
+  isSkippedOccurrenceDate,
   stripCycleSuffix,
+  withAssigneeOverride,
+  withSkippedOccurrenceDate,
   type RecurrenceConfig,
 } from '@/lib/recurrence';
+import {
+  absentMemberWarning,
+  areAllMembersAbsent,
+  filterAvailableMemberIds,
+  isUserAbsentOnDate,
+  pickNextAvailableAssignee,
+} from '@/lib/absences';
+import { listAbsencesByHome } from '@/features/home/api/absences-api';
+import {
+  listRotatingTasksInDateRange,
+  pickReplacementForAbsentAssignee,
+} from '@/features/tasks/lib/punctual-absence-reassign';
+import type { MemberAbsence } from '@/schemas/absence.schema';
 
 const TASK_SELECT = `
   *,
@@ -100,13 +117,54 @@ async function resolveAssigneeIds(params: {
   assigneeIds: string[];
   autoAssign: boolean;
   lastAssigneeId?: string | null;
+  dueAt: Date;
+  absences: readonly MemberAbsence[];
 }): Promise<string[]> {
   if (!params.autoAssign) {
-    return params.assigneeIds;
+    return filterAvailableMemberIds(params.assigneeIds, params.absences, params.dueAt);
   }
-  const pool = params.assigneeIds.length > 0 ? params.assigneeIds : await listMemberIds(params.homeId);
-  const next = pickNextAssignee(pool, params.lastAssigneeId ?? null);
-  return next ? [next] : pool.slice(0, 1);
+  const pool =
+    params.assigneeIds.length > 0 ? params.assigneeIds : await listMemberIds(params.homeId);
+  const next = pickNextAvailableAssignee(
+    pool,
+    params.lastAssigneeId ?? null,
+    params.absences,
+    params.dueAt,
+  );
+  return next ? [next] : [];
+}
+
+/**
+ * Throws when any assignee is absent on the due date (manual assignment guard).
+ */
+export function assertAssigneesAvailableForDate(params: {
+  assigneeIds: string[];
+  absences: readonly MemberAbsence[];
+  dueAt: Date;
+  memberNames: Map<string, string>;
+}): void {
+  for (const userId of params.assigneeIds) {
+    if (isUserAbsentOnDate(params.absences, userId, params.dueAt)) {
+      const name = params.memberNames.get(userId) ?? 'Compañero';
+      throw new Error(absentMemberWarning(name));
+    }
+  }
+}
+
+async function persistTemplateRecurrenceConfig(
+  homeId: string,
+  templateId: string,
+  config: RecurrenceConfig,
+): Promise<void> {
+  const supabase = getSupabaseClient();
+  const { error } = await supabase
+    .from('task_templates')
+    .update({ recurrence_config: config })
+    .eq('id', templateId)
+    .eq('home_id', homeId);
+  if (error) {
+    throw error;
+  }
 }
 
 /**
@@ -233,7 +291,7 @@ async function insertTaskInstance(params: {
   homeId: string;
   template: Pick<
     TaskTemplate,
-    'id' | 'title' | 'description' | 'category' | 'icon' | 'recurrence' | 'points_value'
+    'id' | 'title' | 'description' | 'category' | 'item_type_id' | 'icon' | 'recurrence' | 'points_value'
   > & {
     base_title?: string | null;
     auto_assign?: boolean;
@@ -243,64 +301,117 @@ async function insertTaskInstance(params: {
   };
   assigneeIds: string[];
   dueAt: string;
+  startsAt?: string | null;
+  allDay?: boolean;
   lastAssigneeId?: string | null;
 }): Promise<TaskWithRelations | null> {
-  const config = parseRecurrenceConfig(params.template.recurrence_config);
-  const baseTitle = stripCycleSuffix(params.template.base_title ?? params.template.title);
-  const title = cycleInstanceTitle(baseTitle, params.template.recurrence, new Date(params.dueAt));
-  const assigneeIds = await resolveAssigneeIds({
-    homeId: params.homeId,
-    assigneeIds: params.assigneeIds,
-    autoAssign: Boolean(params.template.auto_assign),
-    lastAssigneeId: params.lastAssigneeId,
-  });
-  const createdBy = params.template.created_by ?? (await currentUserId());
+  const absences = await listAbsencesByHome(params.homeId);
+  let config = parseRecurrenceConfig(params.template.recurrence_config);
+  let dueAt = params.dueAt;
   const dueMode = params.template.due_mode ?? 'DEADLINE';
+  const pool =
+    params.assigneeIds.length > 0
+      ? params.assigneeIds
+      : await listMemberIds(params.homeId);
 
-  const supabase = getSupabaseClient();
-  const { data, error } = await supabase
-    .from('tasks')
-    .insert({
-      home_id: params.homeId,
-      title,
-      base_title: baseTitle,
-      description: params.template.description,
-      category: params.template.category,
-      icon: params.template.icon,
-      recurrence: params.template.recurrence,
-      recurrence_config: config,
-      auto_assign: Boolean(params.template.auto_assign),
-      due_at: params.dueAt,
-      due_mode: dueMode,
-      points_value: params.template.points_value,
-      assigned_to: assigneeIds[0] ?? null,
-      created_by: createdBy,
-      status: 'PENDING',
-      is_template: false,
-      template_id: params.template.id,
-    })
-    .select('id')
-    .single();
+  for (let attempt = 0; attempt < 52; attempt += 1) {
+    const dueDate = new Date(dueAt);
 
-  if (error) {
-    if (isUniqueViolation(error)) {
-      return null;
+    if (isSkippedOccurrenceDate(config, dueDate)) {
+      dueAt = computeNextDueAt(
+        dueAt,
+        params.template.recurrence,
+        new Date(),
+        config,
+        dueMode,
+      );
+      continue;
     }
-    throw error;
+
+    const overrideUserId = assigneeOverrideForDate(config, dueDate);
+
+    if (!overrideUserId && areAllMembersAbsent(pool, absences, dueDate)) {
+      config = withSkippedOccurrenceDate(config, dueDate);
+      await persistTemplateRecurrenceConfig(params.homeId, params.template.id, config);
+      dueAt = computeNextDueAt(dueAt, params.template.recurrence, new Date(), config, dueMode);
+      continue;
+    }
+
+    const resolvedAssignees = overrideUserId
+      ? [overrideUserId]
+      : await resolveAssigneeIds({
+          homeId: params.homeId,
+          assigneeIds: params.assigneeIds,
+          autoAssign: Boolean(params.template.auto_assign),
+          lastAssigneeId: params.lastAssigneeId,
+          dueAt: dueDate,
+          absences,
+        });
+
+    if (resolvedAssignees.length === 0) {
+      config = withSkippedOccurrenceDate(config, dueDate);
+      await persistTemplateRecurrenceConfig(params.homeId, params.template.id, config);
+      dueAt = computeNextDueAt(dueAt, params.template.recurrence, new Date(), config, dueMode);
+      continue;
+    }
+
+    const baseTitle = stripCycleSuffix(params.template.base_title ?? params.template.title);
+    const title = cycleInstanceTitle(baseTitle, params.template.recurrence, dueDate);
+    const assigneeIds = resolvedAssignees;
+    const createdBy = params.template.created_by ?? (await currentUserId());
+
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert({
+        home_id: params.homeId,
+        title,
+        base_title: baseTitle,
+        description: params.template.description,
+        category: params.template.category,
+        item_type_id: params.template.item_type_id ?? null,
+        icon: params.template.icon,
+        recurrence: params.template.recurrence,
+        recurrence_config: config,
+        auto_assign: Boolean(params.template.auto_assign),
+        due_at: dueAt,
+        due_mode: dueMode,
+        starts_at: params.startsAt ?? dueAt,
+        all_day: Boolean(params.allDay),
+        points_value: params.template.points_value,
+        assigned_to: assigneeIds[0] ?? null,
+        created_by: createdBy,
+        status: 'PENDING',
+        is_template: false,
+        template_id: params.template.id,
+      })
+      .select('id')
+      .single();
+
+    if (error) {
+      if (isUniqueViolation(error)) {
+        return null;
+      }
+      throw error;
+    }
+
+    await syncAssignees({
+      homeId: params.homeId,
+      taskId: data.id,
+      assigneeIds,
+    });
+
+    const tasks = await listTasksByHome(params.homeId);
+    const created = tasks.find((task) => task.id === data.id);
+    if (!created) {
+      throw new Error('Task created but not found');
+    }
+    return created;
   }
 
-  await syncAssignees({
-    homeId: params.homeId,
-    taskId: data.id,
-    assigneeIds: params.assigneeIds,
-  });
-
-  const tasks = await listTasksByHome(params.homeId);
-  const created = tasks.find((task) => task.id === data.id);
-  if (!created) {
-    throw new Error('Task created but not found');
-  }
-  return created;
+  throw new Error(
+    'No se pudo programar la tarea: todas las fechas del periodo tienen ausencias totales.',
+  );
 }
 
 async function maybeSpawnNextInstance(homeId: string, closedTask: Task): Promise<void> {
@@ -364,12 +475,15 @@ export async function createTask(input: CreateTaskInput): Promise<TaskWithRelati
       base_title: baseTitle,
       description: parsed.description ?? null,
       category: parsed.category,
+      item_type_id: parsed.item_type_id ?? null,
       icon: parsed.icon,
       recurrence: parsed.recurrence,
       recurrence_config: config,
       auto_assign: parsed.auto_assign,
       points_value: parsed.points_value,
       due_mode: parsed.due_mode,
+      starts_at: parsed.starts_at ?? null,
+      all_day: parsed.all_day ?? false,
       is_active: recurring && !paused,
     })
     .select('id')
@@ -385,6 +499,25 @@ export async function createTask(input: CreateTaskInput): Promise<TaskWithRelati
     assigneeIds: parsed.assignee_ids,
   });
 
+  if (!parsed.auto_assign && parsed.assignee_ids.length > 0) {
+    const [absences, members] = await Promise.all([
+      listAbsencesByHome(scopedHomeId),
+      listHomeMembers(scopedHomeId),
+    ]);
+    const memberNames = new Map(
+      members.map((member) => [
+        member.user_id,
+        member.profiles?.display_name ?? 'Compañero',
+      ]),
+    );
+    assertAssigneesAvailableForDate({
+      assigneeIds: parsed.assignee_ids,
+      absences,
+      dueAt: new Date(parsed.due_at),
+      memberNames,
+    });
+  }
+
   const created = await insertTaskInstance({
     homeId: scopedHomeId,
     template: {
@@ -393,6 +526,7 @@ export async function createTask(input: CreateTaskInput): Promise<TaskWithRelati
       base_title: baseTitle,
       description: parsed.description ?? null,
       category: parsed.category,
+      item_type_id: parsed.item_type_id ?? null,
       icon: parsed.icon,
       recurrence: parsed.recurrence,
       points_value: parsed.points_value,
@@ -403,6 +537,8 @@ export async function createTask(input: CreateTaskInput): Promise<TaskWithRelati
     },
     assigneeIds: parsed.assignee_ids,
     dueAt: parsed.due_at,
+    startsAt: parsed.starts_at ?? parsed.due_at,
+    allDay: parsed.all_day,
   });
 
   if (!created) {
@@ -433,6 +569,25 @@ export async function updateTask(
     throw currentError;
   }
 
+  if (!parsed.auto_assign && parsed.assignee_ids.length > 0) {
+    const [absences, members] = await Promise.all([
+      listAbsencesByHome(scopedHomeId),
+      listHomeMembers(scopedHomeId),
+    ]);
+    const memberNames = new Map(
+      members.map((member) => [
+        member.user_id,
+        member.profiles?.display_name ?? 'Compañero',
+      ]),
+    );
+    assertAssigneesAvailableForDate({
+      assigneeIds: parsed.assignee_ids,
+      absences,
+      dueAt: new Date(parsed.due_at),
+      memberNames,
+    });
+  }
+
   const config = parsed.recurrence_config ?? {};
   const baseTitle = stripCycleSuffix(parsed.title);
   const title = cycleInstanceTitle(baseTitle, parsed.recurrence, new Date(parsed.due_at));
@@ -444,12 +599,15 @@ export async function updateTask(
       base_title: baseTitle,
       description: parsed.description ?? null,
       category: parsed.category,
+      item_type_id: parsed.item_type_id ?? null,
       icon: parsed.icon,
       recurrence: parsed.recurrence,
       recurrence_config: config,
       auto_assign: parsed.auto_assign,
       due_at: parsed.due_at,
       due_mode: parsed.due_mode,
+      starts_at: parsed.starts_at ?? parsed.due_at,
+      all_day: parsed.all_day ?? false,
       points_value: parsed.points_value,
       assigned_to: parsed.assignee_ids[0] ?? null,
     })
@@ -474,12 +632,15 @@ export async function updateTask(
         base_title: baseTitle,
         description: parsed.description ?? null,
         category: parsed.category,
+        item_type_id: parsed.item_type_id ?? null,
         icon: parsed.icon,
         recurrence: parsed.recurrence,
         recurrence_config: config,
         auto_assign: parsed.auto_assign,
         points_value: parsed.points_value,
         due_mode: parsed.due_mode,
+        starts_at: parsed.starts_at ?? null,
+        all_day: parsed.all_day ?? false,
         is_active: isRecurring(parsed.recurrence) && !config.is_paused,
       })
       .eq('id', current.template_id)
@@ -522,6 +683,7 @@ export async function updateTaskTemplate(
       title: parsed.title,
       description: parsed.description ?? null,
       category: parsed.category,
+      item_type_id: parsed.item_type_id ?? null,
       icon: parsed.icon,
       recurrence: parsed.recurrence,
       points_value: parsed.points_value,
@@ -742,6 +904,11 @@ export async function updateTaskStatus(params: {
     }
   }
 
+  if (toStatus === 'SUBMITTED') {
+    patch.review_note = null;
+    patch.review_note_kind = null;
+  }
+
   const { data, error } = await supabase
     .from('tasks')
     .update(patch)
@@ -767,9 +934,20 @@ export async function submitTaskReview(params: {
   reviewerId: string;
   vote: 'APPROVE' | 'DISPUTE';
   emoji: string;
+  comment?: string | null;
 }): Promise<TaskReview> {
   const scopedHomeId = requireHomeId(params.homeId);
   const supabase = getSupabaseClient();
+  const comment = params.comment?.trim() || null;
+
+  if (params.vote === 'DISPUTE' && !comment) {
+    throw new Error('Indica el motivo de la impugnación.');
+  }
+
+  const absences = await listAbsencesByHome(scopedHomeId);
+  if (isUserAbsentOnDate(absences, params.reviewerId, new Date())) {
+    throw new Error('No puedes validar tareas durante una ausencia.');
+  }
 
   const { data, error } = await supabase
     .from('task_reviews')
@@ -780,6 +958,7 @@ export async function submitTaskReview(params: {
         reviewer_id: params.reviewerId,
         vote: params.vote,
         emoji: params.emoji,
+        comment,
       },
       { onConflict: 'task_id,reviewer_id' },
     )
@@ -809,6 +988,19 @@ export async function submitTaskReview(params: {
       toStatus: 'COMPLETED',
       completedBy: taskRow.assigned_to ?? params.reviewerId,
     });
+
+    const { error: noteError } = await supabase
+      .from('tasks')
+      .update({
+        review_note: comment,
+        review_note_kind: comment ? 'APPROVE' : null,
+      })
+      .eq('id', params.taskId)
+      .eq('home_id', scopedHomeId);
+
+    if (noteError) {
+      throw noteError;
+    }
   } else {
     await updateTaskStatus({
       homeId: scopedHomeId,
@@ -816,6 +1008,20 @@ export async function submitTaskReview(params: {
       fromStatus: 'SUBMITTED',
       toStatus: 'PENDING',
     });
+
+    const { error: noteError } = await supabase
+      .from('tasks')
+      .update({
+        review_note: comment,
+        review_note_kind: 'DISPUTE',
+        proof_image_url: null,
+      })
+      .eq('id', params.taskId)
+      .eq('home_id', scopedHomeId);
+
+    if (noteError) {
+      throw noteError;
+    }
   }
 
   return data;
@@ -891,6 +1097,7 @@ export async function listTaskSwapRequests(homeId: string): Promise<TaskSwapRequ
 
 /**
  * Asks a roommate to take over a task.
+ * Only pending / overdue tasks can be swapped (not after submit/complete).
  */
 export async function createTaskSwapRequest(params: {
   homeId: string;
@@ -900,6 +1107,21 @@ export async function createTaskSwapRequest(params: {
 }): Promise<void> {
   const scopedHomeId = requireHomeId(params.homeId);
   const supabase = getSupabaseClient();
+
+  const { data: task, error: taskLoadError } = await supabase
+    .from('tasks')
+    .select('id, status')
+    .eq('id', params.taskId)
+    .eq('home_id', scopedHomeId)
+    .single();
+
+  if (taskLoadError) {
+    throw taskLoadError;
+  }
+  if (task.status !== 'PENDING' && task.status !== 'OVERDUE') {
+    throw new Error('Solo se pueden intercambiar tareas pendientes (no completadas ni en revisión).');
+  }
+
   const { error } = await supabase.from('task_swap_requests').insert({
     home_id: scopedHomeId,
     task_id: params.taskId,
@@ -937,6 +1159,20 @@ export async function respondToTaskSwap(params: {
     throw loadError;
   }
 
+  const { data: swapTask, error: swapTaskError } = await supabase
+    .from('tasks')
+    .select('id, status')
+    .eq('id', request.task_id)
+    .eq('home_id', scopedHomeId)
+    .single();
+
+  if (swapTaskError) {
+    throw swapTaskError;
+  }
+  if (params.accept && swapTask.status !== 'PENDING' && swapTask.status !== 'OVERDUE') {
+    throw new Error('Esta tarea ya no se puede intercambiar (completada o en revisión).');
+  }
+
   const { error: updateError } = await supabase
     .from('task_swap_requests')
     .update({ status: params.accept ? 'ACCEPTED' : 'REJECTED' })
@@ -966,4 +1202,222 @@ export async function respondToTaskSwap(params: {
     taskId: request.task_id,
     assigneeIds: [request.to_user_id],
   });
+}
+
+async function patchTaskSeriesConfig(params: {
+  homeId: string;
+  task: TaskWithRelations;
+  nextConfig: RecurrenceConfig;
+}): Promise<void> {
+  const supabase = getSupabaseClient();
+  const { error } = await supabase
+    .from('tasks')
+    .update({ recurrence_config: params.nextConfig })
+    .eq('id', params.task.id)
+    .eq('home_id', params.homeId);
+  if (error) {
+    throw error;
+  }
+  if (params.task.template_id) {
+    const { error: templateError } = await supabase
+      .from('task_templates')
+      .update({ recurrence_config: params.nextConfig })
+      .eq('id', params.task.template_id)
+      .eq('home_id', params.homeId);
+    if (templateError) {
+      throw templateError;
+    }
+  }
+}
+
+/**
+ * Cancels one occurrence: open → SKIPPED (+ spawn); scheduled → skipped_dates exception.
+ */
+export async function cancelTaskOccurrence(params: {
+  homeId: string;
+  taskId: string;
+  actorId: string;
+  /** When set, cancels a projected date instead of the open row. */
+  scheduledDueAt?: string;
+}): Promise<void> {
+  const scopedHomeId = requireHomeId(params.homeId);
+  const tasks = await listTasksByHome(scopedHomeId);
+  const task = tasks.find((item) => item.id === params.taskId);
+  if (!task) {
+    throw new Error('Tarea no encontrada');
+  }
+
+  if (params.scheduledDueAt) {
+    const due = new Date(params.scheduledDueAt);
+    const config = parseRecurrenceConfig(task.recurrence_config);
+    await patchTaskSeriesConfig({
+      homeId: scopedHomeId,
+      task,
+      nextConfig: withSkippedOccurrenceDate(config, due),
+    });
+    await logHomeActivity({
+      homeId: scopedHomeId,
+      actorId: params.actorId,
+      action: 'TASK_SKIP_DATE',
+      entityType: 'task',
+      entityId: task.id,
+      summary: `Canceló la fecha programada de «${task.title}»`,
+    });
+    return;
+  }
+
+  if (!OPEN_INSTANCE_STATUSES.includes(task.status)) {
+    throw new Error('Solo se puede cancelar una tarea abierta o programada');
+  }
+
+  await updateTaskStatus({
+    homeId: scopedHomeId,
+    taskId: task.id,
+    fromStatus: task.status,
+    toStatus: 'SKIPPED',
+  });
+  await logHomeActivity({
+    homeId: scopedHomeId,
+    actorId: params.actorId,
+    action: 'TASK_SKIP',
+    entityType: 'task',
+    entityId: task.id,
+    summary: `Canceló esta ejecución de «${task.title}»`,
+  });
+}
+
+/**
+ * Point reassignment: open instance assignees, or scheduled override (no template rotation change).
+ */
+export async function reassignTaskOccurrence(params: {
+  homeId: string;
+  taskId: string;
+  actorId: string;
+  assigneeId: string;
+  scheduledDueAt?: string;
+}): Promise<void> {
+  const scopedHomeId = requireHomeId(params.homeId);
+  const tasks = await listTasksByHome(scopedHomeId);
+  const task = tasks.find((item) => item.id === params.taskId);
+  if (!task) {
+    throw new Error('Tarea no encontrada');
+  }
+
+  const due = params.scheduledDueAt ? new Date(params.scheduledDueAt) : new Date(task.due_at);
+  const [absences, members] = await Promise.all([
+    listAbsencesByHome(scopedHomeId),
+    listHomeMembers(scopedHomeId),
+  ]);
+  if (isUserAbsentOnDate(absences, params.assigneeId, due)) {
+    const name =
+      members.find((member) => member.user_id === params.assigneeId)?.profiles?.display_name ??
+      'Compañero';
+    throw new Error(absentMemberWarning(name));
+  }
+
+  if (params.scheduledDueAt) {
+    const dueAt = new Date(params.scheduledDueAt);
+    const config = parseRecurrenceConfig(task.recurrence_config);
+    await patchTaskSeriesConfig({
+      homeId: scopedHomeId,
+      task,
+      nextConfig: withAssigneeOverride(config, dueAt, params.assigneeId),
+    });
+    await logHomeActivity({
+      homeId: scopedHomeId,
+      actorId: params.actorId,
+      action: 'TASK_REASSIGN_DATE',
+      entityType: 'task',
+      entityId: task.id,
+      summary: `Reasignó una fecha programada de «${task.title}»`,
+    });
+    return;
+  }
+
+  await syncAssignees({
+    homeId: scopedHomeId,
+    taskId: task.id,
+    assigneeIds: [params.assigneeId],
+  });
+  const supabase = getSupabaseClient();
+  const { error } = await supabase
+    .from('tasks')
+    .update({ assigned_to: params.assigneeId })
+    .eq('id', task.id)
+    .eq('home_id', scopedHomeId);
+  if (error) {
+    throw error;
+  }
+  await logHomeActivity({
+    homeId: scopedHomeId,
+    actorId: params.actorId,
+    action: 'TASK_REASSIGN',
+    entityType: 'task',
+    entityId: task.id,
+    summary: `Reasignó «${task.title}»`,
+  });
+}
+
+/**
+ * After a punctual absence: reassign open auto_assign tasks in the range to available peers.
+ * Returns how many tasks were reassigned (activity events act as in-app notifications).
+ */
+export async function reassignRotatingTasksForPunctualAbsence(params: {
+  homeId: string;
+  actorId: string;
+  absentUserId: string;
+  startDate: string;
+  endDate: string;
+}): Promise<number> {
+  const scopedHomeId = requireHomeId(params.homeId);
+  const [tasks, absences, members] = await Promise.all([
+    listTasksByHome(scopedHomeId),
+    listAbsencesByHome(scopedHomeId),
+    listHomeMembers(scopedHomeId),
+  ]);
+
+  const candidates = listRotatingTasksInDateRange({
+    tasks,
+    userId: params.absentUserId,
+    startDate: params.startDate,
+    endDate: params.endDate,
+  });
+
+  const memberIds = members.map((member) => member.user_id);
+  let reassigned = 0;
+
+  for (const task of candidates) {
+    if (!task.due_at) {
+      continue;
+    }
+    const dueAt = new Date(task.due_at);
+    const nextId = pickReplacementForAbsentAssignee({
+      memberIds,
+      absentUserId: params.absentUserId,
+      absences,
+      dueAt,
+    });
+    if (!nextId) {
+      continue;
+    }
+    await reassignTaskOccurrence({
+      homeId: scopedHomeId,
+      taskId: task.id,
+      actorId: params.actorId,
+      assigneeId: nextId,
+    });
+    const nextName =
+      members.find((member) => member.user_id === nextId)?.profiles?.display_name ?? 'un compañero';
+    await logHomeActivity({
+      homeId: scopedHomeId,
+      actorId: params.actorId,
+      action: 'TASK_REASSIGN_ABSENCE',
+      entityType: 'task',
+      entityId: task.id,
+      summary: `Por ausencia puntual, «${task.title}» pasó a ${nextName}`,
+    });
+    reassigned += 1;
+  }
+
+  return reassigned;
 }

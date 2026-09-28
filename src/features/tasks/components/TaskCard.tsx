@@ -3,6 +3,7 @@ import { Image, Pressable, Text, View } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { categoryLabel } from '@/features/tasks/components/TaskFilterBar';
+import { awardedTaskPoints, canRequestTaskSwap, isTaskOpenOverdue } from '@/features/tasks/lib/board-filters';
 import { formatDueSummary } from '@/features/tasks/lib/countdown';
 import { isPausedRecurring, recurrenceLabel } from '@/features/tasks/lib/recurrence';
 import { glyphForTaskIcon } from '@/lib/icons/packs';
@@ -24,7 +25,6 @@ type TaskCardProps = {
   onApprove?: (task: TaskWithRelations) => void;
   onDispute?: (task: TaskWithRelations) => void;
   onRepeat?: (task: TaskWithRelations) => void;
-  onReopen?: (task: TaskWithRelations) => void;
   onRequestSwap?: (task: TaskWithRelations) => void;
 };
 
@@ -42,23 +42,45 @@ export function TaskCard({
   onApprove,
   onDispute,
   onRepeat,
-  onReopen,
   onRequestSwap,
 }: TaskCardProps) {
   const { pack } = useIconPack();
   const dueSummary = formatDueSummary(task.due_at, task.due_mode ?? 'DEADLINE');
-  const showSubmit = task.status === TASK_STATUS.PENDING && onSubmitProof && !isPausedRecurring(task);
+  const showSubmit =
+    (task.status === TASK_STATUS.PENDING || task.status === TASK_STATUS.OVERDUE) &&
+    onSubmitProof &&
+    !isPausedRecurring(task);
   const showReview = task.status === TASK_STATUS.SUBMITTED && (onApprove || onDispute);
   const closed =
     task.status === TASK_STATUS.COMPLETED ||
     task.status === TASK_STATUS.RESOLVED_LATE ||
     task.status === TASK_STATUS.RESOLVED_BY_PEER ||
     task.status === TASK_STATUS.SKIPPED;
-  const badge = taskStatusBadge(task.status, { paused: isPausedRecurring(task) });
+  const showSwap = Boolean(onRequestSwap && canRequestTaskSwap(task));
+  const badge = taskStatusBadge(task.status, {
+    paused: isPausedRecurring(task),
+    openOverdue: isTaskOpenOverdue(task),
+  });
   const completedAt = task.completed_at ?? (closed ? task.updated_at : null);
+  const editable = Boolean(canEdit && onEdit);
+  const pointsShown = awardedTaskPoints(task);
+  const pointsPenalized =
+    task.status === TASK_STATUS.RESOLVED_LATE && pointsShown < task.points_value;
+  const disputeNote =
+    task.review_note_kind === 'DISPUTE' && task.review_note?.trim()
+      ? task.review_note.trim()
+      : null;
+  const approveNote =
+    task.review_note_kind === 'APPROVE' && task.review_note?.trim() && closed
+      ? task.review_note.trim()
+      : null;
 
   return (
-    <View
+    <Pressable
+      disabled={!editable}
+      onPress={() => onEdit?.(task)}
+      accessibilityRole={editable ? 'button' : undefined}
+      accessibilityHint={editable ? 'Editar tarea' : undefined}
       className={`rounded-2xl border bg-white p-4 gap-3 ${
         highlighted ? 'border-blue-400 bg-blue-50' : 'border-gray-200'
       }`}>
@@ -80,6 +102,22 @@ export function TaskCard({
         <StatusBadge tone={badge} />
       </View>
 
+      {disputeNote && !closed ? (
+        <View className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 gap-0.5">
+          <Text className="text-xs font-bold uppercase tracking-wide text-amber-900">
+            Requiere revisión
+          </Text>
+          <Text className="text-sm text-amber-950">motivo: {disputeNote}</Text>
+        </View>
+      ) : null}
+
+      {approveNote ? (
+        <View className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2">
+          <Text className="text-xs font-semibold text-emerald-800">Sugerencia al validar</Text>
+          <Text className="text-sm text-emerald-950">{approveNote}</Text>
+        </View>
+      ) : null}
+
       <View className="flex-row items-center justify-between gap-2">
         <View className="flex-1 gap-1">
           {task.task_assignees.length === 0 ? (
@@ -92,7 +130,9 @@ export function TaskCard({
             ))
           )}
         </View>
-        <Text className="text-sm text-gray-500">{task.points_value} pts</Text>
+        <Text className="text-sm text-gray-500">
+          {pointsPenalized ? `${pointsShown} pts (mitad)` : `${pointsShown} pts`}
+        </Text>
       </View>
 
       {showDate ? (
@@ -128,18 +168,14 @@ export function TaskCard({
       ) : null}
 
       {showSubmit ? (
-        <Button
-          label="Completar"
-          loading={busy}
-          onPress={() => onSubmitProof?.(task)}
-        />
+        <Button label="Completar" loading={busy} onPress={() => onSubmitProof?.(task)} />
       ) : null}
 
       {showReview ? (
         <View className="flex-row gap-2">
           {onApprove ? (
             <View className="flex-1">
-              <Button label="👏 Aprobar" loading={busy} onPress={() => onApprove(task)} />
+              <Button label="Aprobar" loading={busy} onPress={() => onApprove(task)} />
             </View>
           ) : null}
           {onDispute ? (
@@ -155,37 +191,23 @@ export function TaskCard({
         </View>
       ) : null}
 
-      {onRepeat || onReopen ? (
-        <View className="flex-row gap-2">
-          {onRepeat ? (
-            <View className="flex-1">
-              <Button label="↻ Repetir" variant="secondary" loading={busy} onPress={() => onRepeat(task)} />
-            </View>
-          ) : null}
-          {onReopen ? (
-            <View className="flex-1">
-              <Button label="Reabrir" loading={busy} onPress={() => onReopen(task)} />
-            </View>
-          ) : null}
-        </View>
+      {onRepeat ? (
+        <Button
+          label="↻ Repetir"
+          variant="secondary"
+          loading={busy}
+          onPress={() => onRepeat(task)}
+        />
       ) : null}
 
-      {onRequestSwap && !closed ? (
+      {showSwap ? (
         <Button
           label="⇄ Intercambiar"
           variant="secondary"
           loading={busy}
-          onPress={() => onRequestSwap(task)}
+          onPress={() => onRequestSwap?.(task)}
         />
       ) : null}
-
-      <View className="flex-row flex-wrap gap-3">
-        {canEdit && onEdit && !closed ? (
-          <Pressable onPress={() => onEdit(task)}>
-            <Text className="text-sm font-semibold text-blue-700">Editar</Text>
-          </Pressable>
-        ) : null}
-      </View>
-    </View>
+    </Pressable>
   );
 }
