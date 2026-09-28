@@ -1,15 +1,25 @@
 import { useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import {
-  WEEKDAY_CHIPS,
-  type RecurrenceConfig,
-  type RecurrenceKind,
-  RECURRENCE_KIND_LABEL,
-} from '@/lib/recurrence';
+import { SafePressable } from '@/components/ui/SafePressable';
 import { TextField } from '@/components/ui/TextField';
+import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
+import {
+  MONTH_LABELS,
+  RECURRENCE_FREQUENCY_UNIT_LABEL,
+  WEEKDAY_CHIPS,
+  isoWeekday,
+  monthlyDays,
+  recurrenceInterval,
+  type RecurrenceConfig,
+  type RecurrenceFrequencyUnit,
+  type RecurrenceKind,
+  weeklyDays,
+  yearlyMonths,
+} from '@/lib/recurrence';
 
-const KINDS: RecurrenceKind[] = ['ONCE', 'DAILY', 'WEEKLY', 'MONTHLY'];
+const UNITS: RecurrenceFrequencyUnit[] = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'];
+const MONTH_DAY_OPTIONS = Array.from({ length: 31 }, (_, index) => index + 1);
 
 type RecurrenceEditorProps = {
   recurrence: RecurrenceKind;
@@ -17,14 +27,23 @@ type RecurrenceEditorProps = {
   onRecurrenceChange: (value: RecurrenceKind) => void;
   onConfigChange: (value: RecurrenceConfig) => void;
   compact?: boolean;
+  /** Seeds weekday / day-of-month / month when enabling a unit. */
+  seedFrom?: Date;
 };
 
-function defaultDayOfMonth(config: RecurrenceConfig): number {
-  return config.day_of_month ?? new Date().getDate();
+function chipStyle(active: boolean) {
+  return mergeStyles(interactive.chip, active ? interactive.chipActive : interactive.chipInactive);
+}
+
+function borderedOption(active: boolean) {
+  return mergeStyles(
+    interactive.borderedCard,
+    active ? interactive.borderedCardActive : undefined,
+  );
 }
 
 /**
- * Shared recurrence controls for task and expense forms.
+ * Interval + unit recurrence controls (after first-occurrence dates).
  */
 export function RecurrenceEditor({
   recurrence,
@@ -32,140 +51,309 @@ export function RecurrenceEditor({
   onRecurrenceChange,
   onConfigChange,
   compact = false,
+  seedFrom = new Date(),
 }: RecurrenceEditorProps) {
   const [pausePanelOpen, setPausePanelOpen] = useState(Boolean(config.is_paused));
   const [dayOfMonthDraft, setDayOfMonthDraft] = useState(() =>
-    String(defaultDayOfMonth(config)),
+    String(config.day_of_month ?? seedFrom.getDate()),
   );
+  const repeats = recurrence !== 'ONCE';
+  const interval = recurrenceInterval(config);
+  const selectedWeekdays = weeklyDays(config, seedFrom);
+  const selectedMonthDays = monthlyDays(config, seedFrom);
+  const selectedMonths = yearlyMonths(config, seedFrom);
 
   useEffect(() => {
-    if ((config.due_day_type ?? 'SPECIFIC_DAY') !== 'SPECIFIC_DAY') {
-      return;
-    }
     if (config.day_of_month != null) {
       setDayOfMonthDraft(String(config.day_of_month));
     }
-  }, [config.day_of_month, config.due_day_type]);
+  }, [config.day_of_month]);
 
   function patch(partial: RecurrenceConfig) {
     onConfigChange({ ...config, ...partial });
   }
 
-  function commitDayOfMonthDraft() {
+  function setRepeats(enabled: boolean) {
+    if (!enabled) {
+      onRecurrenceChange('ONCE');
+      return;
+    }
+    if (recurrence === 'ONCE') {
+      const weekday = isoWeekday(seedFrom);
+      onRecurrenceChange('WEEKLY');
+      patch({
+        interval: 1,
+        days_of_week: [weekday],
+        day_of_week: weekday,
+      });
+    }
+  }
+
+  function setUnit(unit: RecurrenceFrequencyUnit) {
+    onRecurrenceChange(unit);
+    if (unit === 'WEEKLY') {
+      const days =
+        selectedWeekdays.length > 0 ? selectedWeekdays : [isoWeekday(seedFrom)];
+      patch({ interval, days_of_week: days, day_of_week: days[0] });
+      return;
+    }
+    if (unit === 'MONTHLY') {
+      const days =
+        selectedMonthDays.length > 0 ? selectedMonthDays : [seedFrom.getDate()];
+      patch({
+        interval,
+        due_day_type: 'SPECIFIC_DAY',
+        days_of_month: days,
+        day_of_month: days[0],
+      });
+      return;
+    }
+    if (unit === 'YEARLY') {
+      const months =
+        selectedMonths.length > 0 ? selectedMonths : [seedFrom.getMonth() + 1];
+      const day = config.day_of_month ?? seedFrom.getDate();
+      patch({
+        interval,
+        active_months: months,
+        day_of_month: day,
+      });
+      setDayOfMonthDraft(String(day));
+      return;
+    }
+    patch({ interval });
+  }
+
+  function bumpInterval(delta: number) {
+    patch({ interval: Math.min(365, Math.max(1, interval + delta)) });
+  }
+
+  function toggleWeekday(value: number) {
+    const exists = selectedWeekdays.includes(value);
+    const next = exists
+      ? selectedWeekdays.filter((day) => day !== value)
+      : [...selectedWeekdays, value].sort((a, b) => a - b);
+    const days = next.length > 0 ? next : [value];
+    patch({ days_of_week: days, day_of_week: days[0] });
+  }
+
+  function toggleMonthDay(value: number) {
+    const exists = selectedMonthDays.includes(value);
+    const next = exists
+      ? selectedMonthDays.filter((day) => day !== value)
+      : [...selectedMonthDays, value].sort((a, b) => a - b);
+    const days = next.length > 0 ? next : [value];
+    patch({
+      due_day_type: 'SPECIFIC_DAY',
+      days_of_month: days,
+      day_of_month: days[0],
+    });
+  }
+
+  function toggleMonth(value: number) {
+    const exists = selectedMonths.includes(value);
+    const next = exists
+      ? selectedMonths.filter((month) => month !== value)
+      : [...selectedMonths, value].sort((a, b) => a - b);
+    const months = next.length > 0 ? next : [value];
+    patch({ active_months: months });
+  }
+
+  function commitYearDay() {
     const parsed = Number(dayOfMonthDraft.trim());
-    const fallback = defaultDayOfMonth(config);
     const day =
-      Number.isFinite(parsed) && parsed >= 1 && parsed <= 31 ? parsed : fallback;
+      Number.isFinite(parsed) && parsed >= 1 && parsed <= 31
+        ? parsed
+        : seedFrom.getDate();
     setDayOfMonthDraft(String(day));
-    patch({ due_day_type: 'SPECIFIC_DAY', day_of_month: day });
+    patch({ day_of_month: day });
   }
 
   return (
     <View className="gap-2">
-      <Text className="text-sm font-medium text-gray-700">Periodicidad</Text>
-      <View className="flex-row flex-wrap gap-2">
-        {KINDS.map((value) => {
-          const active = recurrence === value;
-          return (
-            <Pressable
-              key={value}
-              onPress={() => onRecurrenceChange(value)}
-              className={`rounded-xl px-3 py-2 ${active ? 'bg-blue-600' : 'bg-gray-100'}`}>
-              <Text className={`text-xs font-semibold ${active ? 'text-white' : 'text-gray-700'}`}>
-                {RECURRENCE_KIND_LABEL[value]}
-              </Text>
-            </Pressable>
-          );
-        })}
+      <View className="flex-row gap-2">
+        <SafePressable onPress={() => setRepeats(false)} contentStyle={chipStyle(!repeats)}>
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: '600',
+              color: !repeats ? palette.white : palette.gray700,
+            }}>
+            No se repite
+          </Text>
+        </SafePressable>
+        <SafePressable onPress={() => setRepeats(true)} contentStyle={chipStyle(repeats)}>
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: '600',
+              color: repeats ? palette.white : palette.gray700,
+            }}>
+            Se repite
+          </Text>
+        </SafePressable>
       </View>
 
-      {recurrence === 'WEEKLY' ? (
+      {repeats ? (
         <View className="gap-2">
-          <Text className="text-xs text-gray-600">Día de la semana (obligatorio)</Text>
-          <View className="flex-row gap-1">
-            {WEEKDAY_CHIPS.map((chip) => {
-              const active = config.day_of_week === chip.value;
+          <Text className="text-xs text-gray-600">Cada</Text>
+          <View className="flex-row items-center gap-2">
+            <SafePressable
+              onPress={() => bumpInterval(-1)}
+              contentStyle={mergeStyles(interactive.secondaryButton, { minWidth: 44 })}>
+              <Text className="text-center text-base font-bold text-gray-800">−</Text>
+            </SafePressable>
+            <View className="min-w-[48px] items-center rounded-xl border border-gray-200 bg-white px-3 py-2">
+              <Text className="text-base font-semibold text-gray-900">{interval}</Text>
+            </View>
+            <SafePressable
+              onPress={() => bumpInterval(1)}
+              contentStyle={mergeStyles(interactive.secondaryButton, { minWidth: 44 })}>
+              <Text className="text-center text-base font-bold text-gray-800">+</Text>
+            </SafePressable>
+          </View>
+
+          <View className="flex-row flex-wrap gap-2">
+            {UNITS.map((unit) => {
+              const active = recurrence === unit;
               return (
-                <Pressable
-                  key={chip.value}
-                  onPress={() => patch({ day_of_week: chip.value })}
-                  className={`flex-1 rounded-lg py-2 ${active ? 'bg-blue-600' : 'bg-gray-100'}`}>
+                <SafePressable key={unit} onPress={() => setUnit(unit)} contentStyle={chipStyle(active)}>
                   <Text
-                    className={`text-center text-xs font-bold ${active ? 'text-white' : 'text-gray-700'}`}>
-                    {chip.label}
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '600',
+                      color: active ? palette.white : palette.gray700,
+                    }}>
+                    {RECURRENCE_FREQUENCY_UNIT_LABEL[unit]}
                   </Text>
-                </Pressable>
+                </SafePressable>
               );
             })}
           </View>
-        </View>
-      ) : null}
 
-      {recurrence === 'MONTHLY' ? (
-        <View className="gap-2">
-          <Pressable
-            onPress={() => {
-              const day = defaultDayOfMonth(config);
-              setDayOfMonthDraft(String(day));
-              patch({
-                due_day_type: 'SPECIFIC_DAY',
-                day_of_month: day,
-              });
-            }}
-            className={`rounded-xl border px-3 py-3 ${(config.due_day_type ?? 'SPECIFIC_DAY') === 'SPECIFIC_DAY' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
-            <Text className="text-sm font-medium text-gray-900">Día concreto del mes</Text>
-          </Pressable>
-          {(config.due_day_type ?? 'SPECIFIC_DAY') === 'SPECIFIC_DAY' ? (
-            <View className="gap-1">
-              <TextField
-                label="Día del mes (1-31)"
-                keyboardType="number-pad"
-                value={dayOfMonthDraft}
-                onChangeText={(text) => {
-                  const cleaned = text.replace(/[^\d]/g, '').slice(0, 2);
-                  setDayOfMonthDraft(cleaned);
-                  if (cleaned.length === 0) {
-                    return;
-                  }
-                  const day = Number(cleaned);
-                  if (Number.isFinite(day) && day >= 1 && day <= 31) {
-                    patch({ due_day_type: 'SPECIFIC_DAY', day_of_month: day });
-                  }
-                }}
-                onBlur={commitDayOfMonthDraft}
-              />
-              {config.day_of_month === 31 ? (
-                <Text className="text-xs text-amber-800">
-                  En meses con menos de 31 días, vencerá el último día del mes (ej. día 30 o 28/29
-                  en febrero).
-                </Text>
-              ) : null}
+          {recurrence === 'WEEKLY' ? (
+            <View className="gap-2">
+              <Text className="text-xs text-gray-600">Días de la semana (mín. 1)</Text>
+              <View className="flex-row gap-1">
+                {WEEKDAY_CHIPS.map((chip) => {
+                  const active = selectedWeekdays.includes(chip.value);
+                  return (
+                    <SafePressable
+                      key={chip.value}
+                      onPress={() => toggleWeekday(chip.value)}
+                      contentStyle={chipStyle(active)}>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          fontWeight: '600',
+                          color: active ? palette.white : palette.gray700,
+                        }}>
+                        {chip.label}
+                      </Text>
+                    </SafePressable>
+                  );
+                })}
+              </View>
             </View>
           ) : null}
-          <Pressable
-            onPress={() => patch({ due_day_type: 'LAST_DAY_OF_MONTH', day_of_month: undefined })}
-            className={`rounded-xl border px-3 py-3 ${config.due_day_type === 'LAST_DAY_OF_MONTH' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
-            <Text className="text-sm font-medium text-gray-900">Último día del mes</Text>
-          </Pressable>
-        </View>
-      ) : null}
 
-      {recurrence !== 'ONCE' ? (
-        <View className="gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3">
-          <Pressable onPress={() => setPausePanelOpen((open) => !open)}>
-            <Text className="text-sm font-semibold text-gray-800">
-              {compact ? 'Pausa' : 'Configuración de pausa'}
-              {pausePanelOpen ? ' ▴' : ' ▾'}
-            </Text>
-          </Pressable>
-          {pausePanelOpen ? (
-            <Pressable
-              onPress={() => patch({ is_paused: !config.is_paused })}
-              className={`rounded-xl border px-3 py-3 ${config.is_paused ? 'border-amber-500 bg-amber-50' : 'border-gray-200 bg-white'}`}>
-              <Text className="text-sm font-medium text-gray-900">
-                {config.is_paused ? '✓ Pausada indefinidamente' : 'Pausa indefinida'}
-              </Text>
-            </Pressable>
+          {recurrence === 'MONTHLY' ? (
+            <View className="gap-2">
+              <Text className="text-xs text-gray-600">Días del mes (mín. 1)</Text>
+              <View className="flex-row flex-wrap gap-1">
+                {MONTH_DAY_OPTIONS.map((day) => {
+                  const active = selectedMonthDays.includes(day);
+                  return (
+                    <SafePressable
+                      key={day}
+                      onPress={() => toggleMonthDay(day)}
+                      contentStyle={mergeStyles(chipStyle(active), { minWidth: 36 })}>
+                      <Text
+                        style={{
+                          fontSize: 11,
+                          fontWeight: '600',
+                          color: active ? palette.white : palette.gray700,
+                          textAlign: 'center',
+                        }}>
+                        {day}
+                      </Text>
+                    </SafePressable>
+                  );
+                })}
+              </View>
+              <SafePressable
+                onPress={() =>
+                  patch({
+                    due_day_type: 'LAST_DAY_OF_MONTH',
+                    days_of_month: undefined,
+                    day_of_month: undefined,
+                  })
+                }
+                contentStyle={borderedOption(config.due_day_type === 'LAST_DAY_OF_MONTH')}>
+                <Text className="text-sm text-gray-900">Último día del mes</Text>
+              </SafePressable>
+            </View>
+          ) : null}
+
+          {recurrence === 'YEARLY' ? (
+            <View className="gap-2">
+              <Text className="text-xs text-gray-600">Meses (mín. 1)</Text>
+              <View className="flex-row flex-wrap gap-1">
+                {MONTH_LABELS.map((label, index) => {
+                  const value = index + 1;
+                  const active = selectedMonths.includes(value);
+                  return (
+                    <SafePressable
+                      key={label}
+                      onPress={() => toggleMonth(value)}
+                      contentStyle={chipStyle(active)}>
+                      <Text
+                        style={{
+                          fontSize: 11,
+                          fontWeight: '600',
+                          color: active ? palette.white : palette.gray700,
+                        }}>
+                        {label.slice(0, 3)}
+                      </Text>
+                    </SafePressable>
+                  );
+                })}
+              </View>
+              <TextField
+                label="Día del mes (1–31)"
+                value={dayOfMonthDraft}
+                onChangeText={setDayOfMonthDraft}
+                onBlur={commitYearDay}
+                keyboardType="number-pad"
+              />
+            </View>
+          ) : null}
+
+          {!compact ? (
+            <View className="gap-2">
+              <SafePressable
+                onPress={() => {
+                  const open = !pausePanelOpen;
+                  setPausePanelOpen(open);
+                  if (!open) {
+                    patch({ is_paused: false });
+                  }
+                }}
+                contentStyle={borderedOption(Boolean(config.is_paused))}>
+                <Text className="text-sm font-semibold text-gray-900">Pausa indefinida</Text>
+                <Text className="text-xs text-gray-500">
+                  No genera nuevas instancias hasta que la reactives
+                </Text>
+              </SafePressable>
+              {pausePanelOpen ? (
+                <SafePressable
+                  onPress={() => patch({ is_paused: !config.is_paused })}
+                  contentStyle={borderedOption(Boolean(config.is_paused))}>
+                  <Text className="text-sm text-gray-900">
+                    {config.is_paused ? 'Pausada · tocar para reanudar' : 'Activa · tocar para pausar'}
+                  </Text>
+                </SafePressable>
+              ) : null}
+            </View>
           ) : null}
         </View>
       ) : null}

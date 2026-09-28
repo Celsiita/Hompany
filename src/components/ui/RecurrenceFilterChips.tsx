@@ -9,6 +9,7 @@ const CHIPS: { key: RecurrenceKind; label: string }[] = [
   { key: 'DAILY', label: RECURRENCE_KIND_LABEL.DAILY },
   { key: 'WEEKLY', label: RECURRENCE_KIND_LABEL.WEEKLY },
   { key: 'MONTHLY', label: RECURRENCE_KIND_LABEL.MONTHLY },
+  { key: 'YEARLY', label: RECURRENCE_KIND_LABEL.YEARLY },
 ];
 
 type RecurrenceFilterChipsProps = {

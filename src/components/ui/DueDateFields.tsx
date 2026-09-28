@@ -1,102 +1,138 @@
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useState } from 'react';
 
 import { DateTimePickerModal, formatDueDateTime } from '@/components/ui/DateTimePickerModal';
+import { SafePressable } from '@/components/ui/SafePressable';
 import { formatDueSummary } from '@/features/tasks/lib/countdown';
+import { interactive, mergeStyles } from '@/lib/interactive-styles';
 import {
-  applyDueModeToDate,
-  defaultDueAtForMode,
-  DUE_MODE_HINT,
-  DUE_MODE_LABEL,
+  applyAllDayWindow,
+  endOfLocalDay,
+  formatHistoryDate,
   isRecurrenceCalendarDayEnabled,
-  type DueMode,
+  startOfLocalDay,
   type RecurrenceConfig,
   type RecurrenceKind,
 } from '@/lib/recurrence';
 
 type DueDateFieldsProps = {
-  dueMode: DueMode;
+  startsAt: Date;
   dueAt: Date;
-  onDueModeChange: (mode: DueMode) => void;
+  allDay: boolean;
+  onStartsAtChange: (next: Date) => void;
   onDueAtChange: (next: Date) => void;
+  onAllDayChange: (next: boolean) => void;
   recurrence?: RecurrenceKind;
   recurrenceConfig?: RecurrenceConfig;
 };
 
+type PickerTarget = 'start' | 'due';
+
 /**
- * Shared due-mode selector + date picker + live absolute/relative preview.
- * EXECUTION defaults to tomorrow 09:00; DEADLINE to end-of-day on the current day.
- * Picker time is kept as edited (not overwritten by due-mode stamps).
+ * Schedule window: start (activation) + due (deadline), with optional all-day.
  */
 export function DueDateFields({
-  dueMode,
+  startsAt,
   dueAt,
-  onDueModeChange,
+  allDay,
+  onStartsAtChange,
   onDueAtChange,
+  onAllDayChange,
   recurrence = 'ONCE',
   recurrenceConfig = {},
 }: DueDateFieldsProps) {
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const preview = formatDueSummary(dueAt.toISOString(), dueMode);
+  const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
+  const preview = formatDueSummary(dueAt.toISOString(), 'DEADLINE');
   const isPeriodic = recurrence !== 'ONCE';
 
-  function selectMode(mode: DueMode) {
-    if (mode === dueMode) {
+  function toggleAllDay() {
+    const next = !allDay;
+    onAllDayChange(next);
+    if (next) {
+      const window = applyAllDayWindow(startsAt, dueAt);
+      onStartsAtChange(window.startsAt);
+      onDueAtChange(window.dueAt);
       return;
     }
-    onDueModeChange(mode);
-    if (isPeriodic) {
-      return;
-    }
-    onDueAtChange(
-      mode === 'EXECUTION'
-        ? defaultDueAtForMode('EXECUTION')
-        : applyDueModeToDate(dueAt, 'DEADLINE'),
-    );
+    const start = new Date(startsAt);
+    start.setHours(9, 0, 0, 0);
+    const due = new Date(dueAt);
+    due.setHours(23, 59, 0, 0);
+    onStartsAtChange(start);
+    onDueAtChange(due);
   }
 
-  const dateFieldLabel = isPeriodic
-    ? dueMode === 'EXECUTION'
-      ? 'Primer día de ejecución'
-      : 'Primer vencimiento'
-    : dueMode === 'EXECUTION'
-      ? 'Día de ejecución'
-      : 'Fecha y hora límite';
+  function applyPicked(next: Date) {
+    if (pickerTarget === 'start') {
+      let start = allDay ? startOfLocalDay(next) : next;
+      let due = dueAt;
+      if (start.getTime() > due.getTime()) {
+        due = allDay ? endOfLocalDay(start) : new Date(start.getTime() + 60 * 60 * 1000);
+      }
+      onStartsAtChange(start);
+      onDueAtChange(due);
+      return;
+    }
+    let due = allDay ? endOfLocalDay(next) : next;
+    let start = startsAt;
+    if (due.getTime() < start.getTime()) {
+      start = allDay ? startOfLocalDay(due) : new Date(due.getTime() - 60 * 60 * 1000);
+    }
+    onStartsAtChange(start);
+    onDueAtChange(due);
+  }
 
   return (
     <View className="gap-2">
-      <Text className="text-sm font-medium text-gray-700">Tipo de fecha</Text>
-      <View className="flex-row gap-2">
-        {(['DEADLINE', 'EXECUTION'] as DueMode[]).map((mode) => {
-          const active = mode === dueMode;
-          return (
-            <Pressable
-              key={mode}
-              onPress={() => selectMode(mode)}
-              className={`flex-1 rounded-xl border px-3 py-3 ${active ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
-              <Text className="text-sm font-semibold text-gray-900">{DUE_MODE_LABEL[mode]}</Text>
-              <Text className="mt-1 text-[11px] text-gray-500">{DUE_MODE_HINT[mode]}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <Text className="text-sm font-medium text-gray-700">Ventana temporal</Text>
+      <SafePressable
+        onPress={toggleAllDay}
+        contentStyle={mergeStyles(
+          interactive.borderedCard,
+          interactive.rowBetween,
+          allDay ? interactive.borderedCardActive : undefined,
+        )}>
+        <View className="flex-1 pr-2">
+          <Text className="text-sm font-semibold text-gray-900">Todo el día</Text>
+          <Text className="text-xs text-gray-500">Oculta la hora; inicio 00:00 · límite 23:59</Text>
+        </View>
+        <Text className="text-sm text-blue-700">{allDay ? '✓' : ''}</Text>
+      </SafePressable>
 
-      <Pressable
-        onPress={() => setPickerOpen(true)}
-        className="rounded-xl border border-gray-200 bg-white px-3 py-3">
-        <Text className="text-sm font-medium text-gray-700">{dateFieldLabel}</Text>
-        <Text className="mt-1 text-base font-semibold text-gray-900">
-          {formatDueDateTime(dueAt)}
+      <SafePressable
+        onPress={() => setPickerTarget('start')}
+        contentStyle={interactive.borderedCard}>
+        <Text className="text-xs font-semibold uppercase text-gray-500">
+          {isPeriodic ? 'Inicio (primera ventana)' : 'Fecha de inicio'}
         </Text>
-        <Text className={`mt-1 text-xs ${preview.isOverdue ? 'text-red-600' : 'text-blue-700'}`}>
-          {preview.label}
+        <Text className="mt-1 text-sm font-semibold text-gray-900">
+          {allDay ? formatHistoryDate(startsAt.toISOString()) : formatDueDateTime(startsAt)}
         </Text>
-      </Pressable>
+        <Text className="mt-0.5 text-xs text-gray-500">Desde cuándo se puede hacer</Text>
+      </SafePressable>
+
+      <SafePressable
+        onPress={() => setPickerTarget('due')}
+        contentStyle={interactive.borderedCard}>
+        <Text className="text-xs font-semibold uppercase text-gray-500">
+          {isPeriodic ? 'Límite (primera ventana)' : 'Fecha límite'}
+        </Text>
+        <Text className="mt-1 text-sm font-semibold text-gray-900">
+          {allDay ? formatHistoryDate(dueAt.toISOString()) : formatDueDateTime(dueAt)}
+        </Text>
+        <Text className="mt-0.5 text-xs text-gray-500">{preview.label}</Text>
+      </SafePressable>
 
       <DateTimePickerModal
-        visible={pickerOpen}
-        value={dueAt}
-        title={dateFieldLabel}
+        visible={pickerTarget !== null}
+        title={pickerTarget === 'start' ? 'Fecha de inicio' : 'Fecha límite'}
+        value={pickerTarget === 'start' ? startsAt : dueAt}
+        mode={allDay ? 'date' : 'datetime'}
+        onClose={() => setPickerTarget(null)}
+        onConfirm={(next) => {
+          applyPicked(next);
+          setPickerTarget(null);
+        }}
         isDayEnabled={
           isPeriodic
             ? (year, monthIndex, day) =>
@@ -109,8 +145,6 @@ export function DueDateFields({
                 )
             : undefined
         }
-        onClose={() => setPickerOpen(false)}
-        onConfirm={onDueAtChange}
       />
     </View>
   );

@@ -25,11 +25,12 @@ export const OPEN_INSTANCE_STATUSES: TaskStatus[] = [
   TASK_STATUS.OVERDUE,
 ];
 
-/** Terminal statuses that grant points or close the chore. */
+/** Terminal statuses that grant points or close the chore — and skip that also advances the series. */
 export const SPAWN_ON_CLOSE_STATUSES: TaskStatus[] = [
   TASK_STATUS.COMPLETED,
   TASK_STATUS.RESOLVED_LATE,
   TASK_STATUS.RESOLVED_BY_PEER,
+  TASK_STATUS.SKIPPED,
 ];
 
 /**

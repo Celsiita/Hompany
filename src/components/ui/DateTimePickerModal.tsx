@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Keyboard, Modal, Pressable, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { mergeStyles, palette } from '@/lib/interactive-styles';
 
 type DateTimePickerModalProps = {
   visible: boolean;
@@ -10,6 +11,8 @@ type DateTimePickerModalProps = {
   onConfirm: (next: Date) => void;
   /** Modal heading. */
   title?: string;
+  /** `date` hides the time controls (all-day). */
+  mode?: 'date' | 'datetime';
   /** When set, only enabled days are tappable. */
   isDayEnabled?: (year: number, monthIndex: number, day: number) => boolean;
 };
@@ -43,27 +46,15 @@ export function parseTimeInput(raw: string): { hours: number; minutes: number } 
 }
 
 /**
- * Keeps only digits and at most one colon for HH:mm typing.
+ * Formats typed time as HH:mm, keeping the colon visible while editing.
+ * Digits only; after 2 hour digits inserts `:`.
  */
 export function sanitizeTimeDraft(raw: string): string {
-  let colonSeen = false;
-  let digits = 0;
-  let out = '';
-  for (const char of raw) {
-    if (char >= '0' && char <= '9') {
-      if (digits >= 4) {
-        continue;
-      }
-      out += char;
-      digits += 1;
-      continue;
-    }
-    if (char === ':' && !colonSeen) {
-      colonSeen = true;
-      out += char;
-    }
+  const digits = raw.replace(/\D/g, '').slice(0, 4);
+  if (digits.length <= 2) {
+    return digits;
   }
-  return out.slice(0, 5);
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
 }
 
 /**
@@ -75,6 +66,7 @@ export function DateTimePickerModal({
   onClose,
   onConfirm,
   title = 'Fecha y hora',
+  mode = 'datetime',
   isDayEnabled,
 }: DateTimePickerModalProps) {
   const [cursor, setCursor] = useState(new Date(value));
@@ -152,6 +144,17 @@ export function DateTimePickerModal({
   }
 
   function confirm() {
+    if (mode === 'date') {
+      const next = new Date(cursor);
+      next.setHours(value.getHours(), value.getMinutes(), 0, 0);
+      if (isDayEnabled && !isDayEnabled(next.getFullYear(), next.getMonth(), next.getDate())) {
+        setTimeError('Elige un día válido según la periodicidad');
+        return;
+      }
+      onConfirm(next);
+      onClose();
+      return;
+    }
     const parsed = parseTimeInput(timeText);
     if (timeText.trim().length > 0 && !parsed) {
       setTimeError('Usa HH:mm (ej. 18:30)');
@@ -171,10 +174,9 @@ export function DateTimePickerModal({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable className="flex-1 justify-end bg-black/40" onPress={onClose}>
-        <Pressable
-          className="gap-3 rounded-t-3xl bg-white p-4"
-          onPress={(event) => event.stopPropagation()}>
+      <View className="flex-1 justify-end bg-black/40">
+        <Pressable className="absolute inset-0" onPress={onClose} accessibilityLabel="Cerrar" />
+        <View className="gap-3 rounded-t-3xl bg-white p-4">
           <Text className="text-lg font-bold text-gray-900">{title}</Text>
           <View className="flex-row items-center justify-between">
             <Pressable onPress={() => bumpMonth(-1)} className="px-3 py-2">
@@ -201,77 +203,86 @@ export function DateTimePickerModal({
                   : true
                 : false;
               return (
-                <View key={`${year}-${month}-${index}`} className="w-[14.28%] p-0.5">
+                <View key={`${year}-${month}-${index}`} style={{ width: '14.28%', padding: 2 }}>
                   {day ? (
                     <Pressable
+                      cssInterop={false}
                       disabled={!enabled}
                       onPress={() => setDay(day)}
-                      className={`rounded-lg py-2 ${
+                      style={mergeStyles(
+                        { borderRadius: 8, paddingVertical: 8, alignItems: 'center' },
                         selected && enabled
-                          ? 'bg-blue-600'
+                          ? { backgroundColor: palette.blue600 }
                           : enabled
-                            ? 'bg-gray-50'
-                            : 'bg-gray-100 opacity-40'
-                      }`}>
+                            ? { backgroundColor: palette.gray50 }
+                            : { backgroundColor: palette.gray100, opacity: 0.4 },
+                      )}>
                       <Text
-                        className={`text-center text-sm ${
-                          selected && enabled
-                            ? 'font-bold text-white'
-                            : enabled
-                              ? 'text-gray-800'
-                              : 'text-gray-400'
-                        }`}>
+                        style={{
+                          textAlign: 'center',
+                          fontSize: 14,
+                          fontWeight: selected && enabled ? '700' : '400',
+                          color: selected && enabled ? palette.white : enabled ? '#1f2937' : '#9ca3af',
+                        }}>
                         {day}
                       </Text>
                     </Pressable>
                   ) : (
-                    <View className="py-2" />
+                    <View style={{ paddingVertical: 8 }} />
                   )}
                 </View>
               );
             })}
           </View>
-          <View className="flex-row items-center justify-center gap-3">
-            <Pressable
-              onPress={() => bumpTime('hours', -1)}
-              accessibilityLabel="Restar una hora"
-              className="rounded-lg bg-gray-100 px-3 py-2">
-              <Text className="text-blue-700">−h</Text>
-            </Pressable>
-            <TextInput
-              value={timeText}
-              onChangeText={applyTypedTime}
-              keyboardType="numbers-and-punctuation"
-              maxLength={5}
-              selectTextOnFocus
-              accessibilityLabel="Hora en formato HH:mm"
-              className="min-w-[72px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-xl font-bold text-gray-900"
-              placeholder="HH:mm"
-              placeholderTextColor="#9ca3af"
-            />
-            <Pressable
-              onPress={() => bumpTime('hours', 1)}
-              accessibilityLabel="Sumar una hora"
-              className="rounded-lg bg-gray-100 px-3 py-2">
-              <Text className="text-blue-700">+h</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => bumpTime('minutes', -15)}
-              accessibilityLabel="Restar quince minutos"
-              className="rounded-lg bg-gray-100 px-3 py-2">
-              <Text className="text-blue-700">−15</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => bumpTime('minutes', 15)}
-              accessibilityLabel="Sumar quince minutos"
-              className="rounded-lg bg-gray-100 px-3 py-2">
-              <Text className="text-blue-700">+15</Text>
-            </Pressable>
-          </View>
-          {timeError ? <Text className="text-center text-xs text-red-600">{timeError}</Text> : null}
-          <Text className="text-center text-xs text-gray-500">
-            Escribe la hora (HH:mm) o usa −h / +h / −15 / +15.
-          </Text>
+          {mode === 'datetime' ? (
+            <>
+              <View className="flex-row items-center justify-center gap-3">
+                <Pressable
+                  onPress={() => bumpTime('hours', -1)}
+                  accessibilityLabel="Restar una hora"
+                  className="rounded-lg bg-gray-100 px-3 py-2">
+                  <Text className="text-blue-700">−h</Text>
+                </Pressable>
+                <TextInput
+                  value={timeText}
+                  onChangeText={applyTypedTime}
+                  keyboardType="number-pad"
+                  maxLength={5}
+                  selectTextOnFocus={false}
+                  underlineColorAndroid="transparent"
+                  autoCorrect={false}
+                  accessibilityLabel="Hora en formato HH:mm"
+                  className="min-w-[72px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-xl font-bold text-gray-900"
+                  placeholder="HH:mm"
+                  placeholderTextColor="#9ca3af"
+                />
+                <Pressable
+                  onPress={() => bumpTime('hours', 1)}
+                  accessibilityLabel="Sumar una hora"
+                  className="rounded-lg bg-gray-100 px-3 py-2">
+                  <Text className="text-blue-700">+h</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => bumpTime('minutes', -15)}
+                  accessibilityLabel="Restar quince minutos"
+                  className="rounded-lg bg-gray-100 px-3 py-2">
+                  <Text className="text-blue-700">−15</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => bumpTime('minutes', 15)}
+                  accessibilityLabel="Sumar quince minutos"
+                  className="rounded-lg bg-gray-100 px-3 py-2">
+                  <Text className="text-blue-700">+15</Text>
+                </Pressable>
+              </View>
+              {timeError ? <Text className="text-center text-xs text-red-600">{timeError}</Text> : null}
+              <Text className="text-center text-xs text-gray-500">
+                Escribe la hora (HH:mm) o usa −h / +h / −15 / +15.
+              </Text>
+            </>
+          ) : timeError ? (
+            <Text className="text-center text-xs text-red-600">{timeError}</Text>
+          ) : null}
           <View className="mb-2 flex-row gap-2">
             <View className="flex-1">
               <Button label="Cancelar" variant="secondary" onPress={onClose} />
@@ -280,8 +291,8 @@ export function DateTimePickerModal({
               <Button label="Usar fecha" onPress={confirm} />
             </View>
           </View>
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }
