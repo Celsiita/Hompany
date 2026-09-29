@@ -203,6 +203,7 @@ export function ExpensesScreen() {
               section={section}
               onSectionChange={setSection}
               activeLabel="En curso"
+              accent="amber"
             />
 
             <CollapsibleFilterPanel activeHint={filterHint}>

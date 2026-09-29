@@ -50,13 +50,15 @@ Invite code seed: `DEMO2026`. Tras un reset, cierra sesión y vuelve a entrar.
 
 ## Demo Shipaton (script ~90 s)
 
-1. Login Ana → **Home Feed** (salud + ranking).
-2. **Agenda** → un ítem del calendario.
-3. **Tareas** → entregar con foto / ver countdown.
-4. **Gastos** → balance “quién debe a quién”.
-5. **Ajustes** → **HOMPANY Plus** → paywall RevenueCat → unlock packs Hogar/Play.
+1. Login Ana → tour Mico (sáltelo o avance 2 pasos).
+2. **Feed:** salud + ranking + cuentas; toca `?`.
+3. **Agenda:** leyenda de colores + un día.
+4. **Piso:** Wi‑Fi / reglas.
+5. **Tareas** → entregar / countdown; **campanita** si hay avisos.
+6. **Gastos** → balance.
+7. **Ajustes** → HOMPANY Plus → unlock packs.
 
-Detalle de producto: [`docs/PRODUCT.md`](./docs/PRODUCT.md). Monetización: [`docs/monetization.md`](./docs/monetization.md). Arquitectura: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md). Guion vídeo: [`docs/SHIPATON-DEMO.md`](./docs/SHIPATON-DEMO.md).
+Detalle: [`docs/PRODUCT.md`](./docs/PRODUCT.md). Monetización: [`docs/monetization.md`](./docs/monetization.md). Guion vídeo: [`docs/SHIPATON-DEMO.md`](./docs/SHIPATON-DEMO.md).
 
 ## Scripts
 

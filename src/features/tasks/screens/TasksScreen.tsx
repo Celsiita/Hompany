@@ -278,6 +278,7 @@ export function TasksScreen() {
               section={section}
               onSectionChange={setSection}
               activeLabel="En curso"
+              accent="blue"
             />
 
             <CollapsibleFilterPanel activeHint={filterHint}>
