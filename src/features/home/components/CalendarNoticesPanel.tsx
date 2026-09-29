@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
-import { CollapsibleSection } from '@/components/ui/CollapsibleFilterPanel';
+import { InfoTip } from '@/components/ui/InfoTip';
 import { SafePressable } from '@/components/ui/SafePressable';
 import { TextField } from '@/components/ui/TextField';
 import {
@@ -131,7 +131,14 @@ export function CalendarNoticesPanel({
   }
 
   return (
-    <CollapsibleSection title="Visitas y eventos" defaultExpanded={false}>
+    <View className="gap-3">
+      <View className="flex-row items-center gap-2">
+        <Text className="flex-1 text-sm font-semibold text-stone-900">Gestionar visitas y eventos</Text>
+        <InfoTip
+          title="Visitas y eventos"
+          message="Marca en el calendario visitas, reparaciones o eventos del piso para que todo el mundo lo vea."
+        />
+      </View>
       <View className="gap-3">
         <Text className="text-xs text-gray-500">
           Visitas, reparaciones o eventos del piso en el calendario.
@@ -239,6 +246,6 @@ export function CalendarNoticesPanel({
           </View>
         )}
       </View>
-    </CollapsibleSection>
+    </View>
   );
 }

@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
-import { CollapsibleSection } from '@/components/ui/CollapsibleFilterPanel';
 import { FilterTogglePair } from '@/components/ui/FilterTogglePair';
 import { InfoTip } from '@/components/ui/InfoTip';
 import { SafePressable } from '@/components/ui/SafePressable';
@@ -143,10 +142,11 @@ export function AbsencesPanel({
   const showSystem = Boolean(onAddSystemLeave && onRemoveSystemLeave);
 
   return (
-    <CollapsibleSection
-      title="Ausencias"
-      accent="amber"
-      info={<InfoTip title="Ausencias" message={INFO_MESSAGE} tone="amber" />}>
+    <View className="gap-3">
+      <View className="flex-row items-center gap-2">
+        <Text className="flex-1 text-sm font-semibold text-amber-950">Gestionar ausencias</Text>
+        <InfoTip title="Ausencias" message={INFO_MESSAGE} tone="amber" />
+      </View>
       {showSystem ? (
         <FilterTogglePair
           value={absenceType}
@@ -245,7 +245,7 @@ export function AbsencesPanel({
           ) : null}
         </View>
       )}
-    </CollapsibleSection>
+    </View>
   );
 }
 
