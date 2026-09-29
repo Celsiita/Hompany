@@ -11,8 +11,8 @@ type ButtonProps = PressableProps & {
 
 const labelStyles: Record<NonNullable<ButtonProps['variant']>, TextStyle> = {
   primary: { color: palette.white, fontWeight: '600' },
-  secondary: { color: palette.blue700, fontWeight: '600' },
-  ghost: { color: palette.blue700, fontWeight: '600' },
+  secondary: { color: palette.brandDark, fontWeight: '600' },
+  ghost: { color: palette.brandDark, fontWeight: '600' },
 };
 
 /**

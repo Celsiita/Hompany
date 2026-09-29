@@ -1,21 +1,32 @@
 import { StyleSheet, type TextStyle, type ViewStyle } from 'react-native';
 
-/** Shared palette for touchable surfaces (no NativeWind className). */
+/**
+ * Brand palette — warm flat / teal accent (Shipaton visual pass).
+ * Avoid generic purple-on-white AI look; keep semantic green/amber/red for health.
+ */
 export const palette = {
-  blue600: '#2563eb',
-  blue700: '#1d4ed8',
-  blue50: '#eff6ff',
-  blue400: '#60a5fa',
-  gray50: '#f9fafb',
-  gray100: '#f3f4f6',
-  gray200: '#e5e7eb',
-  gray700: '#374151',
+  brand: '#0f766e',
+  brandDark: '#0d5c56',
+  brandSoft: '#ccfbf1',
+  brandMuted: '#99f6e4',
+  cream: '#f7f4ef',
+  creamDeep: '#efe8df',
+  ink: '#1c1917',
+  inkMuted: '#57534e',
+  blue600: '#0f766e',
+  blue700: '#0d5c56',
+  blue50: '#f0fdfa',
+  blue400: '#2dd4bf',
+  gray50: '#fafaf9',
+  gray100: '#f5f5f4',
+  gray200: '#e7e5e4',
+  gray700: '#44403c',
   white: '#ffffff',
-  violet100: 'rgba(237, 233, 254, 0.6)',
-  violet200: 'rgba(221, 214, 254, 0.5)',
-  violet300: 'rgba(196, 181, 253, 0.7)',
-  violet400: 'rgba(167, 139, 250, 0.35)',
-  violet500: '#8b5cf6',
+  violet100: 'rgba(204, 251, 241, 0.55)',
+  violet200: 'rgba(153, 246, 228, 0.45)',
+  violet300: 'rgba(94, 234, 212, 0.55)',
+  violet400: 'rgba(45, 212, 191, 0.3)',
+  violet500: '#0f766e',
   amber100: 'rgba(254, 243, 199, 0.6)',
   amber200: 'rgba(253, 230, 138, 0.5)',
   amber300: 'rgba(252, 211, 77, 0.7)',
@@ -23,6 +34,8 @@ export const palette = {
   amber500: '#f59e0b',
   emerald50: '#ecfdf5',
   emerald400: '#34d399',
+  coral: '#e07a5f',
+  coralSoft: '#fce8e2',
 } as const;
 
 export const interactive = StyleSheet.create({
@@ -42,7 +55,7 @@ export const interactive = StyleSheet.create({
     paddingVertical: 8,
   },
   chipActive: {
-    backgroundColor: palette.blue600,
+    backgroundColor: palette.brand,
   },
   chipInactive: {
     backgroundColor: palette.gray100,
@@ -53,13 +66,13 @@ export const interactive = StyleSheet.create({
     paddingVertical: 8,
   },
   pillActive: {
-    backgroundColor: palette.blue600,
+    backgroundColor: palette.brand,
   },
   pillInactive: {
     backgroundColor: palette.gray100,
   },
   borderedCard: {
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: palette.gray200,
     backgroundColor: palette.white,
@@ -73,25 +86,25 @@ export const interactive = StyleSheet.create({
   primaryButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: palette.blue600,
+    paddingVertical: 13,
+    backgroundColor: palette.brand,
   },
   secondaryButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 13,
     backgroundColor: palette.gray100,
   },
   ghostButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 13,
     backgroundColor: 'transparent',
   },
   disabled: { opacity: 0.5 },

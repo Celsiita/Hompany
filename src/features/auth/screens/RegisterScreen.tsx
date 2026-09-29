@@ -5,6 +5,7 @@ import { Text, View } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import { TextField } from '@/components/ui/TextField';
+import { palette } from '@/lib/interactive-styles';
 import { useAuth } from '@/providers/AuthProvider';
 import { registerSchema } from '@/schemas/auth.schema';
 
@@ -41,8 +42,11 @@ export function RegisterScreen() {
   return (
     <Screen className="justify-center gap-6">
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-gray-900">Crear cuenta</Text>
-        <Text className="text-base text-gray-600">Únete a HOMPANY con tu email</Text>
+        <Text className="text-sm font-semibold tracking-wide" style={{ color: palette.brand }}>
+          HOMPANY
+        </Text>
+        <Text className="text-3xl font-bold text-stone-900">Crear cuenta</Text>
+        <Text className="text-base text-stone-600">Únete a tu piso compartido</Text>
       </View>
 
       <View className="gap-3">

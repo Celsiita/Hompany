@@ -1,15 +1,17 @@
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import { TextField } from '@/components/ui/TextField';
+import { palette } from '@/lib/interactive-styles';
 import { useAuth } from '@/providers/AuthProvider';
 import { loginSchema } from '@/schemas/auth.schema';
+import { useRouter } from 'expo-router';
 
 /**
- * Email/password login screen.
+ * Email/password login screen with brand-first hero.
  */
 export function LoginScreen() {
   const router = useRouter();
@@ -38,13 +40,19 @@ export function LoginScreen() {
   }
 
   return (
-    <Screen className="justify-center gap-6">
-      <View className="gap-2">
-        <Text className="text-3xl font-bold text-gray-900">HOMPANY</Text>
-        <Text className="text-base text-gray-600">Entra a tu piso compartido</Text>
-      </View>
+    <Screen className="justify-center gap-8">
+      <Animated.View entering={FadeInDown.duration(420)} className="gap-3">
+        <Text
+          className="text-5xl font-extrabold tracking-tight"
+          style={{ color: palette.brand }}>
+          HOMPANY
+        </Text>
+        <Text className="text-base leading-6" style={{ color: palette.inkMuted }}>
+          Convivencia gamificada en tu piso compartido. Tareas, gastos y reputación en equipo.
+        </Text>
+      </Animated.View>
 
-      <View className="gap-3">
+      <Animated.View entering={FadeInDown.delay(80).duration(420)} className="gap-3">
         <TextField
           label="Email"
           autoCapitalize="none"
@@ -67,7 +75,7 @@ export function LoginScreen() {
           variant="ghost"
           onPress={() => router.push('/(auth)/register')}
         />
-      </View>
+      </Animated.View>
     </Screen>
   );
 }
