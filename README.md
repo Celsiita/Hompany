@@ -56,7 +56,7 @@ Invite code seed: `DEMO2026`. Tras un reset, cierra sesión y vuelve a entrar.
 4. **Gastos** → balance “quién debe a quién”.
 5. **Ajustes** → **HOMPANY Plus** → paywall RevenueCat → unlock packs Hogar/Play.
 
-Detalle de producto: [`docs/PRODUCT.md`](./docs/PRODUCT.md). Monetización: [`docs/monetization.md`](./docs/monetization.md). Arquitectura: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md).
+Detalle de producto: [`docs/PRODUCT.md`](./docs/PRODUCT.md). Monetización: [`docs/monetization.md`](./docs/monetization.md). Arquitectura: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md). Guion vídeo: [`docs/SHIPATON-DEMO.md`](./docs/SHIPATON-DEMO.md).
 
 ## Scripts
 

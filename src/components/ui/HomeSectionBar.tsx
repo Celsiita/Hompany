@@ -18,18 +18,22 @@ export function HomeSectionBar({ section, onSectionChange }: HomeSectionBarProps
         accessibilityRole="tab"
         accessibilityState={{ selected: section === 'FEED' }}
         className={`flex-1 rounded-xl px-3 py-2 ${
-          section === 'FEED' ? 'border border-blue-300 bg-blue-50' : 'border border-gray-200 bg-gray-50'
+          section === 'FEED'
+            ? 'border border-teal-300 bg-teal-50'
+            : 'border border-stone-200 bg-white/70'
         }`}>
-        <Text className="text-center text-sm font-semibold text-gray-800">Feed</Text>
+        <Text className="text-center text-sm font-semibold text-stone-800">Feed</Text>
       </Pressable>
       <Pressable
         onPress={() => onSectionChange('AGENDA')}
         accessibilityRole="tab"
         accessibilityState={{ selected: section === 'AGENDA' }}
         className={`flex-1 rounded-xl px-3 py-2 ${
-          section === 'AGENDA' ? 'border border-blue-300 bg-blue-50' : 'border border-gray-200 bg-gray-50'
+          section === 'AGENDA'
+            ? 'border border-teal-300 bg-teal-50'
+            : 'border border-stone-200 bg-white/70'
         }`}>
-        <Text className="text-center text-sm font-semibold text-gray-800">Agenda</Text>
+        <Text className="text-center text-sm font-semibold text-stone-800">Agenda</Text>
       </Pressable>
     </View>
   );
