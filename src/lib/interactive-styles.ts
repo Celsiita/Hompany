@@ -36,6 +36,8 @@ export const palette = {
   emerald400: '#34d399',
   coral: '#e07a5f',
   coralSoft: '#fce8e2',
+  amber50: '#fffbeb',
+  amber600: '#d97706',
 } as const;
 
 export const interactive = StyleSheet.create({

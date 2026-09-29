@@ -90,17 +90,17 @@ export function ExpenseCard({
           padding: 16,
         },
         highlighted
-          ? { borderColor: palette.emerald400, backgroundColor: palette.emerald50 }
+          ? { borderColor: palette.amber500, backgroundColor: palette.amber50 }
           : { borderColor: palette.gray200 },
       )}>
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-row items-start gap-3 flex-1">
-          <View className="h-11 w-11 items-center justify-center rounded-xl bg-emerald-50">
+          <View className="h-11 w-11 items-center justify-center rounded-xl bg-amber-50">
             <Text className="text-xl">{glyphForExpenseKind(pack, expense.kind)}</Text>
           </View>
           <View className="flex-1 gap-1">
             <Text className="text-lg font-semibold text-gray-900">{expense.title}</Text>
-            <Text className="text-xs font-medium text-emerald-700">
+            <Text className="text-xs font-medium text-amber-800">
               {EXPENSE_KIND_LABEL[expense.kind]} · {recurrenceLabel(expense.recurrence)}
             </Text>
             {expense.description ? (

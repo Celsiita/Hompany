@@ -1,28 +1,15 @@
-import { Alert, Pressable, Text } from 'react-native';
+import { HelpTip } from '@/components/ui/HelpTip';
 
 type InfoTipProps = {
   title: string;
   message: string;
+  /** Kept for call-site compatibility; HelpTip uses teal. */
   tone?: 'violet' | 'amber' | 'gray';
 };
 
-const TONE_CLASS = {
-  violet: 'text-violet-700',
-  amber: 'text-amber-800',
-  gray: 'text-gray-500',
-} as const;
-
 /**
- * Compact info icon that opens a native alert with explanatory copy.
+ * Alias over HelpTip for older call sites (Absences / silence panels).
  */
-export function InfoTip({ title, message, tone = 'gray' }: InfoTipProps) {
-  return (
-    <Pressable
-      onPress={() => Alert.alert(title, message)}
-      hitSlop={8}
-      accessibilityRole="button"
-      accessibilityLabel={`Información sobre ${title}`}>
-      <Text className={`text-sm font-bold ${TONE_CLASS[tone]}`}>ⓘ</Text>
-    </Pressable>
-  );
+export function InfoTip({ title, message }: InfoTipProps) {
+  return <HelpTip title={title} message={message} />;
 }

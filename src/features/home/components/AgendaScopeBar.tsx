@@ -21,9 +21,9 @@ const SCOPE_OPTIONS = [
   { value: 'others' as const, label: 'Compañeros' },
 ] as const;
 
-const CATEGORY_CHIPS: { key: 'tasks' | 'expenses'; label: string }[] = [
-  { key: 'tasks', label: 'Tareas' },
-  { key: 'expenses', label: 'Gastos' },
+const CATEGORY_CHIPS: { key: 'tasks' | 'expenses'; label: string; accent: 'blue' | 'amber' }[] = [
+  { key: 'tasks', label: 'Tareas', accent: 'blue' },
+  { key: 'expenses', label: 'Gastos', accent: 'amber' },
 ];
 
 /**
