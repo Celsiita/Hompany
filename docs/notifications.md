@@ -17,7 +17,10 @@ Definido en [`src/features/home/lib/alerts.ts`](../src/features/home/lib/alerts.
 
 ## Comportamiento actual
 
-- Home muestra hasta 6 avisos en la hoja **Avisos / Notificaciones** del menú ⋮ (rojo / ámbar / azul). El Feed solo indica si hay avisos pendientes.
+- Campanita en la cabecera de Home (badge rojo si hay urgentes) abre el inbox de avisos.
+- Preview de hasta 2 avisos en el Feed (Estado → Avisos → Clasificación → Cuentas → Datos del piso).
+- Inbox agrupado: Urgente / Pronto / Por revisar / Gastos. Tocar un aviso abre la tarjeta en Tareas o Gastos.
+- Ausencias, modo silencio y visitas del calendario se gestionan desde el menú ⋮ (no saturan la Agenda).
 - Tarjetas de tarea y gasto muestran cuenta atrás respecto a `due_at`.
 - `home_activity_events` registra admin, repetir, reabrir, roles y expulsiones (historial, no editable).
 

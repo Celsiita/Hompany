@@ -174,4 +174,26 @@ describe('buildHomeAlerts', () => {
     expect(alerts.every((alert) => alert.id.startsWith('expense-overdue'))).toBe(true);
     expect(alerts.some((alert) => alert.id.startsWith('task-'))).toBe(false);
   });
+
+  it('attaches navigation targets and sorts urgent first', () => {
+    const alerts = buildHomeAlerts({
+      tasks: [
+        makeTask({
+          id: 'task-soon-1',
+          due_at: '2026-08-18T18:00:00.000Z',
+        }),
+        makeTask({
+          id: 'task-late-1',
+          due_at: '2026-08-18T10:00:00.000Z',
+        }),
+      ],
+      expenses: [],
+      currentUserId: ANA,
+      now: NOW,
+    });
+    expect(alerts[0]?.section).toBe('urgent');
+    expect(alerts[0]?.entityType).toBe('task');
+    expect(alerts[0]?.entityId).toBe('task-late-1');
+    expect(alerts[0]?.title).toBeTruthy();
+  });
 });

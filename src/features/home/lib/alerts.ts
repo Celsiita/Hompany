@@ -8,14 +8,67 @@ import type { MemberPresencePeriod, MemberSystemLeave } from '@/schemas/presence
 import type { ExpenseWithRelations, TaskWithRelations } from '@/types/database.types';
 import { TASK_STATUS } from '@/types/task-status';
 
+export type HomeAlertTone = 'red' | 'amber' | 'teal';
+
+/** Inbox grouping for the alerts sheet. */
+export type HomeAlertSection = 'urgent' | 'soon' | 'review' | 'money';
+
 export type HomeAlert = {
   id: string;
-  tone: 'red' | 'amber' | 'blue';
+  tone: HomeAlertTone;
+  section: HomeAlertSection;
+  title: string;
   message: string;
+  entityType: 'task' | 'expense';
+  entityId: string;
 };
 
 const SOON_MS = 24 * 60 * 60 * 1000;
 const RECENT_MS = 48 * 60 * 60 * 1000;
+
+const SECTION_PRIORITY: Record<HomeAlertSection, number> = {
+  urgent: 0,
+  soon: 1,
+  review: 2,
+  money: 3,
+};
+
+export const HOME_ALERT_SECTION_LABEL: Record<HomeAlertSection, string> = {
+  urgent: 'Urgente',
+  soon: 'Pronto',
+  review: 'Por revisar',
+  money: 'Gastos',
+};
+
+/**
+ * Sorts alerts: urgent → soon → review → money, then by id for stability.
+ */
+export function sortHomeAlerts(alerts: HomeAlert[]): HomeAlert[] {
+  return [...alerts].sort((a, b) => {
+    const bySection = SECTION_PRIORITY[a.section] - SECTION_PRIORITY[b.section];
+    if (bySection !== 0) {
+      return bySection;
+    }
+    return a.id.localeCompare(b.id);
+  });
+}
+
+/**
+ * Groups sorted alerts into labeled inbox sections (empty sections omitted).
+ */
+export function groupHomeAlerts(
+  alerts: HomeAlert[],
+): Array<{ section: HomeAlertSection; label: string; items: HomeAlert[] }> {
+  const sorted = sortHomeAlerts(alerts);
+  const order: HomeAlertSection[] = ['urgent', 'soon', 'review', 'money'];
+  return order
+    .map((section) => ({
+      section,
+      label: HOME_ALERT_SECTION_LABEL[section],
+      items: sorted.filter((item) => item.section === section),
+    }))
+    .filter((group) => group.items.length > 0);
+}
 
 /**
  * Builds in-app alerts for due work, reviews, new debts and overdue items.
@@ -29,12 +82,15 @@ export function buildHomeAlerts(params: {
   presencePeriods?: readonly MemberPresencePeriod[];
   currentUserId?: string | null;
   now?: number;
+  /** Max alerts kept after sort (default 12). */
+  limit?: number;
 }): HomeAlert[] {
   const now = params.now ?? Date.now();
   const nowDate = new Date(now);
   const absences = params.absences ?? [];
   const systemLeaves = params.systemLeaves ?? [];
   const presencePeriods = params.presencePeriods ?? [];
+  const limit = params.limit ?? 12;
   const frozen = isUserSystemFrozen({
     leaves: systemLeaves,
     presencePeriods,
@@ -67,13 +123,21 @@ export function buildHomeAlerts(params: {
         alerts.push({
           id: `task-overdue-${task.id}`,
           tone: 'red',
+          section: 'urgent',
+          title: 'Tarea vencida',
           message: `«${task.title}» ha pasado el límite de tiempo.`,
+          entityType: 'task',
+          entityId: task.id,
         });
       } else if (task.status === TASK_STATUS.PENDING && remaining > 0 && remaining <= SOON_MS) {
         alerts.push({
           id: `task-soon-${task.id}`,
           tone: 'amber',
-          message: `«${task.title}» vence pronto (${formatCountdown(task.due_at, now).label}).`,
+          section: 'soon',
+          title: 'Vence pronto',
+          message: `«${task.title}» · ${formatCountdown(task.due_at, now).label}.`,
+          entityType: 'task',
+          entityId: task.id,
         });
       } else if (
         task.status === TASK_STATUS.SUBMITTED &&
@@ -83,8 +147,12 @@ export function buildHomeAlerts(params: {
       ) {
         alerts.push({
           id: `task-review-${task.id}`,
-          tone: 'blue',
-          message: `Un compañero subió foto de «${task.title}» para validar.`,
+          tone: 'teal',
+          section: 'review',
+          title: 'Foto por validar',
+          message: `Un compañero entregó «${task.title}».`,
+          entityType: 'task',
+          entityId: task.id,
         });
       }
     }
@@ -104,7 +172,11 @@ export function buildHomeAlerts(params: {
         alerts.push({
           id: `expense-overdue-${expense.id}`,
           tone: 'red',
-          message: `El gasto «${expense.title}» ha pasado la fecha límite.`,
+          section: 'urgent',
+          title: 'Gasto vencido',
+          message: `«${expense.title}» ha pasado la fecha límite.`,
+          entityType: 'expense',
+          entityId: expense.id,
         });
       }
       continue;
@@ -120,16 +192,24 @@ export function buildHomeAlerts(params: {
     ) {
       alerts.push({
         id: `expense-new-${expense.id}`,
-        tone: 'blue',
-        message: `Nuevo gasto «${expense.title}» que te incluye.`,
+        tone: 'teal',
+        section: 'money',
+        title: 'Nuevo gasto',
+        message: `«${expense.title}» te incluye en el reparto.`,
+        entityType: 'expense',
+        entityId: expense.id,
       });
     }
 
     if (expense.status === 'SETTLED' && involved && updatedAgo >= 0 && updatedAgo <= RECENT_MS) {
       alerts.push({
         id: `expense-settled-${expense.id}`,
-        tone: 'blue',
-        message: `Se ha saldado la deuda de «${expense.title}».`,
+        tone: 'teal',
+        section: 'money',
+        title: 'Deuda saldada',
+        message: `Se ha saldado «${expense.title}».`,
+        entityType: 'expense',
+        entityId: expense.id,
       });
     }
 
@@ -142,19 +222,27 @@ export function buildHomeAlerts(params: {
         alerts.push({
           id: `expense-overdue-${expense.id}`,
           tone: 'red',
-          message: `El gasto «${expense.title}» ha pasado la fecha límite.`,
+          section: 'urgent',
+          title: 'Gasto vencido',
+          message: `«${expense.title}» ha pasado la fecha límite.`,
+          entityType: 'expense',
+          entityId: expense.id,
         });
       } else if (remaining <= SOON_MS) {
         alerts.push({
           id: `expense-soon-${expense.id}`,
           tone: 'amber',
-          message: `Quedan ${formatCountdown(expense.due_at, now).label.replace('Quedan ', '')} para saldar «${expense.title}».`,
+          section: 'soon',
+          title: 'Saldar pronto',
+          message: `«${expense.title}» · ${formatCountdown(expense.due_at, now).label}.`,
+          entityType: 'expense',
+          entityId: expense.id,
         });
       }
     }
   }
 
-  return alerts.slice(0, 6);
+  return sortHomeAlerts(alerts).slice(0, limit);
 }
 
 /**
