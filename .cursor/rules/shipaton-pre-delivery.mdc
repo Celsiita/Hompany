@@ -1,0 +1,18 @@
+---
+description: Checklist obligatorio antes de entregar Shipaton Next Gen (RevenueCat Ed estudiantes)
+alwaysApply: true
+---
+
+# Antes de entregar (Shipaton Next Gen)
+
+No dar por “listo para submit” hasta completar esto. Orden recomendado:
+
+1. **Probar la app local** — Docker Desktop OK → `npm run db:start` → `npm run db:reset` → `npm start` → smoke del script demo (login seed Ana, Feed, Tareas, Gastos, Ajustes).
+2. **RevenueCat** — proyecto + Test Store + entitlement `hompany_plus` + offering/paywall → `EXPO_PUBLIC_REVENUECAT_API_KEY` en `.env.local` → verificar paywall y unlock de packs.
+3. **Repo** — `LICENSE` MIT visible; GitHub **público**; README con setup + seed + demo.
+4. **Vídeo ≤2 min** — seguir `docs/SHIPATON-DEMO.md`; YouTube/Vimeo público.
+5. **Devpost** — descripción, link repo, link vídeo, email académico; enviar antes del deadline.
+
+No asumir que el usuario ya hizo RevenueCat o el vídeo. Si pide “entregar” o “submit”, recordar los pasos pendientes.
+
+Referencias: `docs/plans/31-shipaton-supervivencia.md`, `docs/monetization.md`, `docs/SHIPATON-DEMO.md`.
