@@ -189,6 +189,8 @@ export function ExpensesScreen() {
             <ScreenHeader
               title="Gastos"
               subtitle="Súper, casa y ocio"
+              helpTitle="Gastos"
+              helpMessage="Reparte en partes iguales, por porcentaje o cantidades fijas. Usa Mis deudas / Mis cobros. Saldar cierra la deuda."
               createAccessibilityLabel="Nuevo gasto"
               onCreatePress={() => {
                 setEditing(null);

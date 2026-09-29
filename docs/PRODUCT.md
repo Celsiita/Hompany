@@ -6,7 +6,7 @@ Guía de producto para quien use o revise la app. La periodicidad está detallad
 
 | Tab | Para qué sirve |
 |-----|----------------|
-| **Home** | **Feed** (estado → avisos → ranking → deudas → info/reglas colapsables) y **Agenda** (filtros → calendario → lista). Menú ⋮: avisos, ausencias, modo silencio, visitas, iconos. Campanita en cabecera. |
+| **Home** | Tres secciones: **Feed** (estado, ranking, cuentas), **Agenda** (calendario + lista), **Piso** (Wi‑Fi/reglas). Campanita de avisos. Menú ⋮: ausencias, modo silencio, visitas, iconos. |
 | **Tareas** | En curso / Historial. Botón **+** para crear. Filtros, tipos, intercambios, foto. |
 | **Gastos** | Súper, casa, ocio + tipos. Botón **+** para crear. |
 | **Ajustes** | Perfil, iconos, invitación, compañeros, **prueba de foto del piso** (admin), abandonar, cuenta. |
@@ -65,11 +65,13 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 - Barra de salud: **Excelente** / **Regular** / **Crítico**.
 - Una sola franja: Pendientes | Entregadas | Completadas.
 - **Clasificación** del piso: ranking por `reputation_points`, con nombre e info de tareas (hechas, pendientes, en revisión, vencidas). Calculado en Postgres (`get_home_leaderboard`).
-- Home se divide en **Feed** (resumen ordenado) y **Agenda** (calendario + lista sincronizada).
-- **Agenda:** filtros, calendario y lista del día primero. Ausencias / modo silencio / visitas → menú ⋮.
-- **Avisos in-app:** campanita + inbox accionable (ver [`notifications.md`](./notifications.md)).
+- Home se divide en **Feed** / **Agenda** / **Piso**.
+- **Agenda:** filtros, calendario, leyenda de colores (azul / cielo / ámbar) y lista. Ausencias / modo silencio / visitas → menú ⋮.
+- **Avisos in-app:** solo campanita + inbox (no lista en el Feed). Ver [`notifications.md`](./notifications.md).
+- **Ayuda:** iconos `?` en cabeceras y secciones clave.
+- **Tutorial:** tour interactivo v2 (cambia secciones / pestañas) desde 1ª apertura o Ajustes.
 - **Filtros Agenda:** botón Filtros (🙈/🐵) con `Mis cosas` | `Compañeros` (sin selección = Todo el piso) + chips `Tareas` / `Gastos`.
-- **Calendario:** vista semanal = **7 días desde hoy** (sin días pasados; la flecha atrás se bloquea en hoy) o mes completo (botón Mes/Semana). Puntos: azul (tuyas), teal hueco (compañeros), ámbar (gastos), violeta (ausencias), celeste (exámenes).
+- **Calendario:** vista semanal = **7 días desde hoy** (sin días pasados; la flecha atrás se bloquea en hoy) o mes completo (botón Mes/Semana). Puntos: azul (tuyas), cielo hueco (compañeros), ámbar (gastos), violeta (ausencias), celeste (exámenes).
 - **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Nada previsto».
 - Tareas (azul) y gastos (ámbar); **abiertas** vs **programadas** (tarjetas atenuadas). Gastos solo si estás involucrado.
 - **Ausencias** (Agenda): dos tipos — **Puntual** (solo tareas + reasignación) e **Indefinida/planificada** (congela la app salvo gastos atrasados). Sin «Estancia en el piso».

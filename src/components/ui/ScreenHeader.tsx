@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { HeaderAlertsButton } from '@/components/ui/HeaderAlertsButton';
+import { HelpTip } from '@/components/ui/HelpTip';
 import { OverflowMenuButton } from '@/components/ui/OverflowMenu';
 
 type ScreenHeaderProps = {
@@ -11,6 +12,8 @@ type ScreenHeaderProps = {
   onAlertsPress?: () => void;
   alertsCount?: number;
   urgentAlertsCount?: number;
+  helpTitle?: string;
+  helpMessage?: string;
   /** Primary create action (preferred over overflow ⋮ for new items). */
   onCreatePress?: () => void;
   createAccessibilityLabel?: string;
@@ -26,13 +29,20 @@ export function ScreenHeader({
   onAlertsPress,
   alertsCount = 0,
   urgentAlertsCount = 0,
+  helpTitle,
+  helpMessage,
   onCreatePress,
   createAccessibilityLabel = 'Crear',
 }: ScreenHeaderProps) {
   return (
     <View className="flex-row items-start justify-between gap-3">
       <View className="flex-1 gap-1">
-        <Text className="text-2xl font-bold text-stone-900">{title}</Text>
+        <View className="flex-row items-center gap-2">
+          <Text className="text-2xl font-bold text-stone-900">{title}</Text>
+          {helpTitle && helpMessage ? (
+            <HelpTip title={helpTitle} message={helpMessage} />
+          ) : null}
+        </View>
         {subtitle ? <Text className="text-base text-stone-600">{subtitle}</Text> : null}
       </View>
       <View className="flex-row items-center gap-2">

@@ -3,14 +3,20 @@ import {
   PropsWithChildren,
   useCallback,
   useContext,
+  useRef,
   useState,
 } from 'react';
 
+import type { HomeSection } from '@/components/ui/HomeSectionBar';
 import { TutorialHost } from '@/features/onboarding/components/TutorialHost';
 
 type TutorialContextValue = {
   /** Opens the Mico tutorial again (e.g. from Settings). */
   openTutorial: () => void;
+  /** Home registers its section setter so the tour can switch Feed/Agenda/Piso. */
+  registerHomeSectionSetter: (setter: (section: HomeSection) => void) => void;
+  /** Applies a Home section during the tour (no-op if Home is not mounted). */
+  setHomeSection: (section: HomeSection) => void;
 };
 
 const TutorialContext = createContext<TutorialContextValue | null>(null);
@@ -20,17 +26,28 @@ const TutorialContext = createContext<TutorialContextValue | null>(null);
  */
 export function TutorialProvider({ children }: PropsWithChildren) {
   const [forceOpen, setForceOpen] = useState(false);
+  const sectionSetterRef = useRef<((section: HomeSection) => void) | null>(null);
 
   const openTutorial = useCallback(() => {
     setForceOpen(true);
   }, []);
 
+  const registerHomeSectionSetter = useCallback((setter: (section: HomeSection) => void) => {
+    sectionSetterRef.current = setter;
+  }, []);
+
+  const setHomeSection = useCallback((section: HomeSection) => {
+    sectionSetterRef.current?.(section);
+  }, []);
+
   return (
-    <TutorialContext.Provider value={{ openTutorial }}>
+    <TutorialContext.Provider
+      value={{ openTutorial, registerHomeSectionSetter, setHomeSection }}>
       {children}
       <TutorialHost
         forceOpen={forceOpen}
         onForceOpenHandled={() => setForceOpen(false)}
+        setHomeSection={setHomeSection}
       />
     </TutorialContext.Provider>
   );

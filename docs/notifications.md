@@ -17,10 +17,10 @@ Definido en [`src/features/home/lib/alerts.ts`](../src/features/home/lib/alerts.
 
 ## Comportamiento actual
 
-- Campanita en la cabecera de Home (badge rojo si hay urgentes) abre el inbox de avisos.
-- Preview de hasta 2 avisos en el Feed (Estado → Avisos → Clasificación → Cuentas → Datos del piso).
+- Campanita en la cabecera de Home (badge rojo si hay urgentes) abre el inbox. **No hay lista de avisos en el Feed.**
 - Inbox agrupado: Urgente / Pronto / Por revisar / Gastos. Tocar un aviso abre la tarjeta en Tareas o Gastos.
-- Ausencias, modo silencio y visitas del calendario se gestionan desde el menú ⋮ (no saturan la Agenda).
+- Ausencias, modo silencio y visitas del calendario se gestionan desde el menú ⋮.
+- Iconos `?` explican cada sección (Feed, Agenda, Piso, Tareas, Gastos, Ajustes).
 - Tarjetas de tarea y gasto muestran cuenta atrás respecto a `due_at`.
 - `home_activity_events` registra admin, repetir, reabrir, roles y expulsiones (historial, no editable).
 

@@ -324,7 +324,12 @@ export function SettingsScreen() {
         overScrollMode="never"
         contentInsetAdjustmentBehavior="never"
         contentContainerClassName="pt-2 pb-10 gap-4">
-        <ScreenHeader title="Ajustes" subtitle="Tu cuenta, tu piso y la sesión" />
+        <ScreenHeader
+          title="Ajustes"
+          subtitle="Tu cuenta, tu piso y la sesión"
+          helpTitle="Ajustes"
+          helpMessage="Perfil, invitación, compañeros, foto de prueba del piso y HOMPANY Plus (packs de iconos). Desde aquí puedes repetir el tutorial."
+        />
 
         <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
           <Text className="text-sm font-semibold text-gray-500">Perfil</Text>

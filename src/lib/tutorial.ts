@@ -2,55 +2,115 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { MASCOT_NAME } from '@/lib/mascot';
 
-/** Persisted flag: user finished or skipped the intro tutorial. */
-export const TUTORIAL_COMPLETED_KEY = 'hompany.tutorial.completed.v1';
+/** Persisted flag: user finished or skipped the intro tutorial (v2 interactive). */
+export const TUTORIAL_COMPLETED_KEY = 'hompany.tutorial.completed.v2';
+
+export type TutorialHighlight =
+  | 'welcome'
+  | 'feed'
+  | 'agenda'
+  | 'piso'
+  | 'bell'
+  | 'tasks'
+  | 'expenses'
+  | 'settings';
 
 export type TutorialStep = {
   id: string;
   title: string;
   body: string;
   emoji: string;
+  highlight: TutorialHighlight;
+  /** Primary CTA label */
+  cta: string;
+  /** Optional secondary tip under the CTA */
+  tip?: string;
+  /** Switch Home section when this step shows (if on Home). */
+  homeSection?: 'FEED' | 'AGENDA' | 'PISO';
+  /** Navigate to a tab route when pressing CTA (before advancing). */
+  goTab?: '/(tabs)' | '/(tabs)/tasks' | '/(tabs)/expenses' | '/(tabs)/settings';
 };
 
 /**
- * Guided tour steps narrated by Mico (first launch + Settings replay).
+ * Interactive guided tour: each step highlights a product area and invites action.
  */
 export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 'welcome',
-    title: `Hola, soy ${MASCOT_NAME}`,
-    body: 'Te enseño el piso en un minuto: Feed, Agenda, Tareas y Gastos. Luego vuelves a la app.',
+    title: `${MASCOT_NAME} te da la bienvenida`,
+    body: 'HOMPANY es el juego de convivencia de tu piso: tareas con foto, gastos claros y un poco de reputación. En un minuto ves dónde está cada cosa.',
     emoji: '🐵',
+    highlight: 'welcome',
+    cta: 'Empezar tour',
+    tip: 'Puedes saltar y repetirlo luego en Ajustes.',
   },
   {
     id: 'feed',
-    title: 'Home · Feed',
-    body: 'Aquí ves la salud del piso, la info práctica (Wi‑Fi, portal), reglas, quejas, el ranking y quién debe a quién.',
+    title: 'Feed = el pulso del piso',
+    body: 'Aquí ves si el piso va bien, el ranking y quién debe a quién. Nada de Wi‑Fi aquí: eso vive en Piso.',
     emoji: '🏠',
+    highlight: 'feed',
+    homeSection: 'FEED',
+    cta: 'Ver el Feed',
+    tip: 'Mira la barra de salud y la clasificación.',
+  },
+  {
+    id: 'bell',
+    title: 'Campanita = avisos',
+    body: 'Lo urgente (vencido, foto por validar, gastos) aparece en la 🔔. Toca un aviso y saltas a la tarjeta.',
+    emoji: '🔔',
+    highlight: 'bell',
+    homeSection: 'FEED',
+    cta: 'Siguiente',
+    tip: 'Badge rojo = hay algo urgente.',
   },
   {
     id: 'agenda',
-    title: 'Home · Agenda',
-    body: 'Calendario de tareas y gastos, ausencias, modo silencio y avisos del piso (visitas, reparaciones, eventos).',
+    title: 'Agenda = calendario vivo',
+    body: 'Azul = tus tareas, círculo cielo = compañeros, ámbar = gastos. Toca un día y baja a la lista.',
     emoji: '📅',
+    highlight: 'agenda',
+    homeSection: 'AGENDA',
+    cta: 'Abrir Agenda',
+    tip: 'Ausencias y exámenes están en el menú ⋮, no estorban aquí.',
+  },
+  {
+    id: 'piso',
+    title: 'Piso = datos del hogar',
+    body: 'Wi‑Fi, portal, basura, reglas y quejas. Lo que siempre buscas en el grupo de WhatsApp… pero ordenado.',
+    emoji: '🔑',
+    highlight: 'piso',
+    homeSection: 'PISO',
+    cta: 'Ver Piso',
   },
   {
     id: 'tasks',
-    title: 'Tareas',
-    body: 'Crea con +. Completa con foto (según ajustes del piso), los compañeros validan o impugnan con motivo. Sin reabrir lo cerrado.',
+    title: 'Tareas con prueba',
+    body: 'Crea con +. Entrega con foto. Los compañeros aprueban o impugnan. Intercambia si no puedes.',
     emoji: '✅',
+    highlight: 'tasks',
+    goTab: '/(tabs)/tasks',
+    cta: 'Ir a Tareas',
+    tip: 'Los countdowns te dicen cuánto queda.',
   },
   {
     id: 'expenses',
-    title: 'Gastos',
-    body: 'Reparto igualitario, porcentajes o cantidades. Mis deudas / Mis cobros. También se crean con +.',
+    title: 'Gastos sin drama',
+    body: 'Reparte a partes iguales, por % o cantidades. Mis deudas / Mis cobros dejan claro quién paga a quién.',
     emoji: '💶',
+    highlight: 'expenses',
+    goTab: '/(tabs)/expenses',
+    cta: 'Ir a Gastos',
   },
   {
     id: 'settings',
-    title: 'Ajustes',
-    body: 'Perfil, invitación al piso, compañeros y (si eres admin) si la foto de prueba es obligatoria o solo con cámara. Puedes repetir este tutorial cuando quieras.',
+    title: 'Ajustes y Plus',
+    body: 'Invita con código/QR, gestiona compañeros y desbloquea packs de iconos con HOMPANY Plus (RevenueCat).',
     emoji: '⚙️',
+    highlight: 'settings',
+    goTab: '/(tabs)/settings',
+    cta: 'Terminar',
+    tip: 'Desde aquí puedes repetir este tutorial.',
   },
 ];
 

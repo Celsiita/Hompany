@@ -1,16 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { router } from 'expo-router';
 
-import { CollapsibleSection } from '@/components/ui/CollapsibleFilterPanel';
 import { FeedSectionHeader } from '@/components/ui/FeedSectionHeader';
 import { HealthMeter, MetricsBar } from '@/components/ui/HealthMeter';
+import { HelpTip } from '@/components/ui/HelpTip';
 import { HomeSectionBar, type HomeSection } from '@/components/ui/HomeSectionBar';
 import { MascotLoading } from '@/components/ui/MascotLoading';
 import { OverflowMenu } from '@/components/ui/OverflowMenu';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { AlertsBanner } from '@/features/home/components/AlertsBanner';
 import { AlertsModal } from '@/features/home/components/AlertsModal';
 import { HomeAgenda } from '@/features/home/components/HomeAgenda';
 import { HomeInfoCard } from '@/features/home/components/HomeInfoCard';
@@ -27,7 +25,7 @@ import { useHomePresence } from '@/features/home/hooks/useHomePresence';
 import { BalanceSummary } from '@/features/expenses/components/BalanceSummary';
 import { useHomeExpenses } from '@/features/expenses/hooks/useHomeExpenses';
 import { useHomeLeaderboard } from '@/features/home/hooks/useHomeLeaderboard';
-import { buildHomeAlerts, type HomeAlert } from '@/features/home/lib/alerts';
+import { buildHomeAlerts } from '@/features/home/lib/alerts';
 import {
   excludeAbsentAssigneeTasks,
   filterTasksForAbsentViewer,
@@ -37,20 +35,21 @@ import { filterExpensesForViewer, type AgendaItem } from '@/features/home/lib/ag
 import { useHomeTasks } from '@/features/tasks/hooks/useHomeTasks';
 import { canRequestTaskSwap } from '@/features/tasks/lib/board-filters';
 import { summarizeTasks } from '@/features/tasks/lib/task-summary';
-import { expenseFocusHref, taskFocusHref } from '@/lib/navigation/board-focus';
 import { isUserSystemFrozen } from '@/lib/presence';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
 import { useIconPack } from '@/providers/IconPackProvider';
 import { usePurchases } from '@/providers/PurchasesProvider';
+import { useTutorial } from '@/providers/TutorialProvider';
 
 /**
- * Home — Feed (status → alerts → game → money → flat info) and Agenda (calendar first).
- * Absences, silence and visits open from the ⋮ menu.
+ * Home — Feed (estado → ranking → cuentas), Agenda, Piso (info práctica).
+ * Avisos solo en campanita. Ausencias / silencio / visitas en ⋮.
  */
 export function HomeScreen() {
   const { user } = useAuth();
   const { activeHome, updateHomePracticalInfo } = useHome();
+  const { registerHomeSectionSetter } = useTutorial();
   const {
     tasks,
     isLoading,
@@ -105,6 +104,10 @@ export function HomeScreen() {
   const [packOpen, setPackOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [lifeSheet, setLifeSheet] = useState<HomeLifeSheetKind | null>(null);
+
+  useEffect(() => {
+    registerHomeSectionSetter(setSection);
+  }, [registerHomeSectionSetter]);
 
   const visibleExpenses = useMemo(
     () => filterExpensesForViewer(expenses, user?.id),
@@ -164,17 +167,11 @@ export function HomeScreen() {
   const subtitle =
     section === 'FEED'
       ? isPlus
-        ? 'Estado del piso · Plus'
-        : 'Estado del piso'
-      : 'Calendario y día a día';
-
-  function openAlert(alert: HomeAlert) {
-    router.push(
-      alert.entityType === 'task'
-        ? taskFocusHref(alert.entityId)
-        : expenseFocusHref(alert.entityId),
-    );
-  }
+        ? 'Estado y ranking · Plus'
+        : 'Estado y ranking'
+      : section === 'AGENDA'
+        ? 'Calendario del piso'
+        : 'Info práctica y reglas';
 
   async function handleCancelOccurrence(item: AgendaItem) {
     if (item.kind === 'task') {
@@ -227,7 +224,13 @@ export function HomeScreen() {
             overScrollMode="never"
             contentInsetAdjustmentBehavior="never"
             contentContainerClassName="gap-4 pb-8">
-            <FeedSectionHeader title="Estado" subtitle="Salud del piso esta semana" />
+            <View className="flex-row items-center justify-between">
+              <FeedSectionHeader title="Estado" subtitle="Salud del piso esta semana" />
+              <HelpTip
+                title="Estado del piso"
+                message="La barra resume si el piso va bien. Pendientes, entregadas (foto en revisión) y hechas. Los avisos urgentes están en la campanita de arriba."
+              />
+            </View>
             {isLoading ? <MascotLoading /> : <HealthMeter summary={healthSummary} />}
             {!isLoading ? (
               <MetricsBar
@@ -237,26 +240,13 @@ export function HomeScreen() {
               />
             ) : null}
 
-            <FeedSectionHeader
-              title="Avisos"
-              subtitle={
-                alerts.length > 0
-                  ? `${alerts.length} pendientes · toca para abrir`
-                  : 'Nada urgente ahora'
-              }
-            />
-            {alerts.length > 0 ? (
-              <AlertsBanner
-                alerts={alerts}
-                previewLimit={2}
-                onPressAlert={openAlert}
-                onPressSeeAll={() => setAlertsOpen(true)}
+            <View className="flex-row items-center justify-between">
+              <FeedSectionHeader title="Clasificación" subtitle="Reputación del equipo" />
+              <HelpTip
+                title="Clasificación"
+                message="Ranking por puntos de reputación. Cumplir tareas suma; fallar resta. Ideal para motivar sin drama."
               />
-            ) : (
-              <Text className="text-sm text-stone-500">El piso está al día. 🔔 en la cabecera si aparece algo.</Text>
-            )}
-
-            <FeedSectionHeader title="Clasificación" subtitle="Reputación del equipo" />
+            </View>
             {leaderboardLoading ? (
               <MascotLoading label="Ordenando el ranking…" />
             ) : leaderboardError ? (
@@ -265,37 +255,22 @@ export function HomeScreen() {
               <HomeLeaderboard rows={leaderboard} currentUserId={user?.id} />
             )}
 
-            <FeedSectionHeader title="Cuentas" subtitle="Quién debe a quién" />
+            <View className="flex-row items-center justify-between">
+              <FeedSectionHeader title="Cuentas" subtitle="Quién debe a quién" />
+              <HelpTip
+                title="Cuentas"
+                message="Resumen rápido de deudas entre compañeros. El detalle y saldar están en la pestaña Gastos."
+              />
+            </View>
             {expensesLoading ? (
               <MascotLoading label="Sumando quién debe a quién…" />
             ) : (
               <BalanceSummary balances={balances} members={members} currentUserId={user?.id} />
             )}
-
-            <FeedSectionHeader title="Datos del piso" subtitle="Info práctica y convivencia" />
-            <CollapsibleSection title="Wi‑Fi, portal y notas" accent="stone" defaultExpanded={false}>
-              <HomeInfoCard
-                home={activeHome}
-                onSave={async (input) => {
-                  await updateHomePracticalInfo(input);
-                }}
-              />
-            </CollapsibleSection>
-            <CollapsibleSection title="Reglas y quejas" accent="stone" defaultExpanded={false}>
-              <HomeNoticesPanel
-                notices={feedNotices}
-                isLoading={noticesLoading}
-                currentUserId={user?.id}
-                isAdmin={isAdmin}
-                authorName={memberDisplayName}
-                onAdd={async (input) => {
-                  await addNotice(input);
-                }}
-                onRemove={removeNotice}
-              />
-            </CollapsibleSection>
           </ScrollView>
-        ) : (
+        ) : null}
+
+        {section === 'AGENDA' ? (
           <HomeAgenda
             tasks={agendaTasks}
             expenses={agendaExpenses}
@@ -322,7 +297,52 @@ export function HomeScreen() {
               void requestSwap(task, other.user_id);
             }}
           />
-        )}
+        ) : null}
+
+        {section === 'PISO' ? (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            overScrollMode="never"
+            contentInsetAdjustmentBehavior="never"
+            contentContainerClassName="gap-4 pb-8">
+            <View className="flex-row items-center justify-between">
+              <FeedSectionHeader
+                title="Info práctica"
+                subtitle="Wi‑Fi, portal, basura y notas"
+              />
+              <HelpTip
+                title="Info del piso"
+                message="Datos que todos necesitan: red Wi‑Fi, código del portal, día de basura. Edítalos desde la tarjeta."
+              />
+            </View>
+            <HomeInfoCard
+              home={activeHome}
+              onSave={async (input) => {
+                await updateHomePracticalInfo(input);
+              }}
+            />
+
+            <View className="flex-row items-center justify-between">
+              <FeedSectionHeader title="Convivencia" subtitle="Reglas y quejas del piso" />
+              <HelpTip
+                title="Reglas y quejas"
+                message="Reglas visibles para todos. Las quejas pueden ser anónimas. Ideal para acuerdos de convivencia sin chats externos."
+              />
+            </View>
+            <HomeNoticesPanel
+              notices={feedNotices}
+              isLoading={noticesLoading}
+              currentUserId={user?.id}
+              isAdmin={isAdmin}
+              authorName={memberDisplayName}
+              onAdd={async (input) => {
+                await addNotice(input);
+              }}
+              onRemove={removeNotice}
+            />
+          </ScrollView>
+        ) : null}
       </View>
 
       <OverflowMenu
@@ -332,10 +352,7 @@ export function HomeScreen() {
         actions={[
           {
             key: 'alerts',
-            label:
-              alerts.length > 0
-                ? `Avisos (${alerts.length})`
-                : 'Avisos',
+            label: alerts.length > 0 ? `Avisos (${alerts.length})` : 'Avisos',
             onPress: () => setAlertsOpen(true),
           },
           {

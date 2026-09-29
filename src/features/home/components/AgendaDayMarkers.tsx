@@ -15,19 +15,19 @@ type AgendaDayMarkersProps = {
 
 function dotClassName(dot: AgendaDayDot): string {
   if (dot.kind === 'expense') {
-    return dot.open ? 'bg-emerald-600' : 'bg-emerald-300';
+    return dot.open ? 'bg-amber-500' : 'bg-amber-300';
   }
   if (dot.kind === 'mine-task') {
     return dot.open ? 'bg-blue-600' : 'bg-blue-300';
   }
   if (dot.open) {
-    return 'border border-teal-600 bg-transparent';
+    return 'border border-sky-600 bg-transparent';
   }
-  return 'border border-teal-300 bg-transparent';
+  return 'border border-sky-300 bg-transparent';
 }
 
 /**
- * Task dots directly under the day number; status emojis in a row below.
+ * Task/expense dots under the day number (blue / sky / amber).
  */
 export function AgendaDayMarkers({ dots, emojis, showOthers = true }: AgendaDayMarkersProps) {
   const visibleDots = dots.filter(

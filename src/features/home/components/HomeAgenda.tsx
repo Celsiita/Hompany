@@ -8,7 +8,9 @@ import {
   DEFAULT_AGENDA_VIEW_SCOPE,
 } from '@/features/home/components/AgendaScopeBar';
 import { CollapsibleFilterPanel } from '@/components/ui/CollapsibleFilterPanel';
+import { HelpTip } from '@/components/ui/HelpTip';
 import { AgendaCalendar } from '@/features/home/components/AgendaCalendar';
+import { AgendaColorLegend } from '@/features/home/components/AgendaColorLegend';
 import { AgendaList, type AgendaListHandle } from '@/features/home/components/AgendaList';
 import { ScheduledItemSheet } from '@/features/home/components/ScheduledItemSheet';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
@@ -178,9 +180,15 @@ export function HomeAgenda({
         bounces={false}
         overScrollMode="never">
         <View className="gap-4 pb-8">
-          <Text className="text-xs text-stone-500">
-            Calendario y lista del día. Ausencias, modo silencio y visitas están en el menú ⋮.
-          </Text>
+          <View className="flex-row items-start justify-between gap-2">
+            <Text className="flex-1 text-xs text-stone-500">
+              Calendario y lista del día. Ausencias, modo silencio y visitas → menú ⋮.
+            </Text>
+            <HelpTip
+              title="Agenda"
+              message="Toca un día para saltar a su lista. Azul = tus tareas, cielo = compañeros, ámbar = gastos. Las tarjetas abiertas te llevan al tablero."
+            />
+          </View>
 
           <CollapsibleFilterPanel activeHint={filterHint}>
             <AgendaScopeBar
@@ -203,6 +211,8 @@ export function HomeAgenda({
             selectedDay={selectedDay}
             onSelectDay={handleSelectDay}
           />
+
+          <AgendaColorLegend />
 
           <AgendaList
             ref={listRef}
