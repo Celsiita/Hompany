@@ -3,9 +3,47 @@ jest.mock('expo-constants', () => ({
     extra: {
       supabaseUrl: 'http://127.0.0.1:54321',
       supabaseAnonKey: 'test-anon-key',
+      revenueCatApiKey: undefined,
     },
   },
 }));
+
+jest.mock('react-native-purchases', () => ({
+  __esModule: true,
+  default: {
+    configure: jest.fn(),
+    setLogLevel: jest.fn(),
+    logIn: jest.fn(async () => ({ customerInfo: { entitlements: { active: {} } } })),
+    logOut: jest.fn(async () => ({ entitlements: { active: {} } })),
+    getCustomerInfo: jest.fn(async () => ({ entitlements: { active: {} } })),
+    restorePurchases: jest.fn(async () => ({ entitlements: { active: {} } })),
+    addCustomerInfoUpdateListener: jest.fn(),
+    removeCustomerInfoUpdateListener: jest.fn(),
+  },
+  LOG_LEVEL: { DEBUG: 'DEBUG', VERBOSE: 'VERBOSE' },
+}));
+
+jest.mock('react-native-purchases-ui', () => ({
+  __esModule: true,
+  default: {
+    presentPaywall: jest.fn(async () => 'CANCELLED'),
+  },
+  PAYWALL_RESULT: {
+    PURCHASED: 'PURCHASED',
+    RESTORED: 'RESTORED',
+    CANCELLED: 'CANCELLED',
+    NOT_PRESENTED: 'NOT_PRESENTED',
+    ERROR: 'ERROR',
+  },
+}));
+
+jest.mock('expo-linear-gradient', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    LinearGradient: ({ children, ...props }) => React.createElement(View, props, children),
+  };
+});
 
 jest.mock('expo-router', () => ({
   Stack: Object.assign(

@@ -18,14 +18,25 @@ import {
   type IconPack,
   type IconPackId,
 } from '@/lib/icons/packs';
+import { iconPackRequiresPlus } from '@/lib/purchases/plus-packs';
+import { usePurchases } from '@/providers/PurchasesProvider';
 
 type IconPackContextValue = {
   packId: IconPackId;
   pack: IconPack;
   packs: IconPack[];
-  setPackId: (id: IconPackId) => Promise<void>;
-  importPackFromJson: (raw: string) => Promise<IconPack>;
+  /**
+   * Selects a pack. Locked Plus packs open the paywall instead of switching.
+   * @returns true when the pack became active.
+   */
+  setPackId: (id: IconPackId) => Promise<boolean>;
+  /**
+   * Imports a custom pack (Plus). Opens paywall when the user is not Plus.
+   */
+  importPackFromJson: (raw: string) => Promise<IconPack | null>;
   removeCustomPack: (id: IconPackId) => Promise<void>;
+  /** Whether the pack needs HOMPANY Plus and the user does not have it. */
+  isPackLocked: (id: IconPackId) => boolean;
 };
 
 const IconPackContext = createContext<IconPackContextValue | null>(null);
@@ -39,8 +50,10 @@ function resolvePack(packId: IconPackId, custom: IconPack[]): IconPack {
 
 /**
  * Persists the selected thematic icon pack and any imported custom packs.
+ * Non-Classic packs require HOMPANY Plus (`hompany_plus` entitlement).
  */
 export function IconPackProvider({ children }: PropsWithChildren) {
+  const { isPlus, presentPaywall } = usePurchases();
   const [packId, setPackIdState] = useState<IconPackId>('classic');
   const [customPacks, setCustomPacks] = useState<IconPack[]>([]);
 
@@ -75,21 +88,56 @@ export function IconPackProvider({ children }: PropsWithChildren) {
     })();
   }, []);
 
-  const setPackId = useCallback(async (id: IconPackId) => {
+  useEffect(() => {
+    if (isPlus) {
+      return;
+    }
+    if (iconPackRequiresPlus(packId)) {
+      setPackIdState('classic');
+      void AsyncStorage.setItem(ICON_PACK_STORAGE_KEY, 'classic');
+    }
+  }, [isPlus, packId]);
+
+  const isPackLocked = useCallback(
+    (id: IconPackId) => iconPackRequiresPlus(id) && !isPlus,
+    [isPlus],
+  );
+
+  const applyPackId = useCallback(async (id: IconPackId) => {
     setPackIdState(id);
     await AsyncStorage.setItem(ICON_PACK_STORAGE_KEY, id);
   }, []);
 
+  const setPackId = useCallback(
+    async (id: IconPackId) => {
+      if (iconPackRequiresPlus(id) && !isPlus) {
+        const unlocked = await presentPaywall();
+        if (!unlocked) {
+          return false;
+        }
+      }
+      await applyPackId(id);
+      return true;
+    },
+    [isPlus, presentPaywall, applyPackId],
+  );
+
   const importPackFromJson = useCallback(
     async (raw: string) => {
+      if (!isPlus) {
+        const unlocked = await presentPaywall();
+        if (!unlocked) {
+          return null;
+        }
+      }
       const pack = parseImportedIconPackJson(raw);
       const next = [...customPacks.filter((item) => item.name !== pack.name), pack];
       setCustomPacks(next);
       await AsyncStorage.setItem(CUSTOM_ICON_PACKS_STORAGE_KEY, JSON.stringify(next));
-      await setPackId(pack.id);
+      await applyPackId(pack.id);
       return pack;
     },
-    [customPacks, setPackId],
+    [customPacks, isPlus, presentPaywall, applyPackId],
   );
 
   const removeCustomPack = useCallback(
@@ -98,10 +146,10 @@ export function IconPackProvider({ children }: PropsWithChildren) {
       setCustomPacks(next);
       await AsyncStorage.setItem(CUSTOM_ICON_PACKS_STORAGE_KEY, JSON.stringify(next));
       if (packId === id) {
-        await setPackId('classic');
+        await applyPackId('classic');
       }
     },
-    [customPacks, packId, setPackId],
+    [customPacks, packId, applyPackId],
   );
 
   const packs = useMemo(
@@ -117,8 +165,9 @@ export function IconPackProvider({ children }: PropsWithChildren) {
       setPackId,
       importPackFromJson,
       removeCustomPack,
+      isPackLocked,
     }),
-    [packId, customPacks, packs, setPackId, importPackFromJson, removeCustomPack],
+    [packId, customPacks, packs, setPackId, importPackFromJson, removeCustomPack, isPackLocked],
   );
 
   return <IconPackContext.Provider value={value}>{children}</IconPackContext.Provider>;

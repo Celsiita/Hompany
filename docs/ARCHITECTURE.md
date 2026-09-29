@@ -8,7 +8,8 @@
 | Lenguaje | TypeScript (`strict: true`) |
 | Backend | Supabase (PostgreSQL, RLS, Auth, Realtime, Storage) |
 | Validación | Zod |
-| Estilos | NativeWind v4 |
+| Estilos | NativeWind v4 + tokens teal/cream (`interactive-styles`) |
+| Monetización | RevenueCat (`hompany_plus`) — ver [`monetization.md`](./monetization.md) |
 | Tests | Jest (`jest-expo`) + React Native Testing Library |
 
 ## Estructura de carpetas
@@ -125,11 +126,14 @@ Documentación de producto: [`PRODUCT.md`](./PRODUCT.md), periodicidad: [`recurr
 
 Invite code: `DEMO2026`.
 
-## Fuera de alcance (Paso 5+)
+## Fuera de alcance (post-Shipaton)
 
-- Foto de prueba (Storage) al entregar tarea
-- Impugnar / emojis de revisión entre compañeros
-- Realtime
-- CI/CD y EAS Build
+- Realtime multi-dispositivo (hoy solo `board-sync` in-process entre tabs)
+- CI/CD y EAS Build de producción
 - Asignación semanal automática de tareas
-- Sistema de reputación aplicado en DB
+- Push remoto (ver [`notifications.md`](./notifications.md))
+
+## Monetización (Shipaton)
+
+- Entitlement `hompany_plus` vía RevenueCat; packs de iconos no-Clásico gated.
+- Provider: [`PurchasesProvider`](../src/providers/PurchasesProvider.tsx). Docs: [`monetization.md`](./monetization.md).

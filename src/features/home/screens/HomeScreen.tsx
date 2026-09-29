@@ -33,6 +33,7 @@ import { isUserSystemFrozen } from '@/lib/presence';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
 import { useIconPack } from '@/providers/IconPackProvider';
+import { usePurchases } from '@/providers/PurchasesProvider';
 
 /**
  * Home — Feed (health, ranking, balances) and Agenda (7-day + monthly calendar).
@@ -87,7 +88,8 @@ export function HomeScreen() {
     isLoading: leaderboardLoading,
     error: leaderboardError,
   } = useHomeLeaderboard();
-  const { packId, setPackId, packs } = useIconPack();
+  const { packId, setPackId, packs, isPackLocked } = useIconPack();
+  const { isPlus } = usePurchases();
   const [section, setSection] = useState<HomeSection>('FEED');
   const [menuOpen, setMenuOpen] = useState(false);
   const [packOpen, setPackOpen] = useState(false);
@@ -144,7 +146,11 @@ export function HomeScreen() {
     'Compañero';
 
   const subtitle =
-    section === 'FEED' ? 'Salud, info del piso y cuentas' : 'Calendario y eventos';
+    section === 'FEED'
+      ? isPlus
+        ? 'Salud, info del piso y cuentas · Plus'
+        : 'Salud, info del piso y cuentas'
+      : 'Calendario y eventos';
 
   async function handleCancelOccurrence(item: AgendaItem) {
     if (item.kind === 'task') {
@@ -326,7 +332,7 @@ export function HomeScreen() {
         onClose={() => setPackOpen(false)}
         actions={packs.map((item) => ({
           key: item.id,
-          label: `${item.name}${packId === item.id ? ' · activo' : ''}`,
+          label: `${item.name}${packId === item.id ? ' · activo' : ''}${isPackLocked(item.id) ? ' · Plus' : ''}`,
           onPress: () => {
             void setPackId(item.id);
           },

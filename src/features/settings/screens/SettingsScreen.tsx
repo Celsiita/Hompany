@@ -26,6 +26,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useHome } from '@/providers/HomeProvider';
 import { useIconPack } from '@/providers/IconPackProvider';
+import { usePurchases } from '@/providers/PurchasesProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
 import { registerSchema } from '@/schemas/auth.schema';
 import {
@@ -51,7 +52,9 @@ export function SettingsScreen() {
     updateHomeProofSettings,
   } = useHome();
   const confirm = useConfirmDialog();
-  const { packId, setPackId, packs, importPackFromJson, removeCustomPack } = useIconPack();
+  const { packId, setPackId, packs, importPackFromJson, removeCustomPack, isPackLocked } =
+    useIconPack();
+  const { isPlus, isConfigured, presentPaywall, restorePurchases } = usePurchases();
 
   const [displayName, setDisplayName] = useState('');
   const [members, setMembers] = useState<HomeMemberWithProfile[]>([]);
@@ -191,6 +194,10 @@ export function SettingsScreen() {
     setImportingPack(true);
     try {
       const pack = await importPackFromJson(iconPackJson);
+      if (!pack) {
+        setStatus('Necesitas HOMPANY Plus para importar packs');
+        return;
+      }
       setIconPackJson('');
       setStatus(`Pack «${pack.name}» importado y activo`);
     } catch (err) {
@@ -326,24 +333,71 @@ export function SettingsScreen() {
           <Button label="Guardar nombre" loading={savingName} onPress={() => void handleSaveName()} />
         </View>
 
+        <View className="rounded-2xl border border-teal-200 bg-teal-50/80 p-4 gap-3">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-sm font-semibold text-teal-800">HOMPANY Plus</Text>
+            <Text
+              className={`text-xs font-bold px-2 py-1 rounded-full ${
+                isPlus ? 'bg-teal-600 text-white' : 'bg-white text-teal-700'
+              }`}>
+              {isPlus ? 'Activo' : 'Gratis'}
+            </Text>
+          </View>
+          <Text className="text-xs text-teal-900/80">
+            Desbloquea packs de iconos Hogar y Play, e importa packs JSON propios. Potenciado
+            con RevenueCat.
+          </Text>
+          {!isPlus ? (
+            <Button
+              label="Mejorar a Plus"
+              onPress={() => {
+                void presentPaywall().then((ok) => {
+                  if (ok) {
+                    setStatus('¡Bienvenido a HOMPANY Plus!');
+                  }
+                });
+              }}
+            />
+          ) : null}
+          <Button
+            label="Restaurar compras"
+            variant="secondary"
+            onPress={() => {
+              void restorePurchases().then((ok) => {
+                if (ok) {
+                  setStatus('Compras restauradas');
+                }
+              });
+            }}
+          />
+          {!isConfigured ? (
+            <Text className="text-xs text-amber-700">
+              Añade EXPO_PUBLIC_REVENUECAT_API_KEY en .env.local (Test Store) para probar
+              compras.
+            </Text>
+          ) : null}
+        </View>
+
         <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
           <Text className="text-sm font-semibold text-gray-500">Iconos</Text>
           <Text className="text-xs text-gray-500">
-            Elige un paquete temático o importa uno propio (JSON con emojis). Los iconos se
-            aplican a tarjetas y a la agenda de 7 días.
+            Clásico es gratis. Hogar, Play e importados requieren HOMPANY Plus. Se aplican a
+            tarjetas y a la agenda.
           </Text>
           {packs.map((pack) => {
             const active = packId === pack.id;
             const custom = !isBuiltinIconPackId(pack.id);
+            const locked = isPackLocked(pack.id);
             return (
               <View key={pack.id} className="gap-2">
                 <Pressable
                   onPress={() => void setPackId(pack.id)}
-                  className={`rounded-xl border px-3 py-3 ${active ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                  className={`rounded-xl border px-3 py-3 ${active ? 'border-teal-500 bg-teal-50' : 'border-gray-200'}`}>
                   <Text className="text-sm font-medium text-gray-900">
                     {pack.tasks.checklist} {pack.name}
                     {active ? ' · activo' : ''}
                     {custom ? ' · importado' : ''}
+                    {locked ? ' · Plus' : ''}
                   </Text>
                   <Text className="text-xs text-gray-500">{pack.description}</Text>
                 </Pressable>

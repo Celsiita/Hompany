@@ -88,4 +88,8 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 
 ## Iconos
 
-Tres paquetes incluidos (Clásico, Hogar, Play) en Ajustes o en Home ⋮. También puedes **importar un pack JSON** (emojis por clave de tarea/gasto); se guarda en el dispositivo y se usa en tarjetas y en la agenda.
+Tres paquetes incluidos (Clásico gratis; **Hogar** y **Play** con **HOMPANY Plus**). También puedes **importar un pack JSON** (Plus): emojis por clave de tarea/gasto; se guarda en el dispositivo. Ver [`monetization.md`](./monetization.md).
+
+## HOMPANY Plus (RevenueCat)
+
+En **Ajustes**: sección Plus → Mejorar / Restaurar. Desbloquea packs no-Clásico e importación JSON. El resto de la app (tareas, gastos, agenda) es gratis.
