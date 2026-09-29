@@ -354,27 +354,27 @@ export function HomeScreen() {
         actions={[
           {
             key: 'alerts',
-            label: alerts.length > 0 ? `Avisos (${alerts.length})` : 'Avisos',
+            label: alerts.length > 0 ? `Avisos (${alerts.length})` : 'Avisos (campanita)',
             onPress: () => setAlertsOpen(true),
           },
           {
             key: 'absences',
-            label: 'Ausencias',
+            label: 'Ausencias del calendario',
             onPress: () => setLifeSheet('absences'),
           },
           {
             key: 'exams',
-            label: 'Modo silencio (exámenes)',
+            label: 'Modo silencio / exámenes',
             onPress: () => setLifeSheet('exams'),
           },
           {
             key: 'visits',
-            label: 'Visitas y avisos del piso',
+            label: 'Visitas y eventos del piso',
             onPress: () => setLifeSheet('visits'),
           },
           {
             key: 'icons',
-            label: 'Paquete de iconos',
+            label: 'Packs de iconos',
             onPress: () => setPackOpen(true),
           },
         ]}

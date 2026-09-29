@@ -54,7 +54,7 @@ export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
             <View
               key={row.user_id}
               className={`flex-row items-center gap-3 rounded-xl px-3 py-2.5 ${
-                isMe ? 'border border-blue-200 bg-blue-50' : 'bg-gray-50'
+                isMe ? 'border border-teal-300 bg-teal-50' : 'bg-stone-50'
               }`}>
               <View
                 className={`h-8 w-8 items-center justify-center rounded-full ${tone.badge}`}>
