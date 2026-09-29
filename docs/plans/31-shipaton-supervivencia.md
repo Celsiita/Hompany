@@ -1,7 +1,7 @@
 ---
 name: Shipaton supervivencia (Next Gen)
 overview: Plan mínimo para calificar en RevenueCat Shipaton 2026 Next Gen — RevenueCat SDK, demo estable y atractivo visual + entrega (vídeo, licencia, README). Sin realtime/concurrencia.
-status: in_progress
+status: completed
 date: 2026-09-29
 todos:
   - id: p1-revenuecat
@@ -9,13 +9,15 @@ todos:
     status: completed
   - id: p2-demo
     content: "Pilar 2: estabilizar flujo demo (seed, smoke, bugs bloqueantes)"
-    status: in_progress
+    status: completed
   - id: p3-visual-entrega
     content: "Pilar 3: pulido visual + LICENSE + README Shipaton + guion vídeo 2 min"
     status: completed
 ---
 
 # Plan 31 — Shipaton supervivencia (Next Gen)
+
+> **Estado implementación (2026-09-29):** P1–P3 código listo en `main` (commits `9b6dc7a`, `5502ea2`, `e73562c`). Queda acción humana: crear proyecto RevenueCat + API key en `.env.local`, smoke en dispositivo, grabar vídeo y submit Devpost.
 
 **Deadline:** 30 sep 2026, 23:45 PDT (~1 día).  
 **Categoría:** Next Gen (estudiantes) → vídeo ≤2 min + repo público con licencia OSS. Sin App Store.  

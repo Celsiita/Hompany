@@ -44,4 +44,4 @@ Aquí se versionan los planes de implementación del proyecto.
 | 28 | [Info práctica del piso en Feed](./28-info-piso-feed.md) | completed |
 | 29 | [Avisos, validación y UX tableros](./29-avisos-validacion-ux.md) | completed |
 | 30 | [Tutorial Mico (onboarding)](./30-tutorial-mico.md) | completed |
-| 31 | [Shipaton supervivencia (Next Gen)](./31-shipaton-supervivencia.md) | in_progress |
+| 31 | [Shipaton supervivencia (Next Gen)](./31-shipaton-supervivencia.md) | completed |
