@@ -6,7 +6,7 @@ Guía de producto para quien use o revise la app. La periodicidad está detallad
 
 | Tab | Para qué sirve |
 |-----|----------------|
-| **Home** | **Feed** (salud, info del piso, reglas/quejas, ranking, deudas) y **Agenda** (calendario + lista). Menú ⋮: avisos del sistema e iconos. |
+| **Home** | **Feed** (estado → avisos → ranking → deudas → info/reglas colapsables) y **Agenda** (filtros → calendario → lista). Menú ⋮: avisos, ausencias, modo silencio, visitas, iconos. Campanita en cabecera. |
 | **Tareas** | En curso / Historial. Botón **+** para crear. Filtros, tipos, intercambios, foto. |
 | **Gastos** | Súper, casa, ocio + tipos. Botón **+** para crear. |
 | **Ajustes** | Perfil, iconos, invitación, compañeros, **prueba de foto del piso** (admin), abandonar, cuenta. |
@@ -65,7 +65,9 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 - Barra de salud: **Excelente** / **Regular** / **Crítico**.
 - Una sola franja: Pendientes | Entregadas | Completadas.
 - **Clasificación** del piso: ranking por `reputation_points`, con nombre e info de tareas (hechas, pendientes, en revisión, vencidas). Calculado en Postgres (`get_home_leaderboard`).
-- Home se divide en **Feed** (resumen) y **Agenda** (calendario + lista sincronizada).
+- Home se divide en **Feed** (resumen ordenado) y **Agenda** (calendario + lista sincronizada).
+- **Agenda:** filtros, calendario y lista del día primero. Ausencias / modo silencio / visitas → menú ⋮.
+- **Avisos in-app:** campanita + inbox accionable (ver [`notifications.md`](./notifications.md)).
 - **Filtros Agenda:** botón Filtros (🙈/🐵) con `Mis cosas` | `Compañeros` (sin selección = Todo el piso) + chips `Tareas` / `Gastos`.
 - **Calendario:** vista semanal = **7 días desde hoy** (sin días pasados; la flecha atrás se bloquea en hoy) o mes completo (botón Mes/Semana). Puntos: azul (tuyas), teal hueco (compañeros), ámbar (gastos), violeta (ausencias), celeste (exámenes).
 - **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Nada previsto».

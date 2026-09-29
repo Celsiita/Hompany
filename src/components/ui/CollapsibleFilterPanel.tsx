@@ -36,7 +36,7 @@ export function CollapsibleFilterPanel({ children, activeHint }: CollapsibleFilt
 type CollapsibleSectionProps = {
   title: string;
   info?: ReactNode;
-  accent?: 'violet' | 'amber';
+  accent?: 'violet' | 'amber' | 'teal' | 'stone';
   children: ReactNode;
   defaultExpanded?: boolean;
 };
@@ -53,6 +53,18 @@ const ACCENT = {
     bg: 'bg-amber-50/30',
     title: 'text-amber-950',
     chevron: 'text-amber-800',
+  },
+  teal: {
+    border: 'border-teal-200',
+    bg: 'bg-teal-50/40',
+    title: 'text-teal-900',
+    chevron: 'text-teal-700',
+  },
+  stone: {
+    border: 'border-stone-200',
+    bg: 'bg-white/80',
+    title: 'text-stone-900',
+    chevron: 'text-stone-600',
   },
 } as const;
 

@@ -1,16 +1,24 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
+import { router } from 'expo-router';
 
+import { CollapsibleSection } from '@/components/ui/CollapsibleFilterPanel';
+import { FeedSectionHeader } from '@/components/ui/FeedSectionHeader';
 import { HealthMeter, MetricsBar } from '@/components/ui/HealthMeter';
 import { HomeSectionBar, type HomeSection } from '@/components/ui/HomeSectionBar';
 import { MascotLoading } from '@/components/ui/MascotLoading';
 import { OverflowMenu } from '@/components/ui/OverflowMenu';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { AlertsBanner } from '@/features/home/components/AlertsBanner';
 import { AlertsModal } from '@/features/home/components/AlertsModal';
 import { HomeAgenda } from '@/features/home/components/HomeAgenda';
 import { HomeInfoCard } from '@/features/home/components/HomeInfoCard';
 import { HomeLeaderboard } from '@/features/home/components/HomeLeaderboard';
+import {
+  HomeLifeSheet,
+  type HomeLifeSheetKind,
+} from '@/features/home/components/HomeLifeSheet';
 import { HomeNoticesPanel } from '@/features/home/components/HomeNoticesPanel';
 import { useHomeAbsences } from '@/features/home/hooks/useHomeAbsences';
 import { useHomeExamPeriods } from '@/features/home/hooks/useHomeExamPeriods';
@@ -19,7 +27,7 @@ import { useHomePresence } from '@/features/home/hooks/useHomePresence';
 import { BalanceSummary } from '@/features/expenses/components/BalanceSummary';
 import { useHomeExpenses } from '@/features/expenses/hooks/useHomeExpenses';
 import { useHomeLeaderboard } from '@/features/home/hooks/useHomeLeaderboard';
-import { buildHomeAlerts } from '@/features/home/lib/alerts';
+import { buildHomeAlerts, type HomeAlert } from '@/features/home/lib/alerts';
 import {
   excludeAbsentAssigneeTasks,
   filterTasksForAbsentViewer,
@@ -29,6 +37,7 @@ import { filterExpensesForViewer, type AgendaItem } from '@/features/home/lib/ag
 import { useHomeTasks } from '@/features/tasks/hooks/useHomeTasks';
 import { canRequestTaskSwap } from '@/features/tasks/lib/board-filters';
 import { summarizeTasks } from '@/features/tasks/lib/task-summary';
+import { expenseFocusHref, taskFocusHref } from '@/lib/navigation/board-focus';
 import { isUserSystemFrozen } from '@/lib/presence';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
@@ -36,7 +45,8 @@ import { useIconPack } from '@/providers/IconPackProvider';
 import { usePurchases } from '@/providers/PurchasesProvider';
 
 /**
- * Home — Feed (health, ranking, balances) and Agenda (7-day + monthly calendar).
+ * Home — Feed (status → alerts → game → money → flat info) and Agenda (calendar first).
+ * Absences, silence and visits open from the ⋮ menu.
  */
 export function HomeScreen() {
   const { user } = useAuth();
@@ -94,6 +104,7 @@ export function HomeScreen() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [packOpen, setPackOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [lifeSheet, setLifeSheet] = useState<HomeLifeSheetKind | null>(null);
 
   const visibleExpenses = useMemo(
     () => filterExpensesForViewer(expenses, user?.id),
@@ -139,6 +150,11 @@ export function HomeScreen() {
     [tasks, visibleExpenses, absences, systemLeaves, user?.id],
   );
 
+  const urgentAlertsCount = useMemo(
+    () => alerts.filter((item) => item.section === 'urgent').length,
+    [alerts],
+  );
+
   const agendaMembers = members.length > 0 ? members : taskMembers;
 
   const memberDisplayName = (userId: string) =>
@@ -148,9 +164,17 @@ export function HomeScreen() {
   const subtitle =
     section === 'FEED'
       ? isPlus
-        ? 'Salud, info del piso y cuentas · Plus'
-        : 'Salud, info del piso y cuentas'
-      : 'Calendario y eventos';
+        ? 'Estado del piso · Plus'
+        : 'Estado del piso'
+      : 'Calendario y día a día';
+
+  function openAlert(alert: HomeAlert) {
+    router.push(
+      alert.entityType === 'task'
+        ? taskFocusHref(alert.entityId)
+        : expenseFocusHref(alert.entityId),
+    );
+  }
 
   async function handleCancelOccurrence(item: AgendaItem) {
     if (item.kind === 'task') {
@@ -188,6 +212,9 @@ export function HomeScreen() {
         <ScreenHeader
           title={activeHome?.name ?? 'El piso'}
           subtitle={subtitle}
+          onAlertsPress={() => setAlertsOpen(true)}
+          alertsCount={alerts.length}
+          urgentAlertsCount={urgentAlertsCount}
           onMenuPress={() => setMenuOpen(true)}
         />
 
@@ -200,8 +227,8 @@ export function HomeScreen() {
             overScrollMode="never"
             contentInsetAdjustmentBehavior="never"
             contentContainerClassName="gap-4 pb-8">
+            <FeedSectionHeader title="Estado" subtitle="Salud del piso esta semana" />
             {isLoading ? <MascotLoading /> : <HealthMeter summary={healthSummary} />}
-
             {!isLoading ? (
               <MetricsBar
                 pending={healthSummary.pending}
@@ -210,25 +237,26 @@ export function HomeScreen() {
               />
             ) : null}
 
-            <HomeInfoCard
-              home={activeHome}
-              onSave={async (input) => {
-                await updateHomePracticalInfo(input);
-              }}
+            <FeedSectionHeader
+              title="Avisos"
+              subtitle={
+                alerts.length > 0
+                  ? `${alerts.length} pendientes · toca para abrir`
+                  : 'Nada urgente ahora'
+              }
             />
+            {alerts.length > 0 ? (
+              <AlertsBanner
+                alerts={alerts}
+                previewLimit={2}
+                onPressAlert={openAlert}
+                onPressSeeAll={() => setAlertsOpen(true)}
+              />
+            ) : (
+              <Text className="text-sm text-stone-500">El piso está al día. 🔔 en la cabecera si aparece algo.</Text>
+            )}
 
-            <HomeNoticesPanel
-              notices={feedNotices}
-              isLoading={noticesLoading}
-              currentUserId={user?.id}
-              isAdmin={isAdmin}
-              authorName={memberDisplayName}
-              onAdd={async (input) => {
-                await addNotice(input);
-              }}
-              onRemove={removeNotice}
-            />
-
+            <FeedSectionHeader title="Clasificación" subtitle="Reputación del equipo" />
             {leaderboardLoading ? (
               <MascotLoading label="Ordenando el ranking…" />
             ) : leaderboardError ? (
@@ -237,18 +265,35 @@ export function HomeScreen() {
               <HomeLeaderboard rows={leaderboard} currentUserId={user?.id} />
             )}
 
+            <FeedSectionHeader title="Cuentas" subtitle="Quién debe a quién" />
             {expensesLoading ? (
               <MascotLoading label="Sumando quién debe a quién…" />
             ) : (
               <BalanceSummary balances={balances} members={members} currentUserId={user?.id} />
             )}
 
-            {alerts.length > 0 ? (
-              <Text className="text-xs text-gray-500">
-                Tienes {alerts.length} aviso{alerts.length === 1 ? '' : 's'}. Ábrelos desde el
-                menú ⋮.
-              </Text>
-            ) : null}
+            <FeedSectionHeader title="Datos del piso" subtitle="Info práctica y convivencia" />
+            <CollapsibleSection title="Wi‑Fi, portal y notas" accent="stone" defaultExpanded={false}>
+              <HomeInfoCard
+                home={activeHome}
+                onSave={async (input) => {
+                  await updateHomePracticalInfo(input);
+                }}
+              />
+            </CollapsibleSection>
+            <CollapsibleSection title="Reglas y quejas" accent="stone" defaultExpanded={false}>
+              <HomeNoticesPanel
+                notices={feedNotices}
+                isLoading={noticesLoading}
+                currentUserId={user?.id}
+                isAdmin={isAdmin}
+                authorName={memberDisplayName}
+                onAdd={async (input) => {
+                  await addNotice(input);
+                }}
+                onRemove={removeNotice}
+              />
+            </CollapsibleSection>
           </ScrollView>
         ) : (
           <HomeAgenda
@@ -256,40 +301,12 @@ export function HomeScreen() {
             expenses={agendaExpenses}
             members={agendaMembers}
             absences={absences}
-            absencesLoading={absencesLoading}
-            systemLeaves={systemLeaves}
-            systemLeavesLoading={presenceLoading}
             examPeriods={examPeriods}
-            examPeriodsLoading={examPeriodsLoading}
             calendarNotices={calendarNotices}
-            calendarNoticesLoading={noticesLoading}
             currentUserId={user?.id}
             isAdmin={isAdmin}
             onCancelOccurrence={handleCancelOccurrence}
             onReassignOccurrence={handleReassignOccurrence}
-            onAddAbsence={async (input) => {
-              await addAbsence(input);
-              if (user?.id && activeHome?.id) {
-                await reassignRotatingTasksForPunctualAbsence({
-                  homeId: activeHome.id,
-                  actorId: user.id,
-                  absentUserId: user.id,
-                  startDate: input.start_date,
-                  endDate: input.end_date,
-                });
-              }
-            }}
-            onRemoveAbsence={removeAbsence}
-            onAddSystemLeave={addSystemLeave}
-            onRemoveSystemLeave={removeSystemLeave}
-            onAddExamPeriod={async (input) => {
-              await addExamPeriod(input);
-            }}
-            onRemoveExamPeriod={removeExamPeriod}
-            onAddCalendarNotice={async (input) => {
-              await addNotice(input);
-            }}
-            onRemoveCalendarNotice={removeNotice}
             onRequestSwap={(item) => {
               if (item.kind !== 'task') {
                 return;
@@ -315,8 +332,26 @@ export function HomeScreen() {
         actions={[
           {
             key: 'alerts',
-            label: alerts.length > 0 ? `Avisos / Notificaciones (${alerts.length})` : 'Avisos / Notificaciones',
+            label:
+              alerts.length > 0
+                ? `Avisos (${alerts.length})`
+                : 'Avisos',
             onPress: () => setAlertsOpen(true),
+          },
+          {
+            key: 'absences',
+            label: 'Ausencias',
+            onPress: () => setLifeSheet('absences'),
+          },
+          {
+            key: 'exams',
+            label: 'Modo silencio (exámenes)',
+            onPress: () => setLifeSheet('exams'),
+          },
+          {
+            key: 'visits',
+            label: 'Visitas y avisos del piso',
+            onPress: () => setLifeSheet('visits'),
           },
           {
             key: 'icons',
@@ -340,6 +375,46 @@ export function HomeScreen() {
       />
 
       <AlertsModal visible={alertsOpen} alerts={alerts} onClose={() => setAlertsOpen(false)} />
+
+      <HomeLifeSheet
+        kind={lifeSheet}
+        onClose={() => setLifeSheet(null)}
+        members={agendaMembers}
+        currentUserId={user?.id}
+        isAdmin={isAdmin}
+        tasks={tasks}
+        absences={absences}
+        absencesLoading={absencesLoading}
+        systemLeaves={systemLeaves}
+        systemLeavesLoading={presenceLoading}
+        examPeriods={examPeriods}
+        examPeriodsLoading={examPeriodsLoading}
+        calendarNotices={calendarNotices}
+        calendarNoticesLoading={noticesLoading}
+        onAddAbsence={async (input) => {
+          await addAbsence(input);
+          if (user?.id && activeHome?.id) {
+            await reassignRotatingTasksForPunctualAbsence({
+              homeId: activeHome.id,
+              actorId: user.id,
+              absentUserId: user.id,
+              startDate: input.start_date,
+              endDate: input.end_date,
+            });
+          }
+        }}
+        onRemoveAbsence={removeAbsence}
+        onAddSystemLeave={addSystemLeave}
+        onRemoveSystemLeave={removeSystemLeave}
+        onAddExamPeriod={async (input) => {
+          await addExamPeriod(input);
+        }}
+        onRemoveExamPeriod={removeExamPeriod}
+        onAddCalendarNotice={async (input) => {
+          await addNotice(input);
+        }}
+        onRemoveCalendarNotice={removeNotice}
+      />
     </Screen>
   );
 }
