@@ -255,7 +255,7 @@ export function HomeScreen() {
               <FeedSectionHeader title="Estado" subtitle="Cumplimiento de esta semana" />
               <HelpTip
                 title="Estado del piso"
-                message="La barra resume si el piso va bien. Pendientes, entregadas (foto en revisión) y hechas. Los avisos urgentes están en la campanita de arriba."
+                message="La barra resume si el piso va bien. Pendientes, en revisión (foto) y hechas. Lo urgente está en la campanita."
               />
             </View>
             {isLoading ? <MascotLoading /> : <HealthMeter summary={healthSummary} />}

@@ -11,14 +11,14 @@ type BoardSectionBarProps = {
   accent?: 'blue' | 'amber' | 'teal';
 };
 
-const ACTIVE_CLASS = {
-  blue: 'bg-blue-50 border border-blue-300',
-  amber: 'bg-amber-50 border border-amber-300',
-  teal: 'bg-teal-50 border border-teal-300',
+const ACTIVE_FILL = {
+  blue: 'bg-blue-600',
+  amber: 'bg-amber-500',
+  teal: 'bg-teal-700',
 } as const;
 
 /**
- * Switches between the live board and the in-section history list.
+ * Switches between the live board and history (same pill segment language as Home).
  */
 export function BoardSectionBar({
   section,
@@ -27,22 +27,36 @@ export function BoardSectionBar({
   historyLabel = 'Historial',
   accent = 'teal',
 }: BoardSectionBarProps) {
-  const activeClass = ACTIVE_CLASS[accent];
+  const fill = ACTIVE_FILL[accent];
   return (
-    <View className="flex-row gap-2">
+    <View className="flex-row gap-1.5 rounded-2xl border border-stone-200 bg-white/80 p-1.5">
       <Pressable
         onPress={() => onSectionChange('ACTIVE')}
-        className={`flex-1 rounded-xl px-3 py-2 ${
-          section === 'ACTIVE' ? activeClass : 'bg-stone-50 border border-stone-200'
+        accessibilityRole="tab"
+        accessibilityState={{ selected: section === 'ACTIVE' }}
+        className={`flex-1 rounded-xl px-3 py-2.5 ${
+          section === 'ACTIVE' ? fill : 'bg-transparent'
         }`}>
-        <Text className="text-center text-sm font-semibold text-stone-800">{activeLabel}</Text>
+        <Text
+          className={`text-center text-sm font-bold ${
+            section === 'ACTIVE' ? 'text-white' : 'text-stone-700'
+          }`}>
+          {activeLabel}
+        </Text>
       </Pressable>
       <Pressable
         onPress={() => onSectionChange('HISTORY')}
-        className={`flex-1 rounded-xl px-3 py-2 ${
-          section === 'HISTORY' ? activeClass : 'bg-stone-50 border border-stone-200'
+        accessibilityRole="tab"
+        accessibilityState={{ selected: section === 'HISTORY' }}
+        className={`flex-1 rounded-xl px-3 py-2.5 ${
+          section === 'HISTORY' ? fill : 'bg-transparent'
         }`}>
-        <Text className="text-center text-sm font-semibold text-stone-800">{historyLabel}</Text>
+        <Text
+          className={`text-center text-sm font-bold ${
+            section === 'HISTORY' ? 'text-white' : 'text-stone-700'
+          }`}>
+          {historyLabel}
+        </Text>
       </Pressable>
     </View>
   );

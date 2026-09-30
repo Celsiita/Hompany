@@ -38,13 +38,13 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 - Chips de propiedad: **Tuya** / **Compañero** en tarjetas de tarea; **Debes** / **Tú pagaste** / **Pagado** en gastos.
 - Botones de acción de tareas usan copy de Mico (`mascotReaction`).
 
-## Filtros
+## UX (claridad Shipaton)
 
-Mismo formato en Agenda, Tareas y Gastos: botón **Filtros** (▲/▼), grupos etiquetados (Alcance / Tipo / Periodicidad / Estado) y pastillas teal. Sin píldora «Todos»: si ninguna está activa, se lista todo. Pulsar de nuevo la píldora activa la desmarca.
-
-## Feedback (toasts)
-
-Las acciones (proponer cambio, aprobar, saldar, guardar ausencia, copiar código, etc.) muestran un aviso flotante arriba unos segundos. No hay que aceptar: desaparece solo. Los errores de carga del tablero siguen con Reintentar en pantalla.
+- Jerarquía: secciones Feed con barra teal; tabs Home / En curso–Historial en pastillas sólidas.
+- Semántica: tareas azul, gastos ámbar, deudas rosa, cobros ámbar, urgentes rojo.
+- Filtros iguales en Agenda/Tareas/Gastos (grupos etiquetados + pastillas).
+- Feedback: toasts flotantes sin botones; campanita para avisos urgentes.
+- Ayuda `?` y tutorial Mico con foco visual en la zona explicada.
 
 - **Tareas:** tipos = **Tareas rápidas** + tipos personalizados del hogar (`home_item_types`). Sin Zonas. Estados en curso: Pendiente / En revisión / Pausada. Historial: Completada / Atrasado / Por compañero / Omitida.
 - **Gastos:** kinds builtin (Súper, Casa, Ocio) + tipos personalizados. Dirección: **Mis deudas** / **Mis cobros**. Estados en curso: Pendiente / Pausado. Historial: Saldado / Atrasado / Omitido.

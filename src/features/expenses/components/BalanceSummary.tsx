@@ -15,7 +15,7 @@ function memberName(members: HomeMemberWithProfile[], userId: string): string {
 }
 
 /**
- * Compact "quién debe a quién" card for Feed (amber = money).
+ * Compact "quién debe a quién" card for Feed (amber money; rose = you owe).
  */
 export function BalanceSummary({ balances, members, currentUserId }: BalanceSummaryProps) {
   const relevantDebts = currentUserId
@@ -23,18 +23,16 @@ export function BalanceSummary({ balances, members, currentUserId }: BalanceSumm
         (debt) => debt.fromUserId === currentUserId || debt.toUserId === currentUserId,
       )
     : balances.debts;
+  const owedToYou = balances.netForUser > 0.009;
+  const youOwe = balances.netForUser < -0.009;
+  const absolute = formatEuro(Math.abs(balances.netForUser));
 
   return (
     <View className="rounded-2xl border border-amber-200 bg-amber-50 p-4 gap-2">
-      <Text className="text-sm font-semibold text-amber-900">Quién debe a quién</Text>
-      {balances.netForUser > 0.009 ? (
-        <Text className="text-xl font-bold text-teal-900">
-          Te deben {formatEuro(balances.netForUser)}
-        </Text>
-      ) : balances.netForUser < -0.009 ? (
-        <Text className="text-xl font-bold text-amber-950">
-          Debes {formatEuro(balances.netForUser)}
-        </Text>
+      {owedToYou ? (
+        <Text className="text-xl font-bold text-amber-950">Te deben {absolute}</Text>
+      ) : youOwe ? (
+        <Text className="text-xl font-bold text-rose-800">Debes {absolute}</Text>
       ) : (
         <Text className="text-xl font-bold text-stone-900">Estáis a cero</Text>
       )}
@@ -52,11 +50,17 @@ export function BalanceSummary({ balances, members, currentUserId }: BalanceSumm
           const to = memberName(members, debt.toUserId);
           const mine = currentUserId === debt.fromUserId;
           return (
-            <Text key={`${debt.fromUserId}-${debt.toUserId}`} className="text-sm text-stone-800">
-              {mine
-                ? `Debes ${formatEuro(debt.amount)} a ${to}`
-                : `${from} te debe ${formatEuro(debt.amount)}`}
-            </Text>
+            <View
+              key={`${debt.fromUserId}-${debt.toUserId}`}
+              className={`rounded-lg px-2.5 py-1.5 ${
+                mine ? 'bg-rose-100/80' : 'bg-amber-100/70'
+              }`}>
+              <Text className={`text-sm font-medium ${mine ? 'text-rose-950' : 'text-amber-950'}`}>
+                {mine
+                  ? `Debes ${formatEuro(debt.amount)} a ${to}`
+                  : `${from} te debe ${formatEuro(debt.amount)}`}
+              </Text>
+            </View>
           );
         })
       )}

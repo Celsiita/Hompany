@@ -297,6 +297,7 @@ export function TasksScreen() {
               subtitle={mascotScreenLine('tasks')}
               helpTitle="Tareas"
               helpMessage="Crea con +. Entrega con foto si el piso lo pide. Los compañeros aprueban o impugnan. En pendientes: «Proponer cambio». Lo cerrado no se reabre."
+              createAccent="blue"
               onCreatePress={() => {
                 setFormTask(null);
                 setFormMode('create');

@@ -4,6 +4,8 @@ import { HeaderAlertsButton } from '@/components/ui/HeaderAlertsButton';
 import { HelpTip } from '@/components/ui/HelpTip';
 import { OverflowMenuButton } from '@/components/ui/OverflowMenu';
 
+type CreateAccent = 'blue' | 'amber' | 'teal';
+
 type ScreenHeaderProps = {
   title: string;
   subtitle?: string;
@@ -17,6 +19,14 @@ type ScreenHeaderProps = {
   /** Primary create action (preferred over overflow ⋮ for new items). */
   onCreatePress?: () => void;
   createAccessibilityLabel?: string;
+  /** Semantic + button: tasks blue, expenses amber, brand teal. */
+  createAccent?: CreateAccent;
+};
+
+const CREATE_ACCENT_CLASS: Record<CreateAccent, string> = {
+  blue: 'bg-blue-700',
+  amber: 'bg-amber-600',
+  teal: 'bg-teal-700',
 };
 
 /**
@@ -33,6 +43,7 @@ export function ScreenHeader({
   helpMessage,
   onCreatePress,
   createAccessibilityLabel = 'Crear',
+  createAccent = 'teal',
 }: ScreenHeaderProps) {
   return (
     <View className="flex-row items-start justify-between gap-3">
@@ -43,7 +54,7 @@ export function ScreenHeader({
             <HelpTip title={helpTitle} message={helpMessage} />
           ) : null}
         </View>
-        {subtitle ? <Text className="text-base text-stone-600">{subtitle}</Text> : null}
+        {subtitle ? <Text className="text-sm leading-5 text-stone-600">{subtitle}</Text> : null}
       </View>
       <View className="flex-row items-center gap-2">
         {onAlertsPress ? (
@@ -58,7 +69,7 @@ export function ScreenHeader({
             onPress={onCreatePress}
             accessibilityRole="button"
             accessibilityLabel={createAccessibilityLabel}
-            className="h-11 w-11 items-center justify-center rounded-xl bg-teal-700">
+            className={`h-11 w-11 items-center justify-center rounded-xl ${CREATE_ACCENT_CLASS[createAccent]}`}>
             <Text className="text-2xl font-bold leading-none text-white">+</Text>
           </Pressable>
         ) : null}

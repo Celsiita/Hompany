@@ -4,10 +4,12 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { ActivityListModal } from '@/components/ui/ActivityListModal';
 import { Button } from '@/components/ui/Button';
+import { CollapsibleSection } from '@/components/ui/CollapsibleFilterPanel';
 import { FilterTogglePair } from '@/components/ui/FilterTogglePair';
 import { OverflowMenu, OverflowMenuButton } from '@/components/ui/OverflowMenu';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { SettingsSection } from '@/components/ui/SettingsSection';
 import { TextField } from '@/components/ui/TextField';
 import { listHomeActivity } from '@/features/home/api/activity-api';
 import {
@@ -331,16 +333,18 @@ export function SettingsScreen() {
           helpMessage="Perfil, invitación, compañeros, foto de prueba y Plus: packs de iconos opcionales. Desde aquí puedes repetir el tutorial."
         />
 
-        <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
-          <Text className="text-sm font-semibold text-stone-500">Perfil</Text>
+        <SettingsSection title="Perfil" subtitle="Cómo te ven tus compañeros">
           <Text className="text-sm text-stone-600">{user?.email ?? '—'}</Text>
           <TextField label="Nombre visible" value={displayName} onChangeText={setDisplayName} />
           <Button label="Guardar nombre" loading={savingName} onPress={() => void handleSaveName()} />
-        </View>
+        </SettingsSection>
 
-        <View className="rounded-2xl border border-teal-200 bg-teal-50/80 p-4 gap-3">
+        <SettingsSection
+          title="HOMPANY Plus"
+          subtitle="Packs de iconos opcionales. El core del piso sigue gratis."
+          tone="plus">
           <View className="flex-row items-center justify-between">
-            <Text className="text-sm font-semibold text-teal-800">HOMPANY Plus</Text>
+            <Text className="text-sm font-semibold text-teal-900">Estado</Text>
             <Text
               className={`text-xs font-bold px-2 py-1 rounded-md ${
                 isPlus ? 'bg-teal-600 text-white' : 'bg-white text-teal-700'
@@ -348,10 +352,6 @@ export function SettingsScreen() {
               {isPlus ? 'Activo' : 'Plan gratuito'}
             </Text>
           </View>
-          <Text className="text-xs text-teal-900/80">
-            Iconos Hogar y Play, e importar packs JSON. Opcional: el cuadrante y las tareas siguen
-            gratis.
-          </Text>
           {!isPlus ? (
             <Button
               label="Ver HOMPANY Plus"
@@ -380,14 +380,11 @@ export function SettingsScreen() {
               Falta la clave de compras en .env.local — el resto de la app funciona igual.
             </Text>
           ) : null}
-        </View>
+        </SettingsSection>
 
-        <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
-          <Text className="text-sm font-semibold text-stone-500">Iconos</Text>
-          <Text className="text-xs text-stone-500">
-            Clásico es gratis. Hogar, Play e importados requieren HOMPANY Plus. Se aplican a
-            tarjetas y a la agenda.
-          </Text>
+        <SettingsSection
+          title="Iconos"
+          subtitle="Clásico gratis. Hogar, Play e importados necesitan Plus.">
           {packs.map((pack) => {
             const active = packId === pack.id;
             const custom = !isBuiltinIconPackId(pack.id);
@@ -445,10 +442,9 @@ export function SettingsScreen() {
             loading={importingPack}
             onPress={() => void handleImportIconPack()}
           />
-        </View>
+        </SettingsSection>
 
-        <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
-          <Text className="text-sm font-semibold text-stone-500">Piso activo</Text>
+        <SettingsSection title="Piso activo" subtitle="Invita compañeros y cambia de hogar">
           <Text className="text-lg font-semibold text-stone-900">{activeHome?.name ?? 'Sin piso'}</Text>
           {activeHome ? (
             <View className="gap-3">
@@ -561,10 +557,9 @@ export function SettingsScreen() {
               onPress={() => void handleLeaveHome()}
             />
           ) : null}
-        </View>
+        </SettingsSection>
 
-        <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
-          <Text className="text-sm font-semibold text-stone-500">Otro piso</Text>
+        <SettingsSection title="Otro piso" subtitle="Crear uno nuevo o unirte con código">
           <TextField
             label="Crear piso"
             value={newHomeName}
@@ -590,18 +585,13 @@ export function SettingsScreen() {
             loading={homeBusy}
             onPress={() => void handleJoinHome()}
           />
-        </View>
+        </SettingsSection>
 
         {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
-        
 
-        <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
-          <Text className="text-sm font-semibold text-stone-500">Ayuda</Text>
-          <Text className="text-sm text-stone-600">
-            Tour guiado de 1 minuto: Feed, Agenda, Piso, Tareas, Gastos y Plus.
-          </Text>
+        <SettingsSection title="Ayuda" subtitle="Tour de 1 minuto por Feed, Agenda, Tareas y Gastos">
           <Button label="Repetir tutorial con Mico" variant="secondary" onPress={openTutorial} />
-        </View>
+        </SettingsSection>
 
         <Button
           label="Cerrar sesión"

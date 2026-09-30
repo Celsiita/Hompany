@@ -88,7 +88,7 @@ export function MetricsBar({ pending, submitted, completed }: MetricsBarProps) {
       }}>
       <View className="flex-1 items-center py-3">
         <Text
-          className={`text-lg font-bold ${pending > 0 ? 'text-amber-800' : 'text-stone-900'}`}>
+          className={`text-lg font-bold ${pending > 0 ? 'text-blue-800' : 'text-stone-900'}`}>
           {pending}
         </Text>
         <Text className="text-[11px] text-stone-500">Pendientes</Text>
@@ -99,7 +99,7 @@ export function MetricsBar({ pending, submitted, completed }: MetricsBarProps) {
           className={`text-lg font-bold ${submitted > 0 ? 'text-sky-800' : 'text-stone-900'}`}>
           {submitted}
         </Text>
-        <Text className="text-[11px] text-stone-500">Entregadas</Text>
+        <Text className="text-[11px] text-stone-500">En revisión</Text>
       </View>
       <View className="w-px bg-stone-200" />
       <View className="flex-1 items-center py-3">

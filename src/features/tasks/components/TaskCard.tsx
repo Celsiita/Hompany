@@ -127,7 +127,7 @@ export function TaskCard({
                   </Text>
                 </View>
               ) : null}
-              <Text className="text-xs font-medium text-blue-700">
+              <Text className="text-xs font-semibold text-blue-800">
                 {typeLabel} · {periodLabel}
               </Text>
             </View>

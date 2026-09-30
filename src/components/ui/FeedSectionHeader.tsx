@@ -10,9 +10,12 @@ type FeedSectionHeaderProps = {
  */
 export function FeedSectionHeader({ title, subtitle }: FeedSectionHeaderProps) {
   return (
-    <View className="gap-0.5 pt-1">
-      <Text className="text-sm font-bold uppercase tracking-wide text-stone-500">{title}</Text>
-      {subtitle ? <Text className="text-xs text-stone-500">{subtitle}</Text> : null}
+    <View className="flex-row gap-2.5 pt-1">
+      <View className="mt-0.5 w-1 self-stretch rounded-full bg-teal-600" />
+      <View className="flex-1 gap-0.5">
+        <Text className="text-base font-bold text-stone-900">{title}</Text>
+        {subtitle ? <Text className="text-xs leading-4 text-stone-500">{subtitle}</Text> : null}
+      </View>
     </View>
   );
 }

@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Text, View } from 'react-native';
 
 import { SafePressable } from '@/components/ui/SafePressable';
-import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
+import { interactive, mergeStyles } from '@/lib/interactive-styles';
 
 type CollapsibleFilterPanelProps = {
   children: ReactNode;
@@ -20,15 +20,27 @@ export function CollapsibleFilterPanel({ children, activeHint }: CollapsibleFilt
     <View className="gap-2">
       <SafePressable
         onPress={() => setOpen((value) => !value)}
-        contentStyle={mergeStyles(interactive.rowBetween, interactive.borderedCard)}>
-        <Text className="text-sm font-semibold text-stone-800">
-          Filtros{activeHint ? ` · ${activeHint}` : ''}
-        </Text>
-        <Text className="text-base" accessibilityLabel={open ? 'Ocultar filtros' : 'Mostrar filtros'}>
+        contentStyle={mergeStyles(interactive.rowBetween, interactive.borderedCard, {
+          paddingHorizontal: 14,
+          paddingVertical: 12,
+          backgroundColor: open ? '#f0fdfa' : '#ffffff',
+          borderColor: open ? '#99f6e4' : '#e7e5e4',
+        })}>
+        <View className="flex-1 gap-0.5">
+          <Text className="text-sm font-bold text-stone-900">
+            Filtros{activeHint ? ` · ${activeHint}` : ''}
+          </Text>
+          <Text className="text-[11px] text-stone-500">
+            {open ? 'Toca para ocultar' : 'Alcance, tipo, periodicidad…'}
+          </Text>
+        </View>
+        <Text className="text-base text-teal-800" accessibilityLabel={open ? 'Ocultar filtros' : 'Mostrar filtros'}>
           {open ? '▲' : '▼'}
         </Text>
       </SafePressable>
-      {open ? <View className="gap-3">{children}</View> : null}
+      {open ? (
+        <View className="gap-3 rounded-2xl border border-stone-200 bg-white/90 p-3">{children}</View>
+      ) : null}
     </View>
   );
 }
@@ -85,7 +97,10 @@ export function CollapsibleSection({
     <View className={`gap-0 rounded-2xl border ${tone.border} ${tone.bg} overflow-hidden`}>
       <SafePressable
         onPress={() => setExpanded((value) => !value)}
-        contentStyle={mergeStyles(interactive.rowBetween, { paddingHorizontal: 16, paddingVertical: 12 })}>
+        contentStyle={mergeStyles(interactive.rowBetween, {
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+        })}>
         <View className="flex-row flex-1 items-center gap-2">
           <Text className={`text-sm font-semibold ${tone.title}`}>{title}</Text>
           {info}

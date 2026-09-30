@@ -144,7 +144,7 @@ export function ExpenseCard({
                   </Text>
                 </View>
               ) : null}
-              <Text className="text-xs font-medium text-amber-800">
+              <Text className="text-xs font-semibold text-amber-900">
                 {typeLabel} · {periodLabel}
               </Text>
             </View>

@@ -203,23 +203,14 @@ export function HomeAgenda({
         }>
         <View className="gap-4 pb-8">
           <View className="flex-row items-start justify-between gap-2">
-            <Text className="flex-1 text-xs text-stone-500">
-              Calendario y lista del día. Ausencias, silencio y visitas están en el menú ⋮.
+            <Text className="flex-1 text-xs leading-4 text-stone-500">
+              Calendario y lista primero. Ausencias, silencio y visitas: menú ⋮.
             </Text>
             <HelpTip
               title="Agenda"
-              message="Toca un día para saltar a su lista. Azul = tus tareas, cielo = compañeros, ámbar = gastos. Las tarjetas abiertas te llevan al tablero."
+              message="Toca un día para saltar a su lista. Azul = tus tareas, cielo = compañeros, rosa = debes, ámbar = te deben. Rojo = vencida. Las tarjetas abiertas te llevan al tablero."
             />
           </View>
-
-          <CollapsibleFilterPanel activeHint={filterHint}>
-            <AgendaScopeBar
-              viewScope={viewScope}
-              categories={categories}
-              onViewScopeChange={setViewScope}
-              onCategoriesChange={setCategories}
-            />
-          </CollapsibleFilterPanel>
 
           <AgendaCalendar
             {...shared}
@@ -235,6 +226,15 @@ export function HomeAgenda({
           />
 
           <AgendaColorLegend />
+
+          <CollapsibleFilterPanel activeHint={filterHint}>
+            <AgendaScopeBar
+              viewScope={viewScope}
+              categories={categories}
+              onViewScopeChange={setViewScope}
+              onCategoriesChange={setCategories}
+            />
+          </CollapsibleFilterPanel>
 
           <AgendaList
             ref={listRef}

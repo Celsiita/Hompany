@@ -17,7 +17,7 @@ function rankTone(rank: number): { badge: string; text: string } {
     return { badge: 'bg-amber-400', text: 'text-amber-950' };
   }
   if (rank === 2) {
-    return { badge: 'bg-slate-300', text: 'text-slate-800' };
+    return { badge: 'bg-stone-300', text: 'text-stone-800' };
   }
   if (rank === 3) {
     return { badge: 'bg-orange-300', text: 'text-orange-950' };
