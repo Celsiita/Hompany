@@ -388,7 +388,7 @@ export function ExpenseFormModal({
               <View className="flex-row flex-wrap gap-2">
                 {(
                   [
-                    { key: 'EQUAL' as const, label: 'Igualitario' },
+                    { key: 'EQUAL' as const, label: 'A partes iguales' },
                     { key: 'PERCENT' as const, label: 'Porcentajes' },
                     { key: 'AMOUNT' as const, label: 'Cantidades fijas' },
                   ] as const
