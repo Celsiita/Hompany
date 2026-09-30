@@ -39,7 +39,7 @@ export function Button({
       contentStyle={mergeStyles(surface, isDisabled ? interactive.disabled : undefined)}
       disabled={isDisabled}
       {...props}>
-      <Text style={labelStyles[variant]}>{loading ? 'Espera…' : label}</Text>
+      <Text style={labelStyles[variant]}>{loading ? 'Un segundo…' : label}</Text>
     </SafePressable>
   );
 }
