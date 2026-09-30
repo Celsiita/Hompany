@@ -123,7 +123,7 @@ export function ScheduledItemSheet({
         ) : null}
 
         {item.lifecycle === 'open' && onOpenBoard ? (
-          <Button label="Abrir en el tablero" onPress={onOpenBoard} />
+          <Button label={t('scheduled.openBoard')} onPress={onOpenBoard} />
         ) : null}
       </View>
 

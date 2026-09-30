@@ -63,7 +63,7 @@ export function SystemLeavePanel({
   const showToast = useToast();
   const kindOptions = [
     { value: 'INDEFINITE' as const, label: t('systemLeave.noEnd') },
-    { value: 'PLANNED' as const, label: 'Con fechas' },
+    { value: 'PLANNED' as const, label: t('systemLeave.withDates') },
   ] as const;
   const [formOpen, setFormOpen] = useState(false);
   const [kind, setKind] = useState<SystemLeaveKind | 'ALL'>('INDEFINITE');

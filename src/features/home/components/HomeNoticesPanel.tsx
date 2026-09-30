@@ -118,9 +118,9 @@ export function HomeNoticesPanel({
         <View className="flex-row items-start justify-between gap-2">
           <View className="flex-1 gap-0.5">
             <View className="flex-row items-center gap-1.5">
-              <Text className="text-sm font-semibold text-stone-900">Reglas y quejas</Text>
+              <Text className="text-sm font-semibold text-stone-900">{t('rules.title')}</Text>
               <HelpTip
-                title="Reglas y quejas"
+                title={t('rules.title')}
                 message={t('rules.help')}
               />
             </View>
@@ -155,7 +155,7 @@ export function HomeNoticesPanel({
               const authorLabel =
                 notice.is_anonymous || !notice.author_id
                   ? 'Anónimo'
-                  : (authorName?.(notice.author_id) ?? 'Compañero');
+                  : (authorName?.(notice.author_id) ?? t('common.roommate'));
               return (
                 <View
                   key={notice.id}
@@ -215,7 +215,7 @@ export function HomeNoticesPanel({
           </View>
           <TextField label={t('common.title')} value={title} onChangeText={setTitle} />
           <TextField
-            label="Detalle (opcional)"
+            label={t('rules.detail')}
             value={body}
             onChangeText={setBody}
             multiline
@@ -228,7 +228,7 @@ export function HomeNoticesPanel({
             </View>
           ) : null}
           {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
-          <Button label="Publicar" loading={saving} onPress={() => void handleSave()} />
+          <Button label={t('rules.publish')} loading={saving} onPress={() => void handleSave()} />
           <Button
             label={t('common.cancel')}
             variant="secondary"

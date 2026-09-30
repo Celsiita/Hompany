@@ -145,7 +145,8 @@ export function TaskFormModal({
     const adding = !assigneeIds.includes(userId);
     if (adding && !autoAssign && isUserAbsentOnDate(absences, userId, dueAt)) {
       const name =
-        members.find((member) => member.user_id === userId)?.profiles?.display_name ?? 'Compañero';
+        members.find((member) => member.user_id === userId)?.profiles?.display_name ??
+        t('common.roommate');
       setError(absentMemberWarning(name));
       return;
     }
@@ -170,7 +171,7 @@ export function TaskFormModal({
       if (absentAssignee) {
         const name =
           members.find((member) => member.user_id === absentAssignee)?.profiles?.display_name ??
-          'Compañero';
+          t('common.roommate');
         setError(absentMemberWarning(name));
         return;
       }
@@ -292,7 +293,7 @@ export function TaskFormModal({
               />
 
               <TextField
-                label="Puntos"
+                label={t('task.points')}
                 keyboardType="number-pad"
                 value={points}
                 onChangeText={setPoints}

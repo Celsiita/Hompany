@@ -127,7 +127,7 @@ export function ShoppingListsPanel({
       await onAddList({ name, memberIds, amount });
       resetAddForm();
     } catch (err) {
-      setError(formatAppError(err, 'No se pudo crear'));
+      setError(formatAppError(err, t('toast.actionFailed')));
     } finally {
       setBusy(false);
     }
@@ -148,7 +148,7 @@ export function ShoppingListsPanel({
       await onAddItem(activeList.id, title);
       setNewItemTitle('');
     } catch (err) {
-      setError(formatAppError(err, 'No se pudo añadir'));
+      setError(formatAppError(err, t('toast.actionFailed')));
     } finally {
       setBusy(false);
     }
@@ -170,7 +170,7 @@ export function ShoppingListsPanel({
     try {
       await onSetMembers(activeList.id, next);
     } catch (err) {
-      setError(formatAppError(err, 'No se pudo actualizar'));
+      setError(formatAppError(err, t('toast.saveFail')));
     } finally {
       setBusy(false);
     }
@@ -185,11 +185,11 @@ export function ShoppingListsPanel({
     try {
       const expenseId = await onEnsureExpense(activeList.id);
       if (!expenseId) {
-        throw new Error('No se pudo crear o vincular el gasto');
+        throw new Error(t('toast.actionFailed'));
       }
       await onOpenExpense(expenseId);
     } catch (err) {
-      setError(formatAppError(err, 'No se pudo abrir el gasto'));
+      setError(formatAppError(err, t('toast.actionFailed')));
     } finally {
       setBusy(false);
     }
@@ -202,7 +202,7 @@ export function ShoppingListsPanel({
       }
       accent="amber"
       defaultExpanded
-      info={<InfoTip title="Listas compartidas" message={INFO} tone="amber" />}>
+      info={<InfoTip title={t('lists.shared')} message={INFO} tone="amber" />}>
       {isLoading ? (
         <MascotLoading />
       ) : (
@@ -438,7 +438,7 @@ export function ShoppingListsPanel({
                 </View>
                 <View className="justify-end pb-1">
                   <Button
-                    label="Añadir"
+                    label={t('lists.add')}
                     variant="secondary"
                     loading={busy}
                     onPress={() => void handleAddItem()}

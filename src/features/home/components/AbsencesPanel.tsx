@@ -157,7 +157,7 @@ export function AbsencesPanel({
     <View className="gap-3">
       <View className="flex-row items-center gap-2">
         <Text className="flex-1 text-sm font-semibold text-amber-950">Gestionar ausencias</Text>
-        <InfoTip title="Ausencias" message={t('absence.info')} tone="amber" />
+        <InfoTip title={t('filters.absences')} message={t('absence.info')} tone="amber" />
       </View>
       {showSystem ? (
         <FilterTogglePair

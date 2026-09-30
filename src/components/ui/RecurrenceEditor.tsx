@@ -17,6 +17,7 @@ import {
   weeklyDays,
   yearlyMonths,
 } from '@/lib/recurrence';
+import { useLocale } from '@/providers/LocaleProvider';
 
 const UNITS: RecurrenceFrequencyUnit[] = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'];
 const MONTH_DAY_OPTIONS = Array.from({ length: 31 }, (_, index) => index + 1);
@@ -53,6 +54,7 @@ export function RecurrenceEditor({
   compact = false,
   seedFrom = new Date(),
 }: RecurrenceEditorProps) {
+  const { t } = useLocale();
   const [pausePanelOpen, setPausePanelOpen] = useState(Boolean(config.is_paused));
   const [dayOfMonthDraft, setDayOfMonthDraft] = useState(() =>
     String(config.day_of_month ?? seedFrom.getDate()),
@@ -319,7 +321,7 @@ export function RecurrenceEditor({
                 })}
               </View>
               <TextField
-                label="Día del mes (1–31)"
+                label={t('form.dayOfMonth')}
                 value={dayOfMonthDraft}
                 onChangeText={setDayOfMonthDraft}
                 onBlur={commitYearDay}

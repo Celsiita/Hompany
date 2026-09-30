@@ -216,7 +216,7 @@ export function TasksScreen() {
     ) {
       const name =
         members.find((member) => member.user_id === assigneeId)?.profiles?.display_name ??
-        'Compañero';
+        t('common.roommate');
       const ok = await confirm({
         title: 'Modo silencio',
         message: `${examSilenceWarning(name)}. ¿Impugnar igualmente?`,
@@ -313,7 +313,7 @@ export function TasksScreen() {
                 setFormMode('create');
                 setFormVisible(true);
               }}
-              createAccessibilityLabel="Nueva tarea"
+              createAccessibilityLabel={t('task.newA11y')}
             />
 
             <BoardSectionBar

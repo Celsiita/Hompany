@@ -29,6 +29,7 @@ import {
 } from '@/lib/home-notices';
 import { localDateKey } from '@/lib/recurrence';
 import { useIconPack } from '@/providers/IconPackProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import type { MemberAbsence } from '@/schemas/absence.schema';
 import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
 import type { HomeNotice } from '@/schemas/home-notice.schema';
@@ -80,13 +81,15 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
   ref,
 ) {
   const { pack } = useIconPack();
+  const { t } = useLocale();
   const listRootY = useRef(0);
   const offsetsRef = useRef<Record<string, number>>({});
 
   const memberName = useCallback(
     (userId: string) =>
-      members.find((member) => member.user_id === userId)?.profiles?.display_name ?? 'Compañero',
-    [members],
+      members.find((member) => member.user_id === userId)?.profiles?.display_name ??
+      t('common.roommate'),
+    [members, t],
   );
 
   const horizon = useMemo(() => {

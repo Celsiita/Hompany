@@ -1,5 +1,8 @@
 import { Modal, Pressable, Text, View } from 'react-native';
 
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { translate } from '@/lib/i18n/strings';
+
 export type ConfirmTone = 'danger' | 'neutral';
 
 type ConfirmModalProps = {
@@ -21,7 +24,7 @@ export function ConfirmModal({
   title,
   message,
   confirmLabel = 'Confirmar',
-  cancelLabel = 'Cancelar',
+  cancelLabel = translate(getAppLocale(), 'common.cancel'),
   tone = 'danger',
   onConfirm,
   onCancel,

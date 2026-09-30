@@ -124,7 +124,7 @@ export function ExamPeriodsPanel({
     <View className="gap-3">
       <View className="flex-row items-center gap-2">
         <Text className="flex-1 text-sm font-semibold text-violet-950">Gestionar modo silencio</Text>
-        <InfoTip title="Modo silencio" message={t('quiet.info')} tone="violet" />
+        <InfoTip title={t('quiet.modeTitle')} message={t('quiet.info')} tone="violet" />
       </View>
       {isLoading ? (
         <MascotLoading />

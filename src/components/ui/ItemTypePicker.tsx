@@ -5,6 +5,7 @@ import { SafePressable } from '@/components/ui/SafePressable';
 import { TextField } from '@/components/ui/TextField';
 import { ToggleChipRow } from '@/components/ui/ToggleChipRow';
 import { interactive, mergeStyles } from '@/lib/interactive-styles';
+import { useLocale } from '@/providers/LocaleProvider';
 import type { HomeItemType } from '@/schemas/item-type.schema';
 
 type ItemTypePickerProps = {
@@ -27,6 +28,7 @@ export function ItemTypePicker({
   onCreate,
   addLabel = '+ Tipo',
 }: ItemTypePickerProps) {
+  const { t } = useLocale();
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +55,7 @@ export function ItemTypePicker({
         onChange(created.id);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo crear');
+      setError(err instanceof Error ? err.message : t('toast.actionFailed'));
     } finally {
       setSaving(false);
     }
@@ -75,10 +77,10 @@ export function ItemTypePicker({
       ) : (
         <View className="gap-2">
           <TextField
-            label="Nuevo tipo"
+            label={t('type.new')}
             value={name}
             onChangeText={setName}
-            placeholder="Nombre"
+            placeholder={t('common.name')}
           />
           {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
           <View className="flex-row gap-2">
@@ -88,13 +90,13 @@ export function ItemTypePicker({
                 setError(null);
               }}
               contentStyle={interactive.secondaryButton}>
-              <Text className="text-xs font-semibold text-stone-800">Cancelar</Text>
+              <Text className="text-xs font-semibold text-stone-800">{t('common.cancel')}</Text>
             </SafePressable>
             <SafePressable
               disabled={saving}
               onPress={() => void handleCreate()}
               contentStyle={mergeStyles(interactive.primaryButton, saving ? interactive.disabled : undefined)}>
-              <Text className="text-xs font-semibold text-white">Añadir</Text>
+              <Text className="text-xs font-semibold text-white">{t('common.add')}</Text>
             </SafePressable>
           </View>
         </View>

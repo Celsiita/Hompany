@@ -3,6 +3,7 @@ import { Modal, Pressable, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type TaskReviewCommentModalProps = {
   visible: boolean;
@@ -22,6 +23,7 @@ export function TaskReviewCommentModal({
   onClose,
   onConfirm,
 }: TaskReviewCommentModalProps) {
+  const { t } = useLocale();
   const [comment, setComment] = useState('');
   const [error, setError] = useState<string | null>(null);
   const isDispute = mode === 'DISPUTE';
@@ -59,7 +61,7 @@ export function TaskReviewCommentModal({
               : 'Opcional: deja una sugerencia amable al validar la foto.'}
           </Text>
           <TextField
-            label={isDispute ? 'Motivo' : 'Sugerencia (opcional)'}
+            label={isDispute ? t('review.reason') : t('review.suggestion')}
             value={comment}
             onChangeText={setComment}
             placeholder={isDispute ? 'Ej. la encimera sigue manchada' : 'Ej. genial, la próxima con más luz'}
@@ -70,7 +72,7 @@ export function TaskReviewCommentModal({
             loading={busy}
             onPress={handleConfirm}
           />
-          <Button label="Cancelar" variant="ghost" disabled={busy} onPress={onClose} />
+          <Button label={t('common.cancel')} variant="ghost" disabled={busy} onPress={onClose} />
         </Pressable>
       </Pressable>
     </Modal>

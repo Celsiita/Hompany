@@ -61,7 +61,7 @@ export function PisoScreen() {
   const agendaMembers = members.length > 0 ? members : taskMembers;
   const memberDisplayName = (userId: string) =>
     agendaMembers.find((member) => member.user_id === userId)?.profiles?.display_name ??
-    'Compañero';
+    t('common.roommate');
   const myName =
     agendaMembers.find((member) => member.user_id === user?.id)?.profiles?.display_name ?? 'Yo';
 

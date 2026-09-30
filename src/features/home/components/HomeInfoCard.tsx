@@ -77,7 +77,7 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
     const candidates: InfoRow[] = [
       {
         key: 'wifi_ssid',
-        label: 'Wi‑Fi',
+        label: t('info.wifiName'),
         value: home.wifi_ssid?.trim() ?? '',
         copyable: true,
       },
@@ -96,12 +96,12 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
       },
       {
         key: 'bin_day',
-        label: 'Basura / reciclaje',
+        label: t('info.trash'),
         value: home.bin_day?.trim() ?? '',
       },
       {
         key: 'notes',
-        label: 'Notas',
+        label: t('info.notes'),
         value: home.notes?.trim() ?? '',
       },
     ];
@@ -213,7 +213,7 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
           Visible para todos los compañeros del piso.
         </Text>
         <View className="gap-3">
-          <TextField label="Wi‑Fi (nombre de red)" value={wifiSsid} onChangeText={setWifiSsid} />
+          <TextField label={t('info.wifiName')} value={wifiSsid} onChangeText={setWifiSsid} />
           <TextField
             label={t('info.wifiPass')}
             value={wifiPassword}
@@ -226,13 +226,13 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
             onChangeText={setPortalCode}
           />
           <TextField
-            label="Basura / reciclaje"
+            label={t('info.trash')}
             value={binDay}
             onChangeText={setBinDay}
             placeholder={t('info.trashPh')}
           />
           <TextField
-            label="Notas"
+            label={t('info.notes')}
             value={notes}
             onChangeText={setNotes}
             placeholder={t('info.notesPh')}
