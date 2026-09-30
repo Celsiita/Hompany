@@ -7,7 +7,7 @@ Guía de producto para quien use o revise la app. La periodicidad está detallad
 | Tab | Para qué sirve |
 |-----|----------------|
 | **Inicio** | **Feed** (estado, ranking, reputación Plus) y **Agenda** (calendario + lista). Campanita de avisos. |
-| **Piso** | Ausencias, modo silencio, visitas (solo las tuyas), reclamar silencio, Wi‑Fi, reglas. |
+| **Piso** | Vida del hogar (lo mío + compañeros), reclamar silencio, Wi‑Fi, reglas. |
 | **Tareas** | En curso / Historial. Chips **Tuya** / **Compañero**. Botón **+** para crear. Filtros, tipos, intercambios, foto. Ayuda `?`. |
 | **Gastos** | Súper/casa/ocio. Chips **Debes** / **Tú pagaste**. Botón **+** para crear. Ayuda `?`. |
 | **Ajustes** | Perfil, Plus, iconos, invitación, compañeros, tutorial, foto de prueba (admin), cuenta. |

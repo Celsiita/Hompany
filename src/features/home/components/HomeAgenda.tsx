@@ -4,7 +4,6 @@ import {
   NativeSyntheticEvent,
   RefreshControl,
   ScrollView,
-  Text,
   View,
 } from 'react-native';
 import { router } from 'expo-router';
