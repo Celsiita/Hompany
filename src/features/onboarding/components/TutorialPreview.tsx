@@ -63,7 +63,7 @@ export function TutorialPreview({ highlight }: TutorialPreviewProps) {
                 <Text className="text-[10px] text-stone-700">Tu tarea</Text>
               </View>
               <View className="flex-row items-center gap-1">
-                <View className="h-2.5 w-2.5 rounded-full bg-sky-500" />
+                <View className="h-2.5 w-2.5 rounded-full border border-sky-600" />
                 <Text className="text-[10px] text-stone-700">Compañero</Text>
               </View>
               <View className="flex-row items-center gap-1">

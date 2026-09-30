@@ -182,7 +182,9 @@ export function MonthCalendar({
                       const open = othersTasks.some((item) => item.lifecycle === 'open');
                       dots.push({
                         key: 'others-task',
-                        className: open ? 'bg-sky-600' : 'bg-sky-300',
+                        className: open
+                          ? 'border border-sky-600 bg-transparent'
+                          : 'border border-sky-300 bg-transparent',
                       });
                     }
                     if (debtExpenses.length > 0) {
