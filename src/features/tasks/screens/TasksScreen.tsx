@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   type FlatList as FlatListType,
   RefreshControl,
@@ -13,6 +12,7 @@ import { BoardSectionBar, type BoardSection } from '@/components/ui/BoardSection
 import { CollapsibleFilterPanel } from '@/components/ui/CollapsibleFilterPanel';
 import { Button } from '@/components/ui/Button';
 import { MascotEmpty } from '@/components/ui/MascotEmpty';
+import { MascotLoading } from '@/components/ui/MascotLoading';
 import { OverflowMenu } from '@/components/ui/OverflowMenu';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
@@ -360,7 +360,7 @@ export function TasksScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <ActivityIndicator color="#0f766e" />
+            <MascotLoading />
           ) : (
             <MascotEmpty
               kind={

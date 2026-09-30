@@ -208,7 +208,7 @@ export function HomeScreen() {
         <ScreenHeader
           title={activeHome?.name ?? 'El piso'}
           subtitle={subtitle}
-          helpTitle="Home"
+          helpTitle="Inicio"
           helpMessage="Feed = pulso del piso. Agenda = calendario. Piso = Wi‑Fi y reglas. La campanita concentra avisos urgentes."
           onAlertsPress={() => setAlertsOpen(true)}
           alertsCount={alerts.length}
@@ -226,7 +226,7 @@ export function HomeScreen() {
             contentInsetAdjustmentBehavior="never"
             contentContainerClassName="gap-4 pb-8">
             <View className="flex-row items-center justify-between">
-              <FeedSectionHeader title="Estado" subtitle="Salud del piso esta semana" />
+              <FeedSectionHeader title="Estado" subtitle="Cumplimiento de esta semana" />
               <HelpTip
                 title="Estado del piso"
                 message="La barra resume si el piso va bien. Pendientes, entregadas (foto en revisión) y hechas. Los avisos urgentes están en la campanita de arriba."

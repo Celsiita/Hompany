@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   type FlatList as FlatListType,
   RefreshControl,
@@ -12,6 +11,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BoardSectionBar, type BoardSection } from '@/components/ui/BoardSectionBar';
 import { CollapsibleFilterPanel } from '@/components/ui/CollapsibleFilterPanel';
 import { MascotEmpty } from '@/components/ui/MascotEmpty';
+import { MascotLoading } from '@/components/ui/MascotLoading';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { useHomeItemTypes } from '@/features/home/hooks/useHomeItemTypes';
@@ -240,7 +240,7 @@ export function ExpensesScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <ActivityIndicator color="#0f766e" />
+            <MascotLoading />
           ) : (
             <MascotEmpty kind={emptyKind} />
           )

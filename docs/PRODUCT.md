@@ -6,7 +6,7 @@ Guía de producto para quien use o revise la app. La periodicidad está detallad
 
 | Tab | Para qué sirve |
 |-----|----------------|
-| **Home** | Tres secciones: **Feed** (estado, ranking, cuentas), **Agenda** (calendario + lista), **Piso** (Wi‑Fi/reglas). Campanita de avisos. Menú ⋮: ausencias, modo silencio, visitas, iconos. |
+| **Inicio** | Tres secciones: **Feed** (estado, ranking, cuentas), **Agenda** (calendario + lista), **Piso** (Wi‑Fi/reglas). Campanita de avisos. Menú ⋮: ausencias, modo silencio, visitas, iconos. |
 | **Tareas** | En curso / Historial. Chips **Tuya** / **Compañero**. Botón **+** para crear. Filtros, tipos, intercambios, foto. Ayuda `?`. |
 | **Gastos** | Súper, casa, ocio + tipos. Chips **Debes** / **Tú pagaste**. Botón **+** para crear. Ayuda `?`. |
 | **Ajustes** | Perfil, Plus, iconos, invitación, compañeros, tutorial, foto de prueba (admin), cuenta. |

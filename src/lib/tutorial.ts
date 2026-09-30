@@ -105,7 +105,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 'settings',
     title: 'Ajustes y Plus',
-    body: 'Invita con código/QR, gestiona compañeros y desbloquea packs de iconos con HOMPANY Plus (RevenueCat).',
+    body: 'Invita con código/QR, gestiona compañeros y desbloquea packs de iconos con HOMPANY Plus.',
     emoji: '⚙️',
     highlight: 'settings',
     goTab: '/(tabs)/settings',

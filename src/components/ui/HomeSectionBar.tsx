@@ -26,7 +26,7 @@ export function HomeSectionBar({ section, onSectionChange }: HomeSectionBarProps
           Secciones
         </Text>
         <HelpTip
-          title="Home"
+          title="Inicio"
           message="Feed = estado y ranking. Agenda = calendario del día. Piso = Wi‑Fi, portal, reglas y quejas. Los avisos urgentes están en la campanita."
         />
       </View>

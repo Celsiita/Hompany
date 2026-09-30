@@ -19,7 +19,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: 'Inicio',
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: 'house.fill', android: 'home', web: 'home' }}
