@@ -1,11 +1,13 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 import 'react-native-reanimated';
 
 import '../global.css';
 
+import { MascotLoading } from '@/components/ui/MascotLoading';
+import { palette } from '@/lib/interactive-styles';
 import { useAppGate } from '@/lib/navigation/app-gate';
 import { AppProviders } from '@/providers/AppProviders';
 
@@ -48,8 +50,8 @@ function RootNavigator() {
 
   if (gate === 'loading') {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#0f766e" />
+      <View className="flex-1 items-center justify-center" style={{ backgroundColor: palette.cream }}>
+        <MascotLoading />
       </View>
     );
   }
