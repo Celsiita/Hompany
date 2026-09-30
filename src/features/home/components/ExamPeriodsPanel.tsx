@@ -18,6 +18,7 @@ import { isPeriodActiveOrUpcoming } from '@/lib/absences';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type ExamPeriodsPanelProps = {
   examPeriods: MemberExamPeriod[];
@@ -30,9 +31,6 @@ type ExamPeriodsPanelProps = {
   onAdd: (input: { start_date: string; end_date: string; label: string }) => Promise<void>;
   onRemove: (periodId: string) => Promise<void>;
 };
-
-const INFO_MESSAGE =
-  'Marca épocas de estudio: el calendario lo muestra y el piso entiende que hay menos margen para disputas.';
 
 /**
  * Collapsible silence-mode section with optional registration form.
@@ -47,6 +45,7 @@ export function ExamPeriodsPanel({
   onAdd,
   onRemove,
 }: ExamPeriodsPanelProps) {
+  const { t } = useLocale();
   const confirm = useConfirmDialog();
   const showToast = useToast();
   const [formOpen, setFormOpen] = useState(false);
@@ -63,7 +62,7 @@ export function ExamPeriodsPanel({
   );
 
   const memberName = (userId: string) =>
-    members.find((member) => member.user_id === userId)?.profiles?.display_name ?? 'Compañero';
+    members.find((member) => member.user_id === userId)?.profiles?.display_name ?? t('common.roommate');
 
   function handleSelectDate(date: Date) {
     const next = applyPeriodRangeSelection({ date, rangeStart, rangeEnd, marks });
@@ -75,7 +74,7 @@ export function ExamPeriodsPanel({
   async function handleSave() {
     setError(null);
     if (!rangeStart) {
-      setError('Elige al menos un día libre en el calendario.');
+      setError(t('form.needFreeDay'));
       return;
     }
     const start = toExamDateKey(rangeStart);
@@ -94,7 +93,7 @@ export function ExamPeriodsPanel({
       setRangeStart(null);
       setRangeEnd(null);
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar el periodo', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.quietPeriodFail'), tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -102,9 +101,9 @@ export function ExamPeriodsPanel({
 
   async function handleRemove(period: MemberExamPeriod) {
     const ok = await confirm({
-      title: 'Eliminar modo silencio',
-      message: '¿Quitar este periodo del calendario?',
-      confirmLabel: 'Eliminar',
+      title: t('confirm.deleteQuiet'),
+      message: t('confirm.deleteQuietBody'),
+      confirmLabel: t('common.delete'),
     });
     if (!ok) {
       return;
@@ -125,7 +124,7 @@ export function ExamPeriodsPanel({
     <View className="gap-3">
       <View className="flex-row items-center gap-2">
         <Text className="flex-1 text-sm font-semibold text-violet-950">Gestionar modo silencio</Text>
-        <InfoTip title="Modo silencio" message={INFO_MESSAGE} tone="violet" />
+        <InfoTip title="Modo silencio" message={t('quiet.info')} tone="violet" />
       </View>
       {isLoading ? (
         <MascotLoading />
@@ -148,7 +147,7 @@ export function ExamPeriodsPanel({
               {mine.map((period) => (
                 <SilenceModeRow
                   key={period.id}
-                  banner={formatSilenceModeBanner(period.label, 'Tú')}
+                  banner={formatSilenceModeBanner(period.label, t('form.you'))}
                   period={period}
                   canRemove
                   busy={busy}
@@ -191,14 +190,14 @@ export function ExamPeriodsPanel({
           paddingVertical: 6,
         }}>
         <Text className="text-xs font-semibold text-violet-800">
-          {formOpen ? 'Cerrar registro' : '+ Registrar periodo'}
+          {formOpen ? t('form.closeRegister') : t('form.addPeriod')}
         </Text>
       </SafePressable>
 
       {formOpen ? (
         <View className="gap-3 rounded-xl border border-violet-100 bg-white p-3">
           <TextField
-            label="Motivo del periodo"
+            label={t('form.reasonPeriod')}
             value={label}
             onChangeText={setLabel}
             placeholder="Finales, entrega TFG…"
@@ -215,7 +214,7 @@ export function ExamPeriodsPanel({
             Los días morados oscuros ya están registrados. Toca inicio y fin en días libres.
           </Text>
           {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
-          <Button label="Guardar periodo" loading={saving || busy} onPress={() => void handleSave()} />
+          <Button label={t('form.savePeriod')} loading={saving || busy} onPress={() => void handleSave()} />
         </View>
       ) : null}
     </View>
@@ -235,13 +234,14 @@ function SilenceModeRow({
   busy?: boolean;
   onRemove?: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <View className="gap-0.5 rounded-xl border border-violet-200 bg-violet-100/60 px-3 py-2">
       <View className="flex-row items-start justify-between gap-2">
         <Text className="flex-1 text-sm font-medium text-violet-950">{banner}</Text>
         {canRemove && onRemove ? (
           <SafePressable onPress={onRemove} disabled={busy} hitSlop={8}>
-            <Text className="text-sm font-semibold text-red-600">Eliminar</Text>
+            <Text className="text-sm font-semibold text-red-600">{t('common.delete')}</Text>
           </SafePressable>
         ) : null}
       </View>

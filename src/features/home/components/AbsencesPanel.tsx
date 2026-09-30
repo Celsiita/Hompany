@@ -21,6 +21,7 @@ import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type { MemberAbsence } from '@/schemas/absence.schema';
 import type { MemberSystemLeave, SystemLeaveKind } from '@/schemas/presence.schema';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type AbsencesPanelProps = {
   absences: MemberAbsence[];
@@ -45,9 +46,6 @@ type AbsencesPanelProps = {
   onRemoveSystemLeave?: (leaveId: string) => Promise<void>;
 };
 
-const INFO_MESSAGE =
-  'Corta (finde/viaje): se reasignan tus tareas rotativas. Larga: la app se pausa para ti (excepto gastos vencidos).';
-
 const TYPE_OPTIONS = [
   { value: 'PUNCTUAL' as const, label: 'Corta' },
   { value: 'SYSTEM' as const, label: 'Larga / baja' },
@@ -71,6 +69,7 @@ export function AbsencesPanel({
   onAddSystemLeave,
   onRemoveSystemLeave,
 }: AbsencesPanelProps) {
+  const { t } = useLocale();
   const confirm = useConfirmDialog();
   const showToast = useToast();
   const [absenceType, setAbsenceType] = useState<'PUNCTUAL' | 'SYSTEM' | 'ALL'>('PUNCTUAL');
@@ -88,7 +87,7 @@ export function AbsencesPanel({
   );
 
   const memberName = (userId: string) =>
-    members.find((member) => member.user_id === userId)?.profiles?.display_name ?? 'Compañero';
+    members.find((member) => member.user_id === userId)?.profiles?.display_name ?? t('common.roommate');
 
   function handleSelectDate(date: Date) {
     const next = applyPeriodRangeSelection({ date, rangeStart, rangeEnd, marks });
@@ -100,7 +99,7 @@ export function AbsencesPanel({
   async function handleSave() {
     setError(null);
     if (!rangeStart) {
-      setError('Elige al menos un día libre en el calendario.');
+      setError(t('form.needFreeDay'));
       return;
     }
     const start = toDateKey(rangeStart);
@@ -120,13 +119,13 @@ export function AbsencesPanel({
     setSaving(true);
     try {
       await onAdd({ start_date: start, end_date: end, reason: reason.trim() || undefined });
-      showToast({ message: 'Ausencia guardada', tone: 'success' });
+      showToast({ message: t('toast.absenceSaved'), tone: 'success' });
       setFormOpen(false);
       setReason('');
       setRangeStart(null);
       setRangeEnd(null);
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar la ausencia', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.absenceFail'), tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -134,15 +133,15 @@ export function AbsencesPanel({
 
   async function handleRemove(absence: MemberAbsence) {
     const ok = await confirm({
-      title: 'Eliminar ausencia',
-      message: '¿Quitar este periodo de ausencia?',
-      confirmLabel: 'Eliminar',
+      title: t('confirm.deleteAbsence'),
+      message: t('confirm.deleteAbsenceBody'),
+      confirmLabel: t('common.delete'),
     });
     if (!ok) {
       return;
     }
     await onRemove(absence.id);
-    showToast({ message: 'Ausencia eliminada', tone: 'success' });
+    showToast({ message: t('toast.absenceDeleted'), tone: 'success' });
   }
 
   const mine = absences.filter((row) => row.user_id === currentUserId);
@@ -158,7 +157,7 @@ export function AbsencesPanel({
     <View className="gap-3">
       <View className="flex-row items-center gap-2">
         <Text className="flex-1 text-sm font-semibold text-amber-950">Gestionar ausencias</Text>
-        <InfoTip title="Ausencias" message={INFO_MESSAGE} tone="amber" />
+        <InfoTip title="Ausencias" message={t('absence.info')} tone="amber" />
       </View>
       {showSystem ? (
         <FilterTogglePair
@@ -210,7 +209,7 @@ export function AbsencesPanel({
                   {mine.map((absence) => (
                     <AbsenceRow
                       key={absence.id}
-                      label="Tú"
+                      label={t('form.you')}
                       absence={absence}
                       canRemove
                       busy={busy}
@@ -253,14 +252,14 @@ export function AbsencesPanel({
               paddingVertical: 6,
             }}>
             <Text className="text-xs font-semibold text-amber-900">
-              {formOpen ? 'Cerrar registro' : '+ Registrar ausencia puntual'}
+              {formOpen ? t('form.closeRegister') : t('form.addAbsence')}
             </Text>
           </SafePressable>
 
           {formOpen ? (
             <View className="gap-3 rounded-xl border border-amber-100 bg-white p-3">
               <TextField
-                label="Motivo (opcional)"
+                label={t('form.reasonOptional')}
                 value={reason}
                 onChangeText={setReason}
                 placeholder="Vacaciones, viaje…"
@@ -277,7 +276,7 @@ export function AbsencesPanel({
                 Los días ámbar oscuros ya están registrados. Toca inicio y fin en días libres.
               </Text>
               {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
-              <Button label="Guardar ausencia" loading={saving || busy} onPress={() => void handleSave()} />
+              <Button label={t('form.saveAbsence')} loading={saving || busy} onPress={() => void handleSave()} />
             </View>
           ) : null}
         </View>
@@ -299,6 +298,7 @@ function AbsenceRow({
   busy?: boolean;
   onRemove?: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <View className="gap-0.5 rounded-xl border border-amber-200 bg-amber-100/60 px-3 py-2">
       <View className="flex-row items-start justify-between gap-2">
@@ -311,7 +311,7 @@ function AbsenceRow({
         </View>
         {canRemove && onRemove ? (
           <SafePressable disabled={busy} onPress={onRemove}>
-            <Text className="text-xs font-semibold text-red-700">Eliminar</Text>
+            <Text className="text-xs font-semibold text-red-700">{t('common.delete')}</Text>
           </SafePressable>
         ) : null}
       </View>

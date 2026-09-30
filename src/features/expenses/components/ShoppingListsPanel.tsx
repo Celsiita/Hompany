@@ -84,7 +84,7 @@ export function ShoppingListsPanel({
   );
 
   const memberName = (userId: string | null | undefined) =>
-    members.find((member) => member.user_id === userId)?.profiles?.display_name ?? 'Compañero';
+    members.find((member) => member.user_id === userId)?.profiles?.display_name ?? t('common.roommate');
 
   function toggleNewMember(userId: string) {
     setNewMemberIds((current) =>
@@ -197,7 +197,9 @@ export function ShoppingListsPanel({
 
   return (
     <CollapsibleSection
-      title={neededCount > 0 ? `Listas compartidas (${neededCount} falta)` : 'Listas compartidas'}
+      title={
+        neededCount > 0 ? `${t('lists.shared')} (${neededCount})` : t('lists.shared')
+      }
       accent="amber"
       defaultExpanded
       info={<InfoTip title="Listas compartidas" message={INFO} tone="amber" />}>
@@ -254,10 +256,10 @@ export function ShoppingListsPanel({
           ) : (
             <View className="gap-2 rounded-xl border border-stone-200 bg-stone-50 p-3">
               <TextField
-                label="Nombre"
+                label={t('common.name')}
                 value={newListName}
                 onChangeText={setNewListName}
-                placeholder="Súper, baño…"
+                placeholder={t('lists.namePh')}
               />
               <TextField
                 label={t('money.amountLabel')}
@@ -279,8 +281,8 @@ export function ShoppingListsPanel({
                       selected ? interactive.borderedCardActive : undefined,
                     )}>
                     <Text className="text-sm text-stone-900">
-                      {member.profiles?.display_name ?? 'Compañero'}
-                      {member.user_id === currentUserId ? ' · tú' : ''}
+                      {member.profiles?.display_name ?? t('common.roommate')}
+                      {member.user_id === currentUserId ? t('common.youSuffix') : ''}
                     </Text>
                     <Text className="text-sm text-amber-800">{selected ? '✓' : ''}</Text>
                   </SafePressable>
@@ -288,11 +290,11 @@ export function ShoppingListsPanel({
               })}
               <View className="flex-row gap-2">
                 <View className="flex-1">
-                  <Button label="Cancelar" variant="secondary" onPress={resetAddForm} />
+                  <Button label={t('common.cancel')} variant="secondary" onPress={resetAddForm} />
                 </View>
                 <View className="flex-1">
                   <Button
-                    label="Crear lista + gasto"
+                    label={t('lists.createWithExpense')}
                     loading={busy}
                     onPress={() => void handleAddList()}
                   />
@@ -319,7 +321,7 @@ export function ShoppingListsPanel({
                   <Text className="text-sm text-emerald-900/80">Aún no hay gasto vinculado.</Text>
                 )}
                 <Button
-                  label={hasLinkedExpenseId ? 'Abrir gasto' : 'Crear / vincular gasto'}
+                  label={hasLinkedExpenseId ? t('lists.openExpense') : t('lists.linkExpense')}
                   variant="secondary"
                   loading={busy}
                   onPress={() => void openOrCreateLinkedExpense()}
@@ -339,7 +341,7 @@ export function ShoppingListsPanel({
                       selected ? interactive.borderedCardActive : undefined,
                     )}>
                     <Text className="text-sm text-stone-900">
-                      {member.profiles?.display_name ?? 'Compañero'}
+                      {member.profiles?.display_name ?? t('common.roommate')}
                     </Text>
                     <Text className="text-sm text-amber-800">{selected ? '✓' : ''}</Text>
                   </SafePressable>
@@ -388,7 +390,7 @@ export function ShoppingListsPanel({
                             selected ? interactive.borderedCardActive : undefined,
                           )}>
                           <Text className="text-sm text-stone-900">
-                            {member.profiles?.display_name ?? 'Compañero'}
+                            {member.profiles?.display_name ?? t('common.roommate')}
                           </Text>
                           <Text className="text-sm text-amber-800">{selected ? '✓' : ''}</Text>
                         </SafePressable>
@@ -428,7 +430,7 @@ export function ShoppingListsPanel({
               <View className="flex-row gap-2">
                 <View className="flex-1">
                   <TextField
-                    label="Añadir elemento"
+                    label={t('lists.addItem')}
                     value={newItemTitle}
                     onChangeText={setNewItemTitle}
                     placeholder="Papel, detergente…"

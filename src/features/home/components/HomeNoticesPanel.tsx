@@ -11,6 +11,7 @@ import { interactive, mergeStyles } from '@/lib/interactive-styles';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type { FeedNoticeKind, HomeNotice } from '@/schemas/home-notice.schema';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type HomeNoticesPanelProps = {
   notices: HomeNotice[];
@@ -44,6 +45,7 @@ export function HomeNoticesPanel({
   onAdd,
   onRemove,
 }: HomeNoticesPanelProps) {
+  const { t } = useLocale();
   const confirm = useConfirmDialog();
   const showToast = useToast();
   const [editorOpen, setEditorOpen] = useState(false);
@@ -76,7 +78,7 @@ export function HomeNoticesPanel({
   async function handleSave() {
     setError(null);
     if (!title.trim()) {
-      setError('Escribe un título');
+      setError(t('form.needTitle'));
       return;
     }
     setSaving(true);
@@ -87,11 +89,11 @@ export function HomeNoticesPanel({
         body: body.trim() || undefined,
         is_anonymous: kind === 'COMPLAINT' ? isAnonymous : false,
       });
-      showToast({ message: 'Aviso publicado', tone: 'success' });
+      showToast({ message: t('toast.noticePublished'), tone: 'success' });
       setEditorOpen(false);
       resetForm();
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo publicar', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.publishFail'), tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -99,15 +101,15 @@ export function HomeNoticesPanel({
 
   async function handleRemove(notice: HomeNotice) {
     const ok = await confirm({
-      title: 'Eliminar aviso',
-      message: `¿Borrar «${notice.title}»?`,
-      confirmLabel: 'Eliminar',
+      title: t('confirm.deleteNotice'),
+      message: t('confirm.deleteNoticeBody', { title: notice.title }),
+      confirmLabel: t('common.delete'),
     });
     if (!ok) {
       return;
     }
     await onRemove(notice.id);
-    showToast({ message: 'Aviso eliminado', tone: 'success' });
+    showToast({ message: t('toast.noticeDeleted'), tone: 'success' });
   }
 
   return (
@@ -119,7 +121,7 @@ export function HomeNoticesPanel({
               <Text className="text-sm font-semibold text-stone-900">Reglas y quejas</Text>
               <HelpTip
                 title="Reglas y quejas"
-                message="Las reglas son acuerdos permanentes del piso. Las quejas son avisos puntuales; puedes publicarlas de forma anónima."
+                message={t('rules.help')}
               />
             </View>
             <Text className="text-xs text-stone-500">
@@ -132,7 +134,7 @@ export function HomeNoticesPanel({
               setEditorOpen(true);
             }}
             contentStyle={mergeStyles(interactive.chip, interactive.chipInactive)}>
-            <Text className="text-xs font-semibold text-teal-700">Añadir</Text>
+            <Text className="text-xs font-semibold text-teal-700">{t('info.add')}</Text>
           </SafePressable>
         </View>
 
@@ -211,7 +213,7 @@ export function HomeNoticesPanel({
               );
             })}
           </View>
-          <TextField label="Título" value={title} onChangeText={setTitle} />
+          <TextField label={t('common.title')} value={title} onChangeText={setTitle} />
           <TextField
             label="Detalle (opcional)"
             value={body}
@@ -228,7 +230,7 @@ export function HomeNoticesPanel({
           {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
           <Button label="Publicar" loading={saving} onPress={() => void handleSave()} />
           <Button
-            label="Cancelar"
+            label={t('common.cancel')}
             variant="secondary"
             disabled={saving}
             onPress={() => setEditorOpen(false)}

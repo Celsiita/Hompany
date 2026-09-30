@@ -138,7 +138,7 @@ export function ExpensesScreen() {
       }
     } catch (err) {
       showToast({
-        message: err instanceof Error ? err.message : 'No se pudo completar la acción',
+        message: err instanceof Error ? err.message : t('toast.actionFailed'),
         tone: 'error',
       });
     } finally {
@@ -148,14 +148,14 @@ export function ExpensesScreen() {
 
   async function confirmDelete(expense: ExpenseWithRelations) {
     const ok = await confirm({
-      title: 'Eliminar gasto',
-      message: `¿Borrar «${expense.title}»? El historial de movimientos se conserva.`,
-      confirmLabel: 'Eliminar',
+      title: t('expense.deleteTitle'),
+      message: t('expense.deleteBody', { title: expense.title }),
+      confirmLabel: t('common.delete'),
     });
     if (!ok) {
       return;
     }
-    await runAction(expense.id, () => removeExpense(expense.id), 'Gasto eliminado');
+    await runAction(expense.id, () => removeExpense(expense.id), t('toast.saved'));
   }
 
   const activeFilterCount = [

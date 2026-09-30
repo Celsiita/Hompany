@@ -21,6 +21,7 @@ import { interactive, mergeStyles } from '@/lib/interactive-styles';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type { CalendarNoticeKind, HomeNotice } from '@/schemas/home-notice.schema';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type CalendarNoticesPanelProps = {
   notices: HomeNotice[];
@@ -54,6 +55,7 @@ export function CalendarNoticesPanel({
   onAdd,
   onRemove,
 }: CalendarNoticesPanelProps) {
+  const { t } = useLocale();
   const confirm = useConfirmDialog();
   const showToast = useToast();
   const [formOpen, setFormOpen] = useState(false);
@@ -122,11 +124,11 @@ export function CalendarNoticesPanel({
   async function handleSave() {
     setError(null);
     if (!title.trim()) {
-      setError('Escribe un título');
+      setError(t('form.needTitle'));
       return;
     }
     if (!rangeStart) {
-      setError('Elige al menos un día en el calendario');
+      setError(t('form.needDay'));
       return;
     }
     setSaving(true);
@@ -137,14 +139,14 @@ export function CalendarNoticesPanel({
         starts_on: toDateKey(rangeStart),
         ends_on: toDateKey(rangeEnd ?? rangeStart),
       });
-      showToast({ message: 'Visita guardada', tone: 'success' });
+      showToast({ message: t('toast.visitSaved'), tone: 'success' });
       setFormOpen(false);
       setTitle('');
       setRangeStart(null);
       setRangeEnd(null);
       setKind('VISIT');
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.saveFail'), tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -152,25 +154,22 @@ export function CalendarNoticesPanel({
 
   async function handleRemove(notice: HomeNotice) {
     const ok = await confirm({
-      title: 'Eliminar aviso',
-      message: `¿Borrar «${notice.title}»?`,
-      confirmLabel: 'Eliminar',
+      title: t('confirm.deleteNotice'),
+      message: t('confirm.deleteNoticeBody', { title: notice.title }),
+      confirmLabel: t('common.delete'),
     });
     if (!ok) {
       return;
     }
     await onRemove(notice.id);
-    showToast({ message: 'Visita eliminada', tone: 'success' });
+    showToast({ message: t('toast.visitDeleted'), tone: 'success' });
   }
 
   return (
     <View className="gap-3">
       <View className="flex-row items-center gap-2">
         <Text className="flex-1 text-sm font-semibold text-stone-900">Gestionar visitas y eventos</Text>
-        <InfoTip
-          title="Visitas y eventos"
-          message="Marca en el calendario visitas, reparaciones o eventos del piso para que todo el mundo lo vea."
-        />
+        <InfoTip title={t('visit.title')} message={t('visit.info')} />
       </View>
       <View className="gap-3">
         <Text className="text-xs text-stone-500">
@@ -271,7 +270,7 @@ export function CalendarNoticesPanel({
 
         {!formOpen ? (
           <Button
-            label="Añadir aviso"
+            label={t('form.addNotice')}
             variant="secondary"
             disabled={busy}
             onPress={() => setFormOpen(true)}
@@ -303,7 +302,7 @@ export function CalendarNoticesPanel({
                 );
               })}
             </View>
-            <TextField label="Título" value={title} onChangeText={setTitle} />
+            <TextField label={t('common.title')} value={title} onChangeText={setTitle} />
             <PeriodRangeCalendar
               visibleMonth={visibleMonth}
               onMonthChange={setVisibleMonth}
@@ -313,9 +312,9 @@ export function CalendarNoticesPanel({
               onSelectDate={handleSelectDate}
             />
             {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
-            <Button label="Guardar" loading={saving} onPress={() => void handleSave()} />
+            <Button label={t('common.save')} loading={saving} onPress={() => void handleSave()} />
             <Button
-              label="Cancelar"
+              label={t('common.cancel')}
               variant="secondary"
               disabled={saving}
               onPress={() => {

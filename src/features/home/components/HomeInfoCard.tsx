@@ -10,6 +10,7 @@ import { copyToClipboard } from '@/lib/clipboard';
 import { interactive, mergeStyles } from '@/lib/interactive-styles';
 import type { Home } from '@/types/database.types';
 import type { UpdateHomePracticalInfoInput } from '@/schemas/home.schema';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type HomeInfoCardProps = {
   home: Home | null;
@@ -44,6 +45,7 @@ export function homeHasPracticalInfo(home: Home | null | undefined): boolean {
  * Piso card: shared flat practical info (Wi‑Fi, portal, bins) with edit sheet.
  */
 export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
+  const { t } = useLocale();
   const showToast = useToast();
   const [editorOpen, setEditorOpen] = useState(false);
   const [wifiSsid, setWifiSsid] = useState('');
@@ -81,7 +83,7 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
       },
       {
         key: 'wifi_password',
-        label: 'Contraseña Wi‑Fi',
+        label: t('info.wifiPass'),
         value: home.wifi_password?.trim() ?? '',
         secret: true,
         copyable: true,
@@ -104,7 +106,7 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
       },
     ];
     return candidates.filter((row) => row.value.length > 0);
-  }, [home]);
+  }, [home, t]);
 
   async function handleCopy(row: InfoRow) {
     if (!row.value) {
@@ -128,10 +130,10 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
         bin_day: binDay,
         notes,
       });
-      showToast({ message: 'Info del piso guardada', tone: 'success' });
+      showToast({ message: t('toast.saved'), tone: 'success' });
       setEditorOpen(false);
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.saveFail'), tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -153,7 +155,7 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
             onPress={() => setEditorOpen(true)}
             contentStyle={mergeStyles(interactive.chip, interactive.chipInactive)}>
             <Text className="text-xs font-semibold text-teal-800">
-              {filled ? 'Editar' : 'Añadir'}
+              {filled ? t('common.edit') : t('info.add')}
             </Text>
           </SafePressable>
         </View>
@@ -194,7 +196,7 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
                   {row.copyable ? (
                     <Pressable onPress={() => void handleCopy(row)} hitSlop={8}>
                       <Text className="text-xs font-semibold text-teal-700">
-                        {copiedKey === row.key ? 'Copiado' : 'Copiar'}
+                        {copiedKey === row.key ? t('info.copied') : t('info.copy')}
                       </Text>
                     </Pressable>
                   ) : null}
@@ -213,13 +215,13 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
         <View className="gap-3">
           <TextField label="Wi‑Fi (nombre de red)" value={wifiSsid} onChangeText={setWifiSsid} />
           <TextField
-            label="Contraseña Wi‑Fi"
+            label={t('info.wifiPass')}
             value={wifiPassword}
             onChangeText={setWifiPassword}
             secureTextEntry
           />
           <TextField
-            label="Código portal / portero"
+            label={t('info.doorCode')}
             value={portalCode}
             onChangeText={setPortalCode}
           />
@@ -227,18 +229,18 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
             label="Basura / reciclaje"
             value={binDay}
             onChangeText={setBinDay}
-            placeholder="Ej. amarillo martes, resto miércoles"
+            placeholder={t('info.trashPh')}
           />
           <TextField
             label="Notas"
             value={notes}
             onChangeText={setNotes}
-            placeholder="Buzón, luz, caldera…"
+            placeholder={t('info.notesPh')}
           />
           {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
-          <Button label="Guardar" loading={saving} onPress={() => void handleSave()} />
+          <Button label={t('common.save')} loading={saving} onPress={() => void handleSave()} />
           <Button
-            label="Cancelar"
+            label={t('common.cancel')}
             variant="secondary"
             disabled={saving}
             onPress={() => setEditorOpen(false)}

@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import { HeaderAlertsButton } from '@/components/ui/HeaderAlertsButton';
 import { HelpTip } from '@/components/ui/HelpTip';
 import { OverflowMenuButton } from '@/components/ui/OverflowMenu';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type CreateAccent = 'blue' | 'amber' | 'teal';
 
@@ -45,10 +46,12 @@ export function ScreenHeader({
   helpTitle,
   helpMessage,
   onCreatePress,
-  createAccessibilityLabel = 'Crear',
+  createAccessibilityLabel,
   createAccent = 'teal',
   headerEnd,
 }: ScreenHeaderProps) {
+  const { t } = useLocale();
+  const createA11y = createAccessibilityLabel ?? t('common.create');
   return (
     <View className="flex-row items-start justify-between gap-3">
       <View className="flex-1 gap-1">
@@ -73,7 +76,7 @@ export function ScreenHeader({
           <Pressable
             onPress={onCreatePress}
             accessibilityRole="button"
-            accessibilityLabel={createAccessibilityLabel}
+            accessibilityLabel={createA11y}
             className={`h-11 w-11 items-center justify-center rounded-xl ${CREATE_ACCENT_CLASS[createAccent]}`}>
             <Text className="text-2xl font-bold leading-none text-white">+</Text>
           </Pressable>

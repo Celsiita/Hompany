@@ -20,6 +20,7 @@ import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type { MemberSystemLeave, SystemLeaveKind } from '@/schemas/presence.schema';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type SystemLeavePanelProps = {
   systemLeaves: MemberSystemLeave[];
@@ -41,13 +42,6 @@ type SystemLeavePanelProps = {
   onRemove: (leaveId: string) => Promise<void>;
 };
 
-const INFO_MESSAGE =
-  'Baja larga: la app se pausa para ti (sin tareas ni avisos), salvo gastos ya vencidos. Distinta de una ausencia corta.';
-
-const KIND_OPTIONS = [
-  { value: 'INDEFINITE' as const, label: 'Sin fecha fin' },
-  { value: 'PLANNED' as const, label: 'Con fechas' },
-] as const;
 
 /**
  * Collapsible system leave section (indefinite or planned).
@@ -64,8 +58,13 @@ export function SystemLeavePanel({
   onAdd,
   onRemove,
 }: SystemLeavePanelProps) {
+  const { t } = useLocale();
   const confirm = useConfirmDialog();
   const showToast = useToast();
+  const kindOptions = [
+    { value: 'INDEFINITE' as const, label: t('systemLeave.noEnd') },
+    { value: 'PLANNED' as const, label: 'Con fechas' },
+  ] as const;
   const [formOpen, setFormOpen] = useState(false);
   const [kind, setKind] = useState<SystemLeaveKind | 'ALL'>('INDEFINITE');
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(new Date()));
@@ -91,7 +90,7 @@ export function SystemLeavePanel({
   );
 
   const memberName = (userId: string) =>
-    members.find((member) => member.user_id === userId)?.profiles?.display_name ?? 'Compañero';
+    members.find((member) => member.user_id === userId)?.profiles?.display_name ?? t('common.roommate');
 
   const mine = systemLeaves.filter((row) => row.user_id === currentUserId);
   const others = mineOnly
@@ -117,15 +116,15 @@ export function SystemLeavePanel({
   async function handleSave() {
     setError(null);
     if (kind === 'ALL' || !kind) {
-      setError('Elige indefinida o planificada');
+      setError(t('systemLeave.pickKind'));
       return;
     }
     if (!rangeStart) {
-      setError(kind === 'INDEFINITE' ? 'Elige la fecha de inicio' : 'Elige el rango de fechas');
+      setError(kind === 'INDEFINITE' ? t('systemLeave.pickStart') : t('systemLeave.pickRange'));
       return;
     }
     if (kind === 'PLANNED' && !rangeEnd) {
-      setError('Elige la fecha de fin');
+      setError(t('systemLeave.pickEnd'));
       return;
     }
     setSaving(true);
@@ -136,14 +135,14 @@ export function SystemLeavePanel({
         end_date: kind === 'PLANNED' && rangeEnd ? toDateKey(rangeEnd) : null,
         reason: reason.trim() || undefined,
       });
-      showToast({ message: 'Baja registrada', tone: 'success' });
+      showToast({ message: t('toast.leaveRegistered'), tone: 'success' });
       setFormOpen(false);
       setRangeStart(null);
       setRangeEnd(null);
       setReason('');
       setKind('INDEFINITE');
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.saveFail'), tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -151,15 +150,15 @@ export function SystemLeavePanel({
 
   async function handleRemove(leave: MemberSystemLeave) {
     const ok = await confirm({
-      title: 'Quitar ausencia de sistema',
-      message: '¿Reactivar tareas, gastos y avisos para este periodo?',
-      confirmLabel: 'Quitar',
+      title: t('systemLeave.infoTitle'),
+      message: t('confirm.reactivateLeave'),
+      confirmLabel: t('common.delete'),
     });
     if (!ok) {
       return;
     }
     await onRemove(leave.id);
-    showToast({ message: 'Baja quitada', tone: 'success' });
+    showToast({ message: t('toast.leaveRemoved'), tone: 'success' });
   }
 
   const body = (
@@ -185,7 +184,7 @@ export function SystemLeavePanel({
               {mine.map((leave) => (
                 <LeaveRow
                   key={leave.id}
-                  label="Tú"
+                  label={t('form.you')}
                   leave={leave}
                   canRemove
                   busy={busy}
@@ -219,7 +218,7 @@ export function SystemLeavePanel({
         <View className="gap-3">
           <FilterTogglePair
             value={kind}
-            options={KIND_OPTIONS}
+            options={kindOptions}
             clearable={false}
             onChange={(next) => {
               if (next === 'ALL') {
@@ -244,7 +243,7 @@ export function SystemLeavePanel({
             onSelectDate={handleSelectDate}
           />
           <TextField
-            label="Motivo (opcional)"
+            label={t('form.reasonOptional')}
             value={reason}
             onChangeText={setReason}
             placeholder="Viaje, mudanza…"
@@ -253,7 +252,7 @@ export function SystemLeavePanel({
           <View className="flex-row gap-2">
             <View className="flex-1">
               <Button
-                label="Cancelar"
+                label={t('common.cancel')}
                 variant="secondary"
                 onPress={() => {
                   setFormOpen(false);
@@ -262,7 +261,7 @@ export function SystemLeavePanel({
               />
             </View>
             <View className="flex-1">
-              <Button label="Guardar" loading={saving || busy} onPress={() => void handleSave()} />
+              <Button label={t('common.save')} loading={saving || busy} onPress={() => void handleSave()} />
             </View>
           </View>
         </View>
@@ -276,10 +275,10 @@ export function SystemLeavePanel({
 
   return (
     <CollapsibleSection
-      title="Ausencia indefinida o planificada"
+      title={t('systemLeave.title')}
       accent="amber"
       defaultExpanded={defaultExpanded}
-      info={<InfoTip title="Ausencia de sistema" message={INFO_MESSAGE} tone="amber" />}>
+      info={<InfoTip title={t('systemLeave.infoTitle')} message={t('absence.info')} tone="amber" />}>
       {body}
     </CollapsibleSection>
   );

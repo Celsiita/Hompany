@@ -51,7 +51,7 @@ export function SetupHomeScreen() {
     setError(null);
     const parsed = createHomeInputSchema.safeParse({ name });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Nombre no válido');
+      setError(parsed.error.issues[0]?.message ?? t('toast.invalidName'));
       return;
     }
 
@@ -59,7 +59,7 @@ export function SetupHomeScreen() {
     try {
       await createHome(parsed.data);
     } catch (err) {
-      setError(errorMessage(err, 'No se pudo crear el piso'));
+      setError(errorMessage(err, t('toast.homeCreateFail')));
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ export function SetupHomeScreen() {
     setError(null);
     const parsed = joinHomeInputSchema.safeParse({ inviteCode });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Código no válido');
+      setError(parsed.error.issues[0]?.message ?? t('toast.invalidCode'));
       return;
     }
 
@@ -77,7 +77,7 @@ export function SetupHomeScreen() {
     try {
       await joinHome(parsed.data);
     } catch (err) {
-      setError(errorMessage(err, 'No se pudo unir al piso'));
+      setError(errorMessage(err, t('toast.joinFail')));
     } finally {
       setLoading(false);
     }

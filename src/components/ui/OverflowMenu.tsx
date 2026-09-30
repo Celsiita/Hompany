@@ -2,6 +2,7 @@ import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { SafePressable } from '@/components/ui/SafePressable';
 import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
+import { useLocale } from '@/providers/LocaleProvider';
 
 export type OverflowMenuAction = {
   key: string;
@@ -22,6 +23,7 @@ type OverflowMenuProps = {
  * Contextual ⋮ action sheet.
  */
 export function OverflowMenu({ visible, title, actions, onClose }: OverflowMenuProps) {
+  const { t } = useLocale();
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 justify-end bg-black/40">
@@ -29,7 +31,7 @@ export function OverflowMenu({ visible, title, actions, onClose }: OverflowMenuP
           cssInterop={false}
           style={StyleSheet.absoluteFill}
           onPress={onClose}
-          accessibilityLabel="Cerrar menú"
+          accessibilityLabel={t('a11y.closeMenu')}
         />
         <View className="rounded-t-3xl bg-white p-4 pb-8 gap-1">
           <View className="items-center pb-1">
@@ -59,7 +61,7 @@ export function OverflowMenu({ visible, title, actions, onClose }: OverflowMenuP
             contentStyle={mergeStyles(
               { borderRadius: 12, backgroundColor: palette.gray100, paddingHorizontal: 12, paddingVertical: 12, marginTop: 8 },
             )}>
-            <Text className="text-center text-sm font-semibold text-stone-700">Cerrar</Text>
+            <Text className="text-center text-sm font-semibold text-stone-700">{t('common.close')}</Text>
           </SafePressable>
         </View>
       </View>
@@ -71,13 +73,14 @@ export function OverflowMenu({ visible, title, actions, onClose }: OverflowMenuP
  * Compact trigger for overflow menus.
  */
 export function OverflowMenuButton({ onPress, label = '⋮' }: { onPress: () => void; label?: string }) {
+  const { t } = useLocale();
   return (
     <Pressable
       cssInterop={false}
       onPress={onPress}
       hitSlop={10}
       accessibilityRole="button"
-      accessibilityLabel="Más opciones"
+      accessibilityLabel={t('a11y.more')}
       style={styles.menuButton}>
       <Text className="text-lg font-bold text-stone-700">{label}</Text>
     </Pressable>

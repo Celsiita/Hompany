@@ -13,6 +13,8 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import { useLocale } from '@/providers/LocaleProvider';
+
 type BottomSheetModalProps = {
   visible: boolean;
   onClose: () => void;
@@ -41,6 +43,7 @@ export function BottomSheetModal({
   contentContainerStyle,
   animationType = 'slide',
 }: BottomSheetModalProps) {
+  const { t } = useLocale();
   const scrollOffsetRef = useRef(0);
   const closingRef = useRef(false);
   const onCloseRef = useRef(onClose);
@@ -190,7 +193,7 @@ export function BottomSheetModal({
         <Pressable
           className="absolute inset-0"
           onPress={requestClose}
-          accessibilityLabel="Cerrar"
+          accessibilityLabel={t('a11y.close')}
         />
         <Animated.View
           className={`w-full rounded-t-3xl bg-white p-4 ${maxHeightClassName}`}

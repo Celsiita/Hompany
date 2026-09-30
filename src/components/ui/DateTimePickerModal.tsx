@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Keyboard, Modal, Pressable, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { getAppLocale } from '@/lib/i18n/locale-store';
 import { mergeStyles, palette } from '@/lib/interactive-styles';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type DateTimePickerModalProps = {
   visible: boolean;
@@ -69,6 +71,8 @@ export function DateTimePickerModal({
   mode = 'datetime',
   isDayEnabled,
 }: DateTimePickerModalProps) {
+  const { t } = useLocale();
+  const intlLocale = getAppLocale() === 'es' ? 'es-ES' : 'en-US';
   const [cursor, setCursor] = useState(new Date(value));
   const [timeText, setTimeText] = useState(
     `${pad(value.getHours())}:${pad(value.getMinutes())}`,
@@ -95,7 +99,7 @@ export function DateTimePickerModal({
     return [...blanks, ...days];
   }, [firstWeekday, totalDays]);
 
-  const monthLabel = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(
+  const monthLabel = new Intl.DateTimeFormat(intlLocale, { month: 'long', year: 'numeric' }).format(
     cursor,
   );
 
@@ -175,7 +179,7 @@ export function DateTimePickerModal({
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 justify-end bg-black/40">
-        <Pressable className="absolute inset-0" onPress={onClose} accessibilityLabel="Cerrar" />
+        <Pressable className="absolute inset-0" onPress={onClose} accessibilityLabel={t('a11y.close')} />
         <View className="gap-3 rounded-t-3xl bg-white p-4">
           <Text className="text-lg font-bold text-stone-900">{title}</Text>
           <View className="flex-row items-center justify-between">
@@ -285,10 +289,10 @@ export function DateTimePickerModal({
           ) : null}
           <View className="mb-2 flex-row gap-2">
             <View className="flex-1">
-              <Button label="Cancelar" variant="secondary" onPress={onClose} />
+              <Button label={t('common.cancel')} variant="secondary" onPress={onClose} />
             </View>
             <View className="flex-1">
-              <Button label="Usar fecha" onPress={confirm} />
+              <Button label={t('form.useDate')} onPress={confirm} />
             </View>
           </View>
         </View>
@@ -301,7 +305,8 @@ export function DateTimePickerModal({
  * Formats a due instant for form labels (es-ES).
  */
 export function formatDueDateTime(value: Date): string {
-  return new Intl.DateTimeFormat('es-ES', {
+  const intlLocale = getAppLocale() === 'es' ? 'es-ES' : 'en-US';
+  return new Intl.DateTimeFormat(intlLocale, {
     weekday: 'short',
     day: 'numeric',
     month: 'short',

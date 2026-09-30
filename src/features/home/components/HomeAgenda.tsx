@@ -23,6 +23,7 @@ import { AgendaCalendar } from '@/features/home/components/AgendaCalendar';
 import { AgendaList, type AgendaListHandle } from '@/features/home/components/AgendaList';
 import { ScheduledItemSheet } from '@/features/home/components/ScheduledItemSheet';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
+import { useLocale } from '@/providers/LocaleProvider';
 import {
   startOfDay,
   toAgendaScopeFilter,
@@ -72,6 +73,7 @@ export function HomeAgenda({
   onReassignOccurrence,
   onRequestSwap,
 }: HomeAgendaProps) {
+  const { t } = useLocale();
   const confirm = useConfirmDialog();
   const listRef = useRef<AgendaListHandle>(null);
   const scrollRef = useRef<ScrollView>(null);
@@ -155,9 +157,9 @@ export function HomeAgenda({
       return;
     }
     const ok = await confirm({
-      title: 'Cancelar esta fecha',
+      title: t('confirm.cancelDate'),
       message: 'Se omitirá solo esta ejecución. La recurrencia sigue activa.',
-      confirmLabel: 'Cancelar fecha',
+      confirmLabel: t('confirm.cancelDateAction'),
     });
     if (!ok) {
       return;

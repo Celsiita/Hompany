@@ -176,7 +176,7 @@ export function ExpenseCard({
         <View className="gap-0.5">
           <Text className="text-sm text-stone-600">
             Programada:{' '}
-            {expense.due_at ? formatHistoryDateTime(expense.due_at) : 'Sin fecha'}
+            {expense.due_at ? formatHistoryDateTime(expense.due_at) : t('common.noDate')}
           </Text>
           <Text className="text-sm text-stone-600">
             Realización:{' '}

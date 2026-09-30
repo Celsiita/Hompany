@@ -284,26 +284,28 @@ export function HomeScreen() {
                 const task = tasks.find((row) => row.id === item.entityId);
                 if (!task || !canRequestTaskSwap(task)) {
                   showToast({
-                    message: 'No se puede proponer cambio en esta tarea',
+                    message: t('toast.swapBlocked'),
                     tone: 'error',
                   });
                   return;
                 }
                 const other = agendaMembers.find((member) => member.user_id !== user?.id);
                 if (!other) {
-                  showToast({ message: 'No hay compañeros para intercambiar', tone: 'error' });
+                  showToast({ message: t('toast.noPeers'), tone: 'error' });
                   return;
                 }
                 void (async () => {
                   try {
                     await requestSwap(task, other.user_id);
                     showToast({
-                      message: `Cambio propuesto a ${other.profiles?.display_name ?? 'compañero'}`,
+                      message: t('task.swapTo', {
+                        name: other.profiles?.display_name ?? t('common.roommate'),
+                      }),
                       tone: 'success',
                     });
                   } catch (err) {
                     showToast({
-                      message: err instanceof Error ? err.message : 'No se pudo proponer el cambio',
+                      message: err instanceof Error ? err.message : t('toast.swapFail'),
                       tone: 'error',
                     });
                   }

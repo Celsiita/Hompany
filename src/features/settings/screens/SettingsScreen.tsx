@@ -121,16 +121,16 @@ export function SettingsScreen() {
     setError(null);
     const parsed = registerSchema.shape.displayName.safeParse(displayName);
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Nombre no válido');
+      setError(parsed.error.issues[0]?.message ?? t('toast.invalidName'));
       return;
     }
     setSavingName(true);
     try {
       const updated = await updateDisplayName(user.id, parsed.data);
       setDisplayName(updated.display_name);
-      showToast({ message: 'Nombre actualizado', tone: 'success' });
+      showToast({ message: t('toast.nameUpdated'), tone: 'success' });
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar el nombre', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.nameSaveFail'), tone: 'error' });
     } finally {
       setSavingName(false);
     }
@@ -140,16 +140,16 @@ export function SettingsScreen() {
     setError(null);
     const parsed = createHomeInputSchema.safeParse({ name: newHomeName });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Nombre no válido');
+      setError(parsed.error.issues[0]?.message ?? t('toast.invalidName'));
       return;
     }
     setHomeBusy(true);
     try {
       await createHome(parsed.data);
       setNewHomeName('');
-      showToast({ message: 'Piso creado', tone: 'success' });
+      showToast({ message: t('toast.homeCreated'), tone: 'success' });
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo crear el piso', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.homeCreateFail'), tone: 'error' });
     } finally {
       setHomeBusy(false);
     }
@@ -159,16 +159,16 @@ export function SettingsScreen() {
     setError(null);
     const parsed = joinHomeInputSchema.safeParse({ inviteCode });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Código no válido');
+      setError(parsed.error.issues[0]?.message ?? t('toast.invalidCode'));
       return;
     }
     setHomeBusy(true);
     try {
       await joinHome(parsed.data);
       setInviteCode('');
-      showToast({ message: 'Te has unido al piso', tone: 'success' });
+      showToast({ message: t('toast.joined'), tone: 'success' });
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo unir al piso', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.joinFail'), tone: 'error' });
     } finally {
       setHomeBusy(false);
     }
@@ -180,7 +180,10 @@ export function SettingsScreen() {
     }
     const ok = await copyToClipboard(activeHome.invite_code);
     setCopied(ok);
-    showToast({ message: ok ? 'Código copiado' : 'No se pudo copiar', tone: ok ? 'success' : 'error' });
+    showToast({
+      message: ok ? t('toast.codeCopied') : t('toast.copyFail'),
+      tone: ok ? 'success' : 'error',
+    });
     setTimeout(() => setCopied(false), 2000);
   }
 
@@ -189,7 +192,10 @@ export function SettingsScreen() {
       return;
     }
     const ok = await copyToClipboard(homeInviteUrl(activeHome.invite_code));
-    showToast({ message: ok ? 'Enlace de invitación copiado' : 'No se pudo copiar el enlace', tone: ok ? 'success' : 'error' });
+    showToast({
+      message: ok ? t('toast.linkCopied') : t('toast.linkCopyFail'),
+      tone: ok ? 'success' : 'error',
+    });
   }
 
   async function handleImportIconPack() {
@@ -198,13 +204,13 @@ export function SettingsScreen() {
     try {
       const pack = await importPackFromJson(iconPackJson);
       if (!pack) {
-        showToast({ message: 'No se pudo importar el pack', tone: 'error' });
+        showToast({ message: t('toast.packImportFail'), tone: 'error' });
         return;
       }
       setIconPackJson('');
-      showToast({ message: `Pack «${pack.name}» importado y activo`, tone: 'success' });
+      showToast({ message: t('toast.packImported', { name: pack.name }), tone: 'success' });
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo importar el pack', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.packImportFail'), tone: 'error' });
     } finally {
       setImportingPack(false);
     }
@@ -215,9 +221,9 @@ export function SettingsScreen() {
       return;
     }
     const ok = await confirm({
-      title: 'Abandonar piso',
-      message: `Vas a salir de «${activeHome.name}». Si eres el último, el piso se elimina. Si eres el único owner, el rol pasa a otro compañero.`,
-      confirmLabel: 'Abandonar',
+      title: t('confirm.leaveHome'),
+      message: t('confirm.leaveHomeBody'),
+      confirmLabel: t('confirm.leaveHomeAction'),
     });
     if (!ok) {
       return;
@@ -226,18 +232,17 @@ export function SettingsScreen() {
       await leaveHome(activeHome.id);
       await clearActiveHome();
       await refreshHomes();
-      showToast({ message: 'Has abandonado el piso', tone: 'success' });
+      showToast({ message: t('toast.leftHome'), tone: 'success' });
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo abandonar el piso', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.leaveFail'), tone: 'error' });
     }
   }
 
   async function handleDeleteAccount() {
-    const homeNames = homes.map((home) => home.name).join(', ') || 'ninguno';
     const ok = await confirm({
-      title: 'Eliminar cuenta',
-      message: `Esto borra tu usuario de forma permanente. Saldrás de los pisos: ${homeNames}. No se puede deshacer.`,
-      confirmLabel: 'Borrar cuenta',
+      title: t('settings.deleteAccount'),
+      message: t('confirm.deleteAccountBody'),
+      confirmLabel: t('settings.deleteAccount'),
     });
     if (!ok) {
       return;
@@ -247,15 +252,15 @@ export function SettingsScreen() {
       await clearActiveHome();
       await signOut();
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo borrar la cuenta', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.deleteAccountFail'), tone: 'error' });
     }
   }
 
   async function handleSignOut() {
     const ok = await confirm({
-      title: 'Cerrar sesión',
-      message: '¿Seguro que quieres salir de HOMPANY en este dispositivo?',
-      confirmLabel: 'Cerrar sesión',
+      title: t('settings.signOut'),
+      message: t('settings.signOutBody'),
+      confirmLabel: t('settings.signOut'),
       tone: 'neutral',
     });
     if (!ok) {
@@ -265,7 +270,7 @@ export function SettingsScreen() {
     try {
       await signOut();
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo cerrar sesión', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.signOutFail'), tone: 'error' });
     } finally {
       await clearActiveHome();
       setSigningOut(false);
@@ -292,9 +297,9 @@ export function SettingsScreen() {
         proof_mode: next,
         proof_capture: activeHome.proof_capture ?? 'CAMERA_OR_GALLERY',
       });
-      showToast({ message: 'Ajuste de prueba actualizado', tone: 'success' });
+      showToast({ message: t('toast.proofUpdated'), tone: 'success' });
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar la prueba', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.proofFail'), tone: 'error' });
     } finally {
       setProofBusy(false);
     }
@@ -311,9 +316,9 @@ export function SettingsScreen() {
         proof_mode: activeHome.proof_mode ?? 'OPTIONAL',
         proof_capture: next,
       });
-      showToast({ message: 'Fuente de foto actualizada', tone: 'success' });
+      showToast({ message: t('toast.captureUpdated'), tone: 'success' });
     } catch (err) {
-      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar la fuente', tone: 'error' });
+      showToast({ message: err instanceof Error ? err.message : t('toast.captureFail'), tone: 'error' });
     } finally {
       setProofBusy(false);
     }
@@ -667,13 +672,13 @@ export function SettingsScreen() {
                             return;
                           }
                           const nextRole = menuMember.role === 'admin' ? 'member' : 'admin';
-                          const name = menuMember.profiles?.display_name ?? 'este compañero';
+                          const name = menuMember.profiles?.display_name ?? t('common.roommate');
                           void confirm({
                             title: nextRole === 'admin' ? 'Hacer admin' : 'Revocar admin',
                             message:
                               nextRole === 'admin'
-                                ? `¿Dar rol de admin a ${name}? Podrá editar y expulsar.`
-                                : `¿Quitar el rol de admin a ${name}? Volverá a ser miembro.`,
+                                ? t('confirm.makeAdmin', { name })
+                                : t('confirm.revokeAdmin', { name }),
                             confirmLabel: nextRole === 'admin' ? 'Hacer admin' : 'Revocar',
                             tone: 'neutral',
                           }).then((ok) => {
@@ -687,7 +692,10 @@ export function SettingsScreen() {
                             })
                               .then(reloadMembers)
                               .catch((err) =>
-                                showToast({ message: err instanceof Error ? err.message : 'No se pudo cambiar el rol', tone: 'error' }),
+                                showToast({
+                                  message: err instanceof Error ? err.message : t('toast.roleFail'),
+                                  tone: 'error',
+                                }),
                               );
                           });
                         },
@@ -702,7 +710,10 @@ export function SettingsScreen() {
                           }
                           void confirm({
                             title: 'Expulsar compañero',
-                            message: `¿Sacar a ${menuMember.profiles?.display_name ?? 'este compañero'} de «${activeHome.name}»?`,
+                            message: t('confirm.kick', {
+                              name: menuMember.profiles?.display_name ?? t('common.roommate'),
+                              home: activeHome.name,
+                            }),
                             confirmLabel: 'Expulsar',
                           }).then((ok) => {
                             if (!ok) {
@@ -711,7 +722,10 @@ export function SettingsScreen() {
                             return kickHomeMember(activeHome.id, menuMember.user_id)
                               .then(reloadMembers)
                               .catch((err) =>
-                                showToast({ message: err instanceof Error ? err.message : 'No se pudo expulsar', tone: 'error' }),
+                                showToast({
+                                  message: err instanceof Error ? err.message : t('toast.kickFail'),
+                                  tone: 'error',
+                                }),
                               );
                           });
                         },
@@ -725,7 +739,9 @@ export function SettingsScreen() {
 
       <ActivityListModal
         visible={activityFor !== null}
-        title={`Actividad de ${activityFor?.profiles?.display_name ?? ''}`}
+        title={t('settings.activityOf', {
+          name: activityFor?.profiles?.display_name ?? t('common.roommate'),
+        })}
         events={memberActivity}
         onClose={() => setActivityFor(null)}
       />

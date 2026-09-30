@@ -27,7 +27,7 @@ export function LoginScreen() {
     setError(null);
     const parsed = loginSchema.safeParse({ email, password });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Datos no válidos');
+      setError(parsed.error.issues[0]?.message ?? t('toast.invalidData'));
       return;
     }
 
@@ -35,7 +35,7 @@ export function LoginScreen() {
     try {
       await signIn(parsed.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo iniciar sesión');
+      setError(err instanceof Error ? err.message : t('toast.loginFail'));
     } finally {
       setLoading(false);
     }

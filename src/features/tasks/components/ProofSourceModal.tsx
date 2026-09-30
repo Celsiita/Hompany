@@ -1,6 +1,7 @@
 import { Modal, Pressable, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type ProofSourceModalProps = {
   visible: boolean;
@@ -22,6 +23,15 @@ export function ProofSourceModal({
   proofRequired = false,
   cameraOnly = false,
 }: ProofSourceModalProps) {
+  const { t } = useLocale();
+  const body = proofRequired
+    ? cameraOnly
+      ? t('proof.requiredCamera')
+      : t('proof.requiredAny')
+    : cameraOnly
+      ? t('proof.optionalCamera')
+      : t('proof.optionalAny');
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable
@@ -30,32 +40,24 @@ export function ProofSourceModal({
         <Pressable
           className="w-full gap-3 rounded-2xl bg-white p-4"
           onPress={(event) => event.stopPropagation()}>
-          <Text className="text-lg font-bold text-stone-900">Entregar prueba</Text>
-          <Text className="text-sm text-stone-600">
-            {proofRequired
-              ? cameraOnly
-                ? 'Este piso exige foto hecha con la cámara (sin galería).'
-                : 'Este piso exige una foto de prueba (cámara o galería).'
-              : cameraOnly
-                ? 'Puedes adjuntar una foto con la cámara o completar sin ella.'
-                : 'La foto es opcional: cámara, galería o completar sin foto.'}
-          </Text>
-          <Button label="Abrir cámara" onPress={() => onPick('camera')} />
+          <Text className="text-lg font-bold text-stone-900">{t('proof.title')}</Text>
+          <Text className="text-sm text-stone-600">{body}</Text>
+          <Button label={t('proof.openCamera')} onPress={() => onPick('camera')} />
           {!cameraOnly ? (
             <Button
-              label="Elegir de galería"
+              label={t('proof.pickGallery')}
               variant="secondary"
               onPress={() => onPick('library')}
             />
           ) : null}
           {!proofRequired ? (
             <Button
-              label="Completar sin foto"
+              label={t('proof.skip')}
               variant="secondary"
               onPress={() => onPick(null)}
             />
           ) : null}
-          <Button label="Cancelar" variant="ghost" onPress={onClose} />
+          <Button label={t('common.cancel')} variant="ghost" onPress={onClose} />
         </Pressable>
       </Pressable>
     </Modal>

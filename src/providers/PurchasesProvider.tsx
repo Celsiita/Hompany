@@ -22,6 +22,8 @@ import {
   hasActiveEntitlement,
   HOMPANY_PLUS_ENTITLEMENT,
 } from '@/lib/purchases/entitlements';
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { translate } from '@/lib/i18n/strings';
 import { useAuth } from '@/providers/AuthProvider';
 
 type PurchasesContextValue = {
@@ -201,10 +203,7 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
 
   const presentPaywall = useCallback(async () => {
     if (!isConfigured) {
-      Alert.alert(
-        'HOMPANY Plus',
-        'Las compras no están configuradas en este dispositivo. El resto de la app sigue disponible.',
-      );
+      Alert.alert('HOMPANY Plus', translate(getAppLocale(), 'purchases.notConfigured'));
       return false;
     }
 
@@ -236,7 +235,7 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
 
   const presentCustomerCenter = useCallback(async () => {
     if (!isConfigured) {
-      Alert.alert('HOMPANY Plus', 'Las compras no están configuradas en este dispositivo.');
+      Alert.alert('HOMPANY Plus', translate(getAppLocale(), 'purchases.notConfigured'));
       return;
     }
     try {
@@ -254,14 +253,14 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
       const message =
         err && typeof err === 'object' && 'message' in err
           ? String((err as PurchasesError).message)
-          : 'No se pudo abrir el centro de cliente';
+          : translate(getAppLocale(), 'purchases.centerFail');
       Alert.alert('HOMPANY Plus', message);
     }
   }, [isConfigured]);
 
   const restorePurchases = useCallback(async () => {
     if (!isConfigured) {
-      Alert.alert('HOMPANY Plus', 'Las compras no están configuradas en este dispositivo.');
+      Alert.alert('HOMPANY Plus', translate(getAppLocale(), 'purchases.notConfigured'));
       return false;
     }
     try {
@@ -269,14 +268,14 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
       setCustomerInfo(info);
       const ok = hasActiveEntitlement(info);
       if (!ok) {
-        Alert.alert('HOMPANY Plus', 'No se encontraron compras anteriores.');
+        Alert.alert('HOMPANY Plus', translate(getAppLocale(), 'purchases.noPrevious'));
       }
       return ok;
     } catch (err) {
       const message =
         err && typeof err === 'object' && 'message' in err
           ? String((err as PurchasesError).message)
-          : 'No se pudieron restaurar las compras';
+          : translate(getAppLocale(), 'purchases.restoreFail');
       Alert.alert('HOMPANY Plus', message);
       return false;
     }

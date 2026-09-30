@@ -182,7 +182,7 @@ export function TasksScreen() {
       }
     } catch (err) {
       showToast({
-        message: err instanceof Error ? err.message : 'No se pudo completar la acción',
+        message: err instanceof Error ? err.message : t('toast.actionFailed'),
         tone: 'error',
       });
     } finally {
@@ -231,27 +231,27 @@ export function TasksScreen() {
 
   async function confirmDelete(task: TaskWithRelations) {
     const ok = await confirm({
-      title: 'Eliminar tarea',
-      message: `¿Borrar «${task.title}»? El historial de movimientos se conserva.`,
-      confirmLabel: 'Eliminar',
+      title: t('task.deleteTitle'),
+      message: t('task.deleteBody', { title: task.title }),
+      confirmLabel: t('common.delete'),
     });
     if (!ok) {
       return;
     }
-    await runTaskAction(task.id, () => removeTask(task.id), 'Tarea eliminada');
+    await runTaskAction(task.id, () => removeTask(task.id), t('toast.saved'));
   }
 
   function proposeSwap(task: TaskWithRelations) {
     if (!canRequestTaskSwap(task)) {
       showToast({
-        message: 'No se puede intercambiar una tarea ya completada o en revisión.',
+        message: t('toast.swapBlocked'),
         tone: 'error',
       });
       return;
     }
     const others = members.filter((member) => member.user_id !== user?.id);
     if (others.length === 0) {
-      showToast({ message: 'No hay compañeros para intercambiar.', tone: 'error' });
+      showToast({ message: t('toast.noPeers'), tone: 'error' });
       return;
     }
     setSwapTask(task);
@@ -513,24 +513,28 @@ export function TasksScreen() {
 
       <OverflowMenu
         visible={swapTask !== null}
-        title={swapTask ? `¿Quién asume «${swapTask.title}»?` : 'Proponer cambio'}
+        title={
+          swapTask ? t('task.swapWho', { title: swapTask.title }) : t('task.swapTitle')
+        }
         onClose={() => setSwapTask(null)}
         actions={members
           .filter((member) => member.user_id !== user?.id)
           .map((member) => ({
             key: member.id,
-            label: `Proponer a ${member.profiles?.display_name ?? 'compañero'}`,
+            label: t('task.swapTo', {
+              name: member.profiles?.display_name ?? t('common.roommate'),
+            }),
             onPress: () => {
               if (!swapTask) {
                 return;
               }
               const task = swapTask;
-              const name = member.profiles?.display_name ?? 'compañero';
+              const name = member.profiles?.display_name ?? t('common.roommate');
               setSwapTask(null);
               void runTaskAction(
                 task.id,
                 () => requestSwap(task, member.user_id),
-                `Cambio propuesto a ${name}`,
+                t('task.swapTo', { name }),
               );
             },
           }))}

@@ -9,6 +9,7 @@ import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
 import { absentMemberWarning, isUserAbsentOnDate } from '@/lib/absences';
 import { mascotReaction } from '@/lib/mascot';
 import type { MemberAbsence } from '@/schemas/absence.schema';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type ScheduledItemSheetProps = {
   visible: boolean;
@@ -42,6 +43,7 @@ export function ScheduledItemSheet({
   onRequestSwap,
   onOpenBoard,
 }: ScheduledItemSheetProps) {
+  const { t } = useLocale();
   const [reassignError, setReassignError] = useState<string | null>(null);
 
   if (!item) {
@@ -77,7 +79,7 @@ export function ScheduledItemSheet({
             </Text>
             {members.map((member) => {
               const selected = member.user_id === item.assignedUserId;
-              const name = member.profiles?.display_name ?? 'Compañero';
+              const name = member.profiles?.display_name ?? t('common.roommate');
               const absent = isUserAbsentOnDate(absences, member.user_id, item.when);
               return (
                 <Pressable
@@ -116,7 +118,7 @@ export function ScheduledItemSheet({
 
         {canCancel && onCancelDate ? (
           <View className="mb-3">
-            <Button label="Cancelar esta fecha" variant="secondary" loading={busy} onPress={onCancelDate} />
+            <Button label={t('scheduled.cancelDate')} variant="secondary" loading={busy} onPress={onCancelDate} />
           </View>
         ) : null}
 
@@ -126,7 +128,7 @@ export function ScheduledItemSheet({
       </View>
 
       <Pressable onPress={onClose} className="mt-3 rounded-xl bg-stone-100 px-3 py-3">
-        <Text className="text-center text-sm font-semibold text-stone-700">Cerrar</Text>
+        <Text className="text-center text-sm font-semibold text-stone-700">{t('common.close')}</Text>
       </Pressable>
     </BottomSheetModal>
   );

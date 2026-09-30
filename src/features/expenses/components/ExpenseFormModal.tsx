@@ -205,7 +205,7 @@ export function ExpenseFormModal({
         setReceiptLocalUri(picked.uri);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo elegir la foto');
+      setError(err instanceof Error ? err.message : t('form.pickPhotoFail'));
     } finally {
       setPickingReceipt(false);
     }
@@ -214,20 +214,20 @@ export function ExpenseFormModal({
   async function handleSubmit() {
     setError(null);
     if (!title.trim()) {
-      setError('El título es obligatorio');
+      setError(t('form.titleRequired'));
       return;
     }
     const parsedAmount = parseAmount(amount);
     if (!Number.isFinite(parsedAmount) || parsedAmount < 0) {
-      setError('Importe no válido');
+      setError(t('form.invalidAmount'));
       return;
     }
     if (!paidBy) {
-      setError('Elige quién pagó');
+      setError(t('form.pickPayer'));
       return;
     }
     if (debtorIds.length === 0) {
-      setError('Elige quién te debe (toca el nombre del compañero)');
+      setError(t('form.pickDebtor'));
       return;
     }
 
@@ -240,7 +240,7 @@ export function ExpenseFormModal({
     if (splitMode === 'PERCENT') {
       const values = participantIds.map((userId) => Number(shareDrafts[userId] ?? '0'));
       if (!percentsSumToHundred(values)) {
-        setError('Los porcentajes deben sumar exactamente 100');
+        setError(t('form.percents100'));
         return;
       }
       shareInputs = participantIds.map((userId, index) => ({
@@ -250,7 +250,7 @@ export function ExpenseFormModal({
     } else if (splitMode === 'AMOUNT') {
       const values = participantIds.map((userId) => Number(String(shareDrafts[userId] ?? '0').replace(',', '.')));
       if (!amountsSumToTotal(values, parsedAmount)) {
-        setError('Las cantidades deben sumar el total del gasto');
+        setError(t('form.amountsTotal'));
         return;
       }
       shareInputs = participantIds.map((userId, index) => ({
@@ -260,7 +260,7 @@ export function ExpenseFormModal({
     }
 
     if (recurrence === 'WEEKLY' && weeklyDays(recurrenceConfig).length === 0) {
-      setError('Elige al menos un día de la semana');
+      setError(t('form.pickWeekday'));
       return;
     }
     if (
@@ -268,11 +268,11 @@ export function ExpenseFormModal({
       (recurrenceConfig.due_day_type ?? 'SPECIFIC_DAY') === 'SPECIFIC_DAY' &&
       monthlyDays(recurrenceConfig).length === 0
     ) {
-      setError('Elige al menos un día del mes');
+      setError(t('form.pickMonthDay'));
       return;
     }
     if (recurrence === 'YEARLY' && yearlyMonths(recurrenceConfig, startsAt).length === 0) {
-      setError('Elige al menos un mes');
+      setError(t('form.pickMonth'));
       return;
     }
     const rangeError = validateScheduleRangeAgainstRecurrence({
@@ -310,7 +310,7 @@ export function ExpenseFormModal({
       });
       onClose();
     } catch (err) {
-      setError(formatAppError(err, 'No se pudo guardar'));
+      setError(formatAppError(err, t('toast.saveFail')));
     } finally {
       setLoading(false);
     }
@@ -535,7 +535,7 @@ export function ExpenseFormModal({
               />
 
               <TextField
-                label="Descripción"
+                label={t('form.description')}
                 value={description}
                 onChangeText={setDescription}
               />
@@ -554,7 +554,7 @@ export function ExpenseFormModal({
               <View className="flex-row gap-2">
                 <View className="flex-1">
                   <Button
-                    label="Cámara"
+                    label={t('camera')}
                     variant="secondary"
                     loading={pickingReceipt}
                     onPress={() => void handlePickReceipt('camera')}
@@ -562,7 +562,7 @@ export function ExpenseFormModal({
                 </View>
                 <View className="flex-1">
                   <Button
-                    label="Galería"
+                    label={t('gallery')}
                     variant="secondary"
                     loading={pickingReceipt}
                     onPress={() => void handlePickReceipt('library')}
@@ -584,7 +584,7 @@ export function ExpenseFormModal({
                 <Pressable
                   onPress={() => void onDelete()}
                   className="mb-6 rounded-xl border border-red-200 py-3">
-                  <Text className="text-center text-sm font-semibold text-red-600">Eliminar gasto</Text>
+                  <Text className="text-center text-sm font-semibold text-red-600">{t('expense.deleteTitle')}</Text>
                 </Pressable>
               ) : null}
       </View>

@@ -27,6 +27,7 @@ import type { UpsertTaskInput } from '@/schemas/task.schema';
 import { TASK_CATEGORY_LABEL, TASK_ICON_OPTIONS } from '@/types/task-category';
 import type { TaskWithRelations } from '@/types/database.types';
 import type { MemberAbsence } from '@/schemas/absence.schema';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type TaskFormModalProps = {
   visible: boolean;
@@ -56,6 +57,7 @@ export function TaskFormModal({
   onSubmit,
   onDelete,
 }: TaskFormModalProps) {
+  const { t } = useLocale();
   const { pack } = useIconPack();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -220,7 +222,7 @@ export function TaskFormModal({
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar');
+      setError(err instanceof Error ? err.message : t('toast.saveFail'));
     } finally {
       setLoading(false);
     }
@@ -229,13 +231,17 @@ export function TaskFormModal({
   return (
     <BottomSheetModal visible={visible} onClose={onClose}>
       <Text className="mb-3 text-xl font-bold text-stone-900">
-        {mode === 'edit' ? 'Editar tarea' : mode === 'repeat' ? 'Repetir tarea' : 'Nueva tarea'}
+        {mode === 'edit'
+          ? t('task.edit')
+          : mode === 'repeat'
+            ? t('common.repeat')
+            : t('task.new')}
       </Text>
 
       <View className="gap-3">
-              <TextField label="Título" value={title} onChangeText={setTitle} />
+              <TextField label={t('common.title')} value={title} onChangeText={setTitle} />
               <TextField
-                label="Descripción"
+                label={t('form.description')}
                 value={description}
                 onChangeText={setDescription}
               />
@@ -337,10 +343,10 @@ export function TaskFormModal({
 
               <View className="mb-4 flex-row gap-2">
                 <View className="flex-1">
-                  <Button label="Cancelar" variant="secondary" onPress={onClose} />
+                  <Button label={t('common.cancel')} variant="secondary" onPress={onClose} />
                 </View>
                 <View className="flex-1">
-                  <Button label="Guardar" loading={loading} onPress={() => void handleSubmit()} />
+                  <Button label={t('common.save')} loading={loading} onPress={() => void handleSubmit()} />
                 </View>
               </View>
 
@@ -348,7 +354,7 @@ export function TaskFormModal({
                 <Pressable
                   onPress={() => void onDelete()}
                   className="mb-6 rounded-xl border border-red-200 py-3">
-                  <Text className="text-center text-sm font-semibold text-red-600">Eliminar tarea</Text>
+                  <Text className="text-center text-sm font-semibold text-red-600">{t('task.deleteTitle')}</Text>
                 </Pressable>
               ) : null}
       </View>
