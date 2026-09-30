@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui/Button';
@@ -50,12 +50,20 @@ export function LoginScreen() {
         <Text className="text-base leading-6" style={{ color: palette.inkMuted }}>
           Para pisos de estudiantes: tareas con foto, gastos claros y reputación sin drama.
         </Text>
-        <View className="mt-1 gap-0.5 rounded-xl border border-teal-200 bg-teal-50/80 px-3 py-2.5">
-          <Text className="text-xs font-semibold text-teal-900">Demo local</Text>
+        <Pressable
+          onPress={() => {
+            setEmail('ana@hompany.local');
+            setPassword('password123');
+            setError(null);
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Rellenar credenciales de demo"
+          className="mt-1 gap-0.5 rounded-xl border border-teal-200 bg-teal-50/80 px-3 py-2.5">
+          <Text className="text-xs font-semibold text-teal-900">Demo local · tocar para rellenar</Text>
           <Text className="text-xs leading-4 text-teal-800/80">
             ana@hompany.local · password123
           </Text>
-        </View>
+        </Pressable>
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(80).duration(420)} className="gap-3">
