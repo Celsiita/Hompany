@@ -176,7 +176,7 @@ export function ExpenseCard({
       ) : null}
 
       {debtors.length === 0 ? (
-        <Text className="text-xs text-gray-500">Nadie debe este gasto.</Text>
+        <Text className="text-xs text-gray-500">Nadie más debe este gasto.</Text>
       ) : (
         <View className="gap-2">
           {debtors.map((share) => {

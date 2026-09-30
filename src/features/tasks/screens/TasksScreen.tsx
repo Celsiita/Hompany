@@ -449,13 +449,13 @@ export function TasksScreen() {
 
       <OverflowMenu
         visible={swapTask !== null}
-        title={swapTask ? `Intercambiar «${swapTask.title}»` : 'Intercambiar'}
+        title={swapTask ? `¿Quién asume «${swapTask.title}»?` : 'Proponer cambio'}
         onClose={() => setSwapTask(null)}
         actions={members
           .filter((member) => member.user_id !== user?.id)
           .map((member) => ({
             key: member.id,
-            label: member.profiles?.display_name ?? 'Compañero',
+            label: `Proponer a ${member.profiles?.display_name ?? 'compañero'}`,
             onPress: () => {
               if (!swapTask) {
                 return;
