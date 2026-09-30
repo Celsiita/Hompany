@@ -486,7 +486,7 @@ export function SettingsScreen() {
 
         <SettingsSection
           title="HOMPANY Plus"
-          subtitle="Insights del ranking ahora · matching en camino. El core del piso sigue gratis."
+          subtitle="Matching piso ↔ gente en camino (Próximamente en Piso). El core del piso sigue gratis."
           tone="plus">
           <View className="flex-row items-center justify-between">
             <Text className="text-sm font-semibold text-teal-900">Estado</Text>
@@ -526,7 +526,7 @@ export function SettingsScreen() {
             </Text>
           ) : null}
           <Text className="text-xs leading-4 text-teal-800/80">
-            Feed: desbloquea «Tu reputación · Plus». Matching: fila Próximamente.
+            Teaser «Próximamente» en la cabecera de Piso.
           </Text>
         </SettingsSection>
 

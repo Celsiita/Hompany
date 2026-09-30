@@ -2,7 +2,7 @@
 
 App gamificada para la gestión y convivencia en pisos compartidos.
 
-**Shipaton 2026 — Next Gen:** *deja de discutir por las tareas y el dinero.* Vídeo + repo MIT. Plus = reputación en Feed ([monetization](./docs/monetization.md)). Guion: [`docs/SHIPATON-DEMO.md`](./docs/SHIPATON-DEMO.md).
+**Shipaton 2026 — Next Gen:** *deja de discutir por las tareas y el dinero.* Vídeo + repo MIT. Plus vía RevenueCat ([setup](./docs/monetization.md)). Guion: [`docs/SHIPATON-DEMO.md`](./docs/SHIPATON-DEMO.md).
 
 ## Stack
 
