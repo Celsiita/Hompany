@@ -197,6 +197,7 @@ export function ShoppingListsPanel({
     <CollapsibleSection
       title={neededCount > 0 ? `Listas compartidas (${neededCount} falta)` : 'Listas compartidas'}
       accent="amber"
+      defaultExpanded
       info={<InfoTip title="Listas compartidas" message={INFO} tone="amber" />}>
       {isLoading ? (
         <MascotLoading />
