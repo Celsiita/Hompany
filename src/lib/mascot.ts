@@ -191,7 +191,7 @@ const SCREEN_LINES: Record<MascotScreenLine, string> = {
   piso: 'Wi‑Fi, portal, reglas y quejas',
   tasks: 'Cuadrante · foto y puntos',
   expenses: 'Súper, casa y deudas claras',
-  settings: 'Perfil, Plus, invitación y tutorial',
+  settings: 'Piso, invitación, Plus y tutorial',
 };
 
 /**

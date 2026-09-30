@@ -330,118 +330,13 @@ export function SettingsScreen() {
           title="Ajustes"
           subtitle={mascotScreenLine('settings')}
           helpTitle="Ajustes"
-          helpMessage="Perfil, invitación, compañeros, foto de prueba y Plus: packs de iconos opcionales. Desde aquí puedes repetir el tutorial."
+          helpMessage="Primero tu piso e invitación. Luego Plus e iconos (opcionales). Al final, tutorial y cuenta."
         />
 
         <SettingsSection title="Perfil" subtitle="Cómo te ven tus compañeros">
           <Text className="text-sm text-stone-600">{user?.email ?? '—'}</Text>
           <TextField label="Nombre visible" value={displayName} onChangeText={setDisplayName} />
           <Button label="Guardar nombre" loading={savingName} onPress={() => void handleSaveName()} />
-        </SettingsSection>
-
-        <SettingsSection
-          title="HOMPANY Plus"
-          subtitle="Packs de iconos opcionales. El core del piso sigue gratis."
-          tone="plus">
-          <View className="flex-row items-center justify-between">
-            <Text className="text-sm font-semibold text-teal-900">Estado</Text>
-            <Text
-              className={`text-xs font-bold px-2 py-1 rounded-md ${
-                isPlus ? 'bg-teal-600 text-white' : 'bg-white text-teal-700'
-              }`}>
-              {isPlus ? 'Activo' : 'Plan gratuito'}
-            </Text>
-          </View>
-          {!isPlus ? (
-            <Button
-              label="Ver HOMPANY Plus"
-              onPress={() => {
-                void presentPaywall().then((ok) => {
-                  if (ok) {
-                    showToast({ message: 'Bienvenido a HOMPANY Plus', tone: 'success' });
-                  }
-                });
-              }}
-            />
-          ) : null}
-          <Button
-            label="Restaurar compras"
-            variant="secondary"
-            onPress={() => {
-              void restorePurchases().then((ok) => {
-                if (ok) {
-                  showToast({ message: 'Compras restauradas', tone: 'success' });
-                }
-              });
-            }}
-          />
-          {!isConfigured ? (
-            <Text className="text-xs text-amber-700">
-              Falta la clave de compras en .env.local — el resto de la app funciona igual.
-            </Text>
-          ) : null}
-        </SettingsSection>
-
-        <SettingsSection
-          title="Iconos"
-          subtitle="Clásico gratis. Hogar, Play e importados necesitan Plus.">
-          {packs.map((pack) => {
-            const active = packId === pack.id;
-            const custom = !isBuiltinIconPackId(pack.id);
-            const locked = isPackLocked(pack.id);
-            return (
-              <View key={pack.id} className="gap-2">
-                <Pressable
-                  onPress={() => void setPackId(pack.id)}
-                  className={`rounded-xl border px-3 py-3 ${active ? 'border-teal-500 bg-teal-50' : 'border-stone-200'}`}>
-                  <Text className="text-sm font-medium text-stone-900">
-                    {pack.tasks.checklist} {pack.name}
-                    {active ? ' · activo' : ''}
-                    {custom ? ' · importado' : ''}
-                    {locked ? ' · Plus' : ''}
-                  </Text>
-                  <Text className="text-xs text-stone-500">{pack.description}</Text>
-                </Pressable>
-                {custom ? (
-                  <Pressable
-                    onPress={() => {
-                      void confirm({
-                        title: 'Eliminar pack',
-                        message: `¿Borrar «${pack.name}» de este dispositivo?`,
-                        confirmLabel: 'Eliminar',
-                      }).then((ok) => {
-                        if (ok) {
-                          void removeCustomPack(pack.id);
-                        }
-                      });
-                    }}>
-                    <Text className="text-xs font-semibold text-red-600 px-1">Eliminar pack</Text>
-                  </Pressable>
-                ) : null}
-              </View>
-            );
-          })}
-
-          <Text className="text-sm font-medium text-stone-700 mt-1">Importar pack (Plus)</Text>
-          <Text className="text-xs text-stone-500">
-            Pega un JSON con nombre e iconos propios. Requiere HOMPANY Plus.
-          </Text>
-          <TextField
-            label="JSON del pack"
-            value={iconPackJson}
-            onChangeText={setIconPackJson}
-            multiline
-            className="min-h-[88px]"
-            autoCapitalize="none"
-            autoCorrect={false}
-            placeholder='{"name":"Fiesta","tasks":{"checklist":"🎉"}}'
-          />
-          <Button
-            label="Importar y activar"
-            variant="secondary"
-            loading={importingPack}
-            onPress={() => void handleImportIconPack()}
-          />
         </SettingsSection>
 
         <SettingsSection title="Piso activo" subtitle="Invita compañeros y cambia de hogar">
@@ -588,6 +483,112 @@ export function SettingsScreen() {
         </SettingsSection>
 
         {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
+
+        <SettingsSection
+          title="HOMPANY Plus"
+          subtitle="Packs de iconos opcionales. El core del piso sigue gratis."
+          tone="plus">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-sm font-semibold text-teal-900">Estado</Text>
+            <Text
+              className={`text-xs font-bold px-2 py-1 rounded-md ${
+                isPlus ? 'bg-teal-600 text-white' : 'bg-white text-teal-700'
+              }`}>
+              {isPlus ? 'Activo' : 'Plan gratuito'}
+            </Text>
+          </View>
+          {!isPlus ? (
+            <Button
+              label="Ver HOMPANY Plus"
+              onPress={() => {
+                void presentPaywall().then((ok) => {
+                  if (ok) {
+                    showToast({ message: 'Bienvenido a HOMPANY Plus', tone: 'success' });
+                  }
+                });
+              }}
+            />
+          ) : null}
+          <Button
+            label="Restaurar compras"
+            variant="secondary"
+            onPress={() => {
+              void restorePurchases().then((ok) => {
+                if (ok) {
+                  showToast({ message: 'Compras restauradas', tone: 'success' });
+                }
+              });
+            }}
+          />
+          {!isConfigured ? (
+            <Text className="text-xs text-amber-700">
+              Falta la clave de compras en .env.local — el resto de la app funciona igual.
+            </Text>
+          ) : null}
+        </SettingsSection>
+
+        <SettingsSection
+          title="Iconos"
+          subtitle="Clásico gratis. Hogar, Play e importados necesitan Plus.">
+          {packs.map((pack) => {
+            const active = packId === pack.id;
+            const custom = !isBuiltinIconPackId(pack.id);
+            const locked = isPackLocked(pack.id);
+            return (
+              <View key={pack.id} className="gap-2">
+                <Pressable
+                  onPress={() => void setPackId(pack.id)}
+                  className={`rounded-xl border px-3 py-3 ${active ? 'border-teal-500 bg-teal-50' : 'border-stone-200'}`}>
+                  <Text className="text-sm font-medium text-stone-900">
+                    {pack.tasks.checklist} {pack.name}
+                    {active ? ' · activo' : ''}
+                    {custom ? ' · importado' : ''}
+                    {locked ? ' · Plus' : ''}
+                  </Text>
+                  <Text className="text-xs text-stone-500">{pack.description}</Text>
+                </Pressable>
+                {custom ? (
+                  <Pressable
+                    onPress={() => {
+                      void confirm({
+                        title: 'Eliminar pack',
+                        message: `¿Borrar «${pack.name}» de este dispositivo?`,
+                        confirmLabel: 'Eliminar',
+                      }).then((ok) => {
+                        if (ok) {
+                          void removeCustomPack(pack.id);
+                        }
+                      });
+                    }}>
+                    <Text className="text-xs font-semibold text-red-600 px-1">Eliminar pack</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            );
+          })}
+
+          <CollapsibleSection title="Importar pack JSON (Plus)" accent="teal">
+            <Text className="text-xs text-stone-500">
+              Pega un JSON con nombre e iconos propios. Requiere HOMPANY Plus.
+            </Text>
+            <TextField
+              label="JSON del pack"
+              value={iconPackJson}
+              onChangeText={setIconPackJson}
+              multiline
+              className="min-h-[88px]"
+              autoCapitalize="none"
+              autoCorrect={false}
+              placeholder='{"name":"Fiesta","tasks":{"checklist":"🎉"}}'
+            />
+            <Button
+              label="Importar y activar"
+              variant="secondary"
+              loading={importingPack}
+              onPress={() => void handleImportIconPack()}
+            />
+          </CollapsibleSection>
+        </SettingsSection>
 
         <SettingsSection title="Ayuda" subtitle="Tour de 1 minuto por Feed, Agenda, Tareas y Gastos">
           <Button label="Repetir tutorial con Mico" variant="secondary" onPress={openTutorial} />

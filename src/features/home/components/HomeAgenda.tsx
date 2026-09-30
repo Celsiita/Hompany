@@ -45,8 +45,8 @@ type HomeAgendaProps = {
 };
 
 /**
- * Agenda: filters → calendar → day list. Life management (absences, silence, visits)
- * lives in the Home ⋮ menu sheets, not in this scroll.
+ * Agenda: calendar → legend → filters (collapsed) → day list.
+ * Life management (absences, silence, visits) lives in Home ⋮, not here.
  */
 export function HomeAgenda({
   tasks,
