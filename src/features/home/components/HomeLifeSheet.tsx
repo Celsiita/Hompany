@@ -56,7 +56,7 @@ const TITLES: Record<HomeLifeSheetKind, { title: string; subtitle: string }> = {
   },
   exams: {
     title: 'Modo silencio',
-    subtitle: 'Periodos de exámenes o estudio. Baja la presión al impugnar y marca el calendario.',
+    subtitle: 'Periodos de estudio o exámenes. Marca el calendario y baja un poco la presión del piso.',
   },
   visits: {
     title: 'Visitas y avisos',
