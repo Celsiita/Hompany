@@ -160,7 +160,7 @@ export function TutorialHost({
 
           <View className="flex-row gap-2">
             <View className="flex-1">
-              <Button label="Saltar" variant="secondary" onPress={() => void finish()} />
+              <Button label="Saltar tour" variant="secondary" onPress={() => void finish()} />
             </View>
             <View className="flex-1">
               <Button label={step.cta} onPress={runCta} />
@@ -171,8 +171,8 @@ export function TutorialHost({
             <Pressable
               onPress={() => setStepIndex((index) => Math.min(index + 1, TUTORIAL_STEPS.length - 1))}
               hitSlop={8}>
-              <Text className="text-center text-xs font-semibold text-stone-400">
-                Continuar sin moverme
+              <Text className="text-center text-xs font-semibold text-stone-500">
+                Siguiente sin cambiar de pantalla
               </Text>
             </Pressable>
           ) : (
