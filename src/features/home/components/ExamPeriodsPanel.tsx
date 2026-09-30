@@ -31,7 +31,7 @@ type ExamPeriodsPanelProps = {
 };
 
 const INFO_MESSAGE =
-  'Periodos de baja presión (exámenes, entregas…). Las tareas siguen en rotación.';
+  'Marca épocas de estudio: el calendario lo muestra y el piso entiende que hay menos margen para disputas.';
 
 /**
  * Collapsible silence-mode section with optional registration form.

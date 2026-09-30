@@ -38,11 +38,11 @@ type SystemLeavePanelProps = {
 };
 
 const INFO_MESSAGE =
-  'Congela toda la app para ti: sin tareas, sin gastos y sin avisos (excepto gastos atrasados). Distinta de las ausencias puntuales, que solo afectan a tareas.';
+  'Baja larga: la app se pausa para ti (sin tareas ni avisos), salvo gastos ya vencidos. Distinta de una ausencia corta.';
 
 const KIND_OPTIONS = [
-  { value: 'INDEFINITE' as const, label: 'Indefinida' },
-  { value: 'PLANNED' as const, label: 'Planificada' },
+  { value: 'INDEFINITE' as const, label: 'Sin fecha fin' },
+  { value: 'PLANNED' as const, label: 'Con fechas' },
 ] as const;
 
 /**
