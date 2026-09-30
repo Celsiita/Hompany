@@ -191,7 +191,7 @@ export function ExpensesScreen() {
               title="Gastos"
               subtitle={mascotScreenLine('expenses')}
               helpTitle="Gastos"
-              helpMessage="Reparte en partes iguales, por porcentaje o cantidades fijas. Usa Mis deudas / Mis cobros. Saldar cierra la deuda."
+              helpMessage="Reparte a partes iguales, por % o cantidades fijas. Chips Debes / Tú pagaste. Mis deudas / Mis cobros. Saldar cierra la deuda."
               createAccessibilityLabel="Nuevo gasto"
               onCreatePress={() => {
                 setEditing(null);
