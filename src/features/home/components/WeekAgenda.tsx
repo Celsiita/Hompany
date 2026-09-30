@@ -28,12 +28,12 @@ function itemTone(item: AgendaItem): string {
     if (item.kind === 'expense') {
       return 'text-amber-700/55';
     }
-    return item.mine ? 'text-blue-800/50' : 'text-teal-700/50';
+    return item.mine ? 'text-blue-800/50' : 'text-sky-700/50';
   }
   if (item.kind === 'expense') {
     return item.mine ? 'font-semibold text-amber-800' : 'text-amber-700';
   }
-  return item.mine ? 'font-semibold text-blue-800' : 'text-gray-600';
+  return item.mine ? 'font-semibold text-blue-800' : 'text-sky-800';
 }
 
 /**
