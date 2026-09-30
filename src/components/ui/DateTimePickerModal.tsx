@@ -180,11 +180,11 @@ export function DateTimePickerModal({
           <Text className="text-lg font-bold text-gray-900">{title}</Text>
           <View className="flex-row items-center justify-between">
             <Pressable onPress={() => bumpMonth(-1)} className="px-3 py-2">
-              <Text className="text-lg text-blue-700">‹</Text>
+              <Text className="text-lg text-teal-700">‹</Text>
             </Pressable>
             <Text className="text-sm font-semibold capitalize text-gray-800">{monthLabel}</Text>
             <Pressable onPress={() => bumpMonth(1)} className="px-3 py-2">
-              <Text className="text-lg text-blue-700">›</Text>
+              <Text className="text-lg text-teal-700">›</Text>
             </Pressable>
           </View>
           <View className="flex-row">
@@ -241,7 +241,7 @@ export function DateTimePickerModal({
                   onPress={() => bumpTime('hours', -1)}
                   accessibilityLabel="Restar una hora"
                   className="rounded-lg bg-gray-100 px-3 py-2">
-                  <Text className="text-blue-700">−h</Text>
+                  <Text className="text-teal-700">−h</Text>
                 </Pressable>
                 <TextInput
                   value={timeText}
@@ -260,19 +260,19 @@ export function DateTimePickerModal({
                   onPress={() => bumpTime('hours', 1)}
                   accessibilityLabel="Sumar una hora"
                   className="rounded-lg bg-gray-100 px-3 py-2">
-                  <Text className="text-blue-700">+h</Text>
+                  <Text className="text-teal-700">+h</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => bumpTime('minutes', -15)}
                   accessibilityLabel="Restar quince minutos"
                   className="rounded-lg bg-gray-100 px-3 py-2">
-                  <Text className="text-blue-700">−15</Text>
+                  <Text className="text-teal-700">−15</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => bumpTime('minutes', 15)}
                   accessibilityLabel="Sumar quince minutos"
                   className="rounded-lg bg-gray-100 px-3 py-2">
-                  <Text className="text-blue-700">+15</Text>
+                  <Text className="text-teal-700">+15</Text>
                 </Pressable>
               </View>
               {timeError ? <Text className="text-center text-xs text-red-600">{timeError}</Text> : null}

@@ -61,13 +61,13 @@ export function ScheduleRangeCalendar({
     <View className="gap-2 rounded-xl border border-gray-200 bg-white p-3">
       <View className="flex-row items-center justify-between">
         <Pressable onPress={() => setVisibleMonth(shiftMonth(visibleMonth, -1))} className="px-3 py-2">
-          <Text className="text-lg text-blue-700">‹</Text>
+          <Text className="text-lg text-teal-700">‹</Text>
         </Pressable>
         <Text className="text-sm font-semibold capitalize text-gray-800">
           {formatMonthTitle(visibleMonth)}
         </Text>
         <Pressable onPress={() => setVisibleMonth(shiftMonth(visibleMonth, 1))} className="px-3 py-2">
-          <Text className="text-lg text-blue-700">›</Text>
+          <Text className="text-lg text-teal-700">›</Text>
         </Pressable>
       </View>
       <View className="flex-row">

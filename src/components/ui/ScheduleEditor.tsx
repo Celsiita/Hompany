@@ -172,7 +172,7 @@ export function ScheduleEditor({
               Inicio 00:00 del primer día · fin 23:59 del último
             </Text>
           </View>
-          <Text className="text-sm text-blue-700">{allDay ? '✓' : ''}</Text>
+          <Text className="text-sm text-teal-700">{allDay ? '✓' : ''}</Text>
         </SafePressable>
 
         {!allDay ? (

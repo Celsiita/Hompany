@@ -96,7 +96,7 @@ export function DueDateFields({
           <Text className="text-sm font-semibold text-gray-900">Todo el día</Text>
           <Text className="text-xs text-gray-500">Oculta la hora; inicio 00:00 · límite 23:59</Text>
         </View>
-        <Text className="text-sm text-blue-700">{allDay ? '✓' : ''}</Text>
+        <Text className="text-sm text-teal-700">{allDay ? '✓' : ''}</Text>
       </SafePressable>
 
       <SafePressable
