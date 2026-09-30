@@ -178,7 +178,9 @@ export function AbsencesPanel({
       ) : (
         <View className="gap-3">
           {absences.length === 0 ? (
-            <Text className="text-sm text-amber-900/70">Nadie tiene ausencias puntuales.</Text>
+            <Text className="text-sm text-amber-900/70">
+              Sin ausencias cortas. Añade una si te vas un fin de semana.
+            </Text>
           ) : (
             <View className="gap-2">
               {mine.map((absence) => (

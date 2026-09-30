@@ -154,7 +154,9 @@ export function SystemLeavePanel({
       {isLoading ? (
         <ActivityIndicator color="#d97706" />
       ) : systemLeaves.length === 0 ? (
-        <Text className="text-sm text-amber-900/70">Nadie tiene ausencia indefinida o planificada.</Text>
+        <Text className="text-sm text-amber-900/70">
+          Nadie está de baja larga. Úsalo si te vas semanas o dejas el piso.
+        </Text>
       ) : (
         <View className="gap-2">
           {mine.map((leave) => (

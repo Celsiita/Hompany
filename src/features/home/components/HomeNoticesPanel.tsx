@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, Switch, Text, View } from 'react-native';
 
 import { BottomSheetModal } from '@/components/ui/BottomSheetModal';
 import { Button } from '@/components/ui/Button';
+import { HelpTip } from '@/components/ui/HelpTip';
 import { SafePressable } from '@/components/ui/SafePressable';
 import { TextField } from '@/components/ui/TextField';
 import { interactive, mergeStyles } from '@/lib/interactive-styles';
@@ -109,7 +110,13 @@ export function HomeNoticesPanel({
       <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
         <View className="flex-row items-start justify-between gap-2">
           <View className="flex-1 gap-0.5">
-            <Text className="text-sm font-semibold text-gray-900">Reglas y quejas</Text>
+            <View className="flex-row items-center gap-1.5">
+              <Text className="text-sm font-semibold text-gray-900">Reglas y quejas</Text>
+              <HelpTip
+                title="Reglas y quejas"
+                message="Las reglas son acuerdos permanentes del piso. Las quejas son avisos puntuales; puedes publicarlas de forma anónima."
+              />
+            </View>
             <Text className="text-xs text-gray-500">
               Acuerdos del piso y avisos puntuales
             </Text>

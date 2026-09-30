@@ -373,6 +373,7 @@ export function TasksScreen() {
                 <TaskCard
                   task={item}
                   showDate
+                  currentUserId={user?.id}
                   highlighted={highlightedId === item.id}
                   busy={busyTaskId === item.id}
                   onRepeat={(task) => {
@@ -396,6 +397,7 @@ export function TasksScreen() {
             <View className="mb-3">
               <TaskCard
                 task={item}
+                currentUserId={user?.id}
                 highlighted={highlightedId === item.id}
                 busy={busyTaskId === item.id}
                 canEdit={canMutate}

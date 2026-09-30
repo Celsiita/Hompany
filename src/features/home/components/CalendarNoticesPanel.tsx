@@ -147,7 +147,9 @@ export function CalendarNoticesPanel({
         {isLoading ? (
           <ActivityIndicator color="#2563eb" />
         ) : notices.length === 0 ? (
-          <Text className="text-sm text-gray-500">No hay avisos de calendario.</Text>
+          <Text className="text-sm text-gray-500">
+            Sin visitas ni eventos. Añade una reparación o visita para que salga en el calendario.
+          </Text>
         ) : (
           <View className="gap-2">
             {notices.map((notice) => {

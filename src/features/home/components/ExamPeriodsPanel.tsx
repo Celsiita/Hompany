@@ -120,7 +120,9 @@ export function ExamPeriodsPanel({
       {isLoading ? (
         <ActivityIndicator color="#7c3aed" />
       ) : examPeriods.length === 0 ? (
-        <Text className="text-sm text-violet-800/70">Nadie tiene modo silencio activo.</Text>
+        <Text className="text-sm text-violet-800/70">
+          Sin modo silencio. Actívalo en época de exámenes para bajar el ruido del piso.
+        </Text>
       ) : (
         <View className="gap-2">
           {mine.map((period) => (

@@ -23,11 +23,11 @@ export function TextField({
 
   return (
     <View className="gap-1">
-      <Text className="text-sm font-medium text-gray-700">{label}</Text>
+      <Text className="text-sm font-medium text-stone-700">{label}</Text>
       <View className="relative">
         <TextInput
-          className={`rounded-xl border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 ${isPassword ? 'pr-12' : ''} ${className ?? ''}`}
-          placeholderTextColor="#9ca3af"
+          className={`rounded-xl border border-stone-300 bg-white px-3 py-3 text-base text-stone-900 ${isPassword ? 'pr-12' : ''} ${className ?? ''}`}
+          placeholderTextColor="#a8a29e"
           secureTextEntry={secure}
           {...props}
         />

@@ -138,25 +138,25 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
 
   return (
     <>
-      <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
+      <View className="rounded-2xl border border-teal-200 bg-white p-4 gap-3">
         <View className="flex-row items-start justify-between gap-2">
           <View className="flex-1 gap-0.5">
-            <Text className="text-sm font-semibold text-gray-900">Info del piso</Text>
-            <Text className="text-xs text-gray-500">
+            <Text className="text-sm font-semibold text-stone-900">Info del piso</Text>
+            <Text className="text-xs text-stone-500">
               Wi‑Fi, portal, basura y notas compartidas
             </Text>
           </View>
           <SafePressable
             onPress={() => setEditorOpen(true)}
             contentStyle={mergeStyles(interactive.chip, interactive.chipInactive)}>
-            <Text className="text-xs font-semibold text-blue-700">
+            <Text className="text-xs font-semibold text-teal-800">
               {filled ? 'Editar' : 'Añadir'}
             </Text>
           </SafePressable>
         </View>
 
         {!filled ? (
-          <Text className="text-sm text-gray-500">
+          <Text className="text-sm text-stone-500">
             Aún no hay datos. Añade Wi‑Fi o el código del portal para el resto del piso.
           </Text>
         ) : (
@@ -169,12 +169,12 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
               return (
                 <View
                   key={row.key}
-                  className="flex-row items-center gap-2 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5">
+                  className="flex-row items-center gap-2 rounded-xl border border-stone-100 bg-stone-50 px-3 py-2.5">
                   <View className="flex-1 gap-0.5">
-                    <Text className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                    <Text className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">
                       {row.label}
                     </Text>
-                    <Text className="text-sm font-medium text-gray-900" selectable>
+                    <Text className="text-sm font-medium text-stone-900" selectable>
                       {display}
                     </Text>
                   </View>

@@ -6,6 +6,7 @@ import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { formatEuro } from '@/features/expenses/lib/expense-balances';
 import { isExpenseOverdue, isExpensePaused, isExpenseSettledLate, isExpenseSettlementRequested } from '@/features/expenses/lib/expense-filters';
+import { expenseOwnershipLabel } from '@/features/expenses/lib/expense-ownership';
 import { isShareSettled } from '@/features/expenses/lib/expense-settlement';
 import { formatDueSummary } from '@/features/tasks/lib/countdown';
 import { glyphForExpenseKind } from '@/lib/icons/packs';
@@ -73,6 +74,8 @@ export function ExpenseCard({
       ? expense.updated_at
       : null);
   const isCreditor = Boolean(currentUserId && currentUserId === expense.paid_by);
+  const ownershipLabel = expenseOwnershipLabel(expense, currentUserId);
+  const iOwe = ownershipLabel === 'Debes';
   const editable = Boolean(canEdit && onEdit);
 
   return (
@@ -99,10 +102,33 @@ export function ExpenseCard({
             <Text className="text-xl">{glyphForExpenseKind(pack, expense.kind)}</Text>
           </View>
           <View className="flex-1 gap-1">
+            <View className="flex-row flex-wrap items-center gap-1.5">
+              {ownershipLabel ? (
+                <View
+                  className={`rounded-full px-2 py-0.5 ${
+                    isCreditor
+                      ? 'bg-amber-200/80'
+                      : iOwe
+                        ? 'bg-rose-200/80'
+                        : 'bg-emerald-200/80'
+                  }`}>
+                  <Text
+                    className={`text-[10px] font-bold ${
+                      isCreditor
+                        ? 'text-amber-950'
+                        : iOwe
+                          ? 'text-rose-950'
+                          : 'text-emerald-950'
+                    }`}>
+                    {ownershipLabel}
+                  </Text>
+                </View>
+              ) : null}
+              <Text className="text-xs font-medium text-amber-800">
+                {EXPENSE_KIND_LABEL[expense.kind]} · {recurrenceLabel(expense.recurrence)}
+              </Text>
+            </View>
             <Text className="text-lg font-semibold text-gray-900">{expense.title}</Text>
-            <Text className="text-xs font-medium text-amber-800">
-              {EXPENSE_KIND_LABEL[expense.kind]} · {recurrenceLabel(expense.recurrence)}
-            </Text>
             {expense.description ? (
               <Text className="text-sm text-gray-600">{expense.description}</Text>
             ) : null}
@@ -113,7 +139,7 @@ export function ExpenseCard({
 
       <View className="flex-row items-center justify-between">
         <Text className="text-sm text-gray-600">
-          Pagó {expense.payer?.display_name ?? 'alguien'}
+          Pagó {isCreditor ? 'tú' : (expense.payer?.display_name ?? 'alguien')}
         </Text>
         <Text className="text-lg font-bold text-gray-900">
           {noAmount ? '—' : formatEuro(expense.amount)}

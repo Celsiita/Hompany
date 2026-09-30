@@ -48,7 +48,7 @@ export function LoginScreen() {
           HOMPANY
         </Text>
         <Text className="text-base leading-6" style={{ color: palette.inkMuted }}>
-          Convivencia gamificada en tu piso compartido. Tareas, gastos y reputación en equipo.
+          Para pisos de estudiantes: tareas con foto, gastos claros y reputación sin drama.
         </Text>
       </Animated.View>
 

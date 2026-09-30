@@ -6,6 +6,7 @@ import { categoryLabel } from '@/features/tasks/components/TaskFilterBar';
 import { awardedTaskPoints, canRequestTaskSwap, isTaskOpenOverdue } from '@/features/tasks/lib/board-filters';
 import { formatDueSummary } from '@/features/tasks/lib/countdown';
 import { isPausedRecurring, recurrenceLabel } from '@/features/tasks/lib/recurrence';
+import { taskOwnershipLabel } from '@/features/tasks/lib/task-ownership';
 import { glyphForTaskIcon } from '@/lib/icons/packs';
 import { formatHistoryDateTime } from '@/lib/recurrence';
 import { taskStatusBadge } from '@/lib/status-badges';
@@ -18,6 +19,7 @@ type TaskCardProps = {
   busy?: boolean;
   showDate?: boolean;
   canEdit?: boolean;
+  currentUserId?: string | null;
   /** Temporary visual focus from calendar / create redirect. */
   highlighted?: boolean;
   onEdit?: (task: TaskWithRelations) => void;
@@ -36,6 +38,7 @@ export function TaskCard({
   busy = false,
   showDate = false,
   canEdit = true,
+  currentUserId,
   highlighted = false,
   onEdit,
   onSubmitProof,
@@ -45,6 +48,11 @@ export function TaskCard({
   onRequestSwap,
 }: TaskCardProps) {
   const { pack } = useIconPack();
+  const ownershipLabel = taskOwnershipLabel(
+    task.task_assignees.map((assignee) => assignee.user_id),
+    currentUserId,
+  );
+  const mine = ownershipLabel === 'Tuya';
   const dueSummary = formatDueSummary(task.due_at, task.due_mode ?? 'DEADLINE');
   const showSubmit =
     (task.status === TASK_STATUS.PENDING || task.status === TASK_STATUS.OVERDUE) &&
@@ -82,7 +90,11 @@ export function TaskCard({
       accessibilityRole={editable ? 'button' : undefined}
       accessibilityHint={editable ? 'Editar tarea' : undefined}
       className={`rounded-2xl border bg-white p-4 gap-3 ${
-        highlighted ? 'border-blue-400 bg-blue-50' : 'border-gray-200'
+        highlighted
+          ? 'border-blue-400 bg-blue-50'
+          : mine
+            ? 'border-blue-200'
+            : 'border-stone-200'
       }`}>
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-row items-start gap-3 flex-1">
@@ -90,12 +102,27 @@ export function TaskCard({
             <Text className="text-xl">{glyphForTaskIcon(pack, task.icon)}</Text>
           </View>
           <View className="flex-1 gap-1">
-            <Text className="text-lg font-semibold text-gray-900">{task.title}</Text>
-            <Text className="text-xs font-medium text-blue-700">
-              {categoryLabel(task.category)} · {recurrenceLabel(task.recurrence)}
-            </Text>
+            <View className="flex-row flex-wrap items-center gap-1.5">
+              {ownershipLabel ? (
+                <View
+                  className={`rounded-full px-2 py-0.5 ${
+                    mine ? 'bg-blue-200/80' : 'bg-sky-200/80'
+                  }`}>
+                  <Text
+                    className={`text-[10px] font-bold ${
+                      mine ? 'text-blue-950' : 'text-sky-950'
+                    }`}>
+                    {ownershipLabel}
+                  </Text>
+                </View>
+              ) : null}
+              <Text className="text-xs font-medium text-blue-700">
+                {categoryLabel(task.category)} · {recurrenceLabel(task.recurrence)}
+              </Text>
+            </View>
+            <Text className="text-lg font-semibold text-stone-900">{task.title}</Text>
             {task.description ? (
-              <Text className="text-sm text-gray-600">{task.description}</Text>
+              <Text className="text-sm text-stone-600">{task.description}</Text>
             ) : null}
           </View>
         </View>
