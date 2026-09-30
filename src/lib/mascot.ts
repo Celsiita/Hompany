@@ -189,7 +189,7 @@ const SCREEN_LINES: Record<MascotScreenLine, string> = {
   feed: 'Salud del piso, ranking y cuentas',
   agenda: 'Calendario de lo que toca esta semana',
   tasks: 'Cuadrante · foto y puntos',
-  expenses: 'Quién debe a quién',
+  expenses: 'Súper, casa y deudas claras',
 };
 
 /**

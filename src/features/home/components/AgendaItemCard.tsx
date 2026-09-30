@@ -81,7 +81,7 @@ export function AgendaItemCard({ item, onPress, now = new Date() }: AgendaItemCa
               <Text className="text-[10px] font-bold">{chip.label}</Text>
             </View>
             {item.lifecycle === 'scheduled' ? (
-              <Text className="text-[10px] font-semibold text-stone-500">Futura</Text>
+              <Text className="text-[10px] font-semibold text-stone-500">Programada</Text>
             ) : null}
           </View>
           <Text
