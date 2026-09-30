@@ -25,11 +25,11 @@ import { copyToClipboard } from '@/lib/clipboard';
 import { homeInviteQrImageUrl, homeInviteUrl } from '@/lib/home-invite';
 import { isBuiltinIconPackId } from '@/lib/icons/packs';
 import { isHomeAdminRole, homeRoleLabel } from '@/lib/roles';
-import { mascotScreenLine } from '@/lib/mascot';
 import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useHome } from '@/providers/HomeProvider';
 import { useIconPack } from '@/providers/IconPackProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
@@ -60,7 +60,9 @@ export function SettingsScreen() {
   const confirm = useConfirmDialog();
   const { packId, setPackId, packs, importPackFromJson, removeCustomPack, isPackLocked } =
     useIconPack();
-  const { isPlus, isConfigured, presentPaywall, presentCustomerCenter, restorePurchases } = usePurchases();
+  const { isPlus, isConfigured, presentPaywall, presentCustomerCenter, restorePurchases } =
+    usePurchases();
+  const { locale, setLocale, t } = useLocale();
 
   const [displayName, setDisplayName] = useState('');
   const [members, setMembers] = useState<HomeMemberWithProfile[]>([]);
@@ -327,11 +329,27 @@ export function SettingsScreen() {
         contentInsetAdjustmentBehavior="never"
         contentContainerClassName="pt-2 pb-10 gap-4">
         <ScreenHeader
-          title="Ajustes"
-          subtitle={mascotScreenLine('settings')}
-          helpTitle="Ajustes"
-          helpMessage="Primero tu piso e invitación. Luego Plus (reputación) e iconos. Al final, tutorial y cuenta."
+          title={t('settings.title')}
+          subtitle={t('screen.settings')}
+          helpTitle={t('settings.title')}
+          helpMessage="Primero tu piso e invitación. Luego Plus e iconos. Al final, tutorial y cuenta."
         />
+
+        <SettingsSection
+          title={t('settings.language')}
+          subtitle={t('settings.language.subtitle')}>
+          <FilterTogglePair
+            value={locale}
+            clearable={false}
+            options={[
+              { value: 'es' as const, label: 'Español' },
+              { value: 'en' as const, label: 'English' },
+            ]}
+            onChange={(next) => {
+              void setLocale(next === 'ALL' ? 'es' : next);
+            }}
+          />
+        </SettingsSection>
 
         <SettingsSection title="Perfil" subtitle="Cómo te ven tus compañeros">
           <Text className="text-sm text-stone-600">{user?.email ?? '—'}</Text>
@@ -485,7 +503,7 @@ export function SettingsScreen() {
         {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
 
         <SettingsSection
-          title="HOMPANY Plus"
+          title={t('settings.plus')}
           subtitle="Matching piso ↔ gente en camino (Próximamente en Piso). El core del piso sigue gratis."
           tone="plus">
           <View className="flex-row items-center justify-between">
@@ -494,12 +512,12 @@ export function SettingsScreen() {
               className={`text-xs font-bold px-2 py-1 rounded-md ${
                 isPlus ? 'bg-teal-600 text-white' : 'bg-white text-teal-700'
               }`}>
-              {isPlus ? 'Activo' : 'Plan gratuito'}
+              {isPlus ? t('settings.plus.active') : t('settings.plus.free')}
             </Text>
           </View>
           {!isPlus ? (
             <Button
-              label="Ver HOMPANY Plus"
+              label={t('settings.plus.see')}
               onPress={() => {
                 void presentPaywall().then((ok) => {
                   if (ok) {
@@ -510,7 +528,7 @@ export function SettingsScreen() {
             />
           ) : (
             <Button
-              label="Gestionar suscripción"
+              label={t('settings.plus.manage')}
               variant="secondary"
               onPress={() => {
                 void presentCustomerCenter();
@@ -518,7 +536,7 @@ export function SettingsScreen() {
             />
           )}
           <Button
-            label="Restaurar compras"
+            label={t('settings.plus.restore')}
             variant="secondary"
             onPress={() => {
               void restorePurchases().then((ok) => {

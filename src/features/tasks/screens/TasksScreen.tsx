@@ -31,7 +31,6 @@ import { useHomeExamPeriods } from '@/features/home/hooks/useHomeExamPeriods';
 import { useHomeItemTypes } from '@/features/home/hooks/useHomeItemTypes';
 import { useHomeTasks } from '@/features/tasks/hooks/useHomeTasks';
 import { canRequestTaskSwap } from '@/features/tasks/lib/board-filters';
-import { mascotScreenLine } from '@/lib/mascot';
 import {
   canViewerParticipateInTasks,
   isViewerAbsentOnDate,
@@ -43,6 +42,7 @@ import { formatHistoryDate } from '@/lib/recurrence';
 import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useHome } from '@/providers/HomeProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type { UpsertTaskInput } from '@/schemas/task.schema';
 import type { TaskWithRelations } from '@/types/database.types';
@@ -54,6 +54,7 @@ import { TASK_STATUS } from '@/types/task-status';
 export function TasksScreen() {
   const { user } = useAuth();
   const { activeHome } = useHome();
+  const { t } = useLocale();
   const confirm = useConfirmDialog();
   const showToast = useToast();
   const router = useRouter();
@@ -302,9 +303,9 @@ export function TasksScreen() {
         ListHeaderComponent={
           <View className="gap-4 mb-4 pt-2">
             <ScreenHeader
-              title="Tareas"
-              subtitle={mascotScreenLine('tasks')}
-              helpTitle="Tareas"
+              title={t('tabs.tasks')}
+              subtitle={t('screen.tasks')}
+              helpTitle={t('tabs.tasks')}
               helpMessage="Crea con +. Entrega con foto si el piso lo pide. Los compañeros aprueban o impugnan. En pendientes: «Proponer cambio». Lo cerrado no se reabre."
               createAccent="blue"
               onCreatePress={() => {

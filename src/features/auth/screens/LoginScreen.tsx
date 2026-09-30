@@ -7,6 +7,7 @@ import { Screen } from '@/components/ui/Screen';
 import { TextField } from '@/components/ui/TextField';
 import { palette } from '@/lib/interactive-styles';
 import { useAuth } from '@/providers/AuthProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import { loginSchema } from '@/schemas/auth.schema';
 import { useRouter } from 'expo-router';
 
@@ -16,6 +17,7 @@ import { useRouter } from 'expo-router';
 export function LoginScreen() {
   const router = useRouter();
   const { signIn } = useAuth();
+  const { t } = useLocale();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export function LoginScreen() {
           HOMPANY
         </Text>
         <Text className="text-base leading-6" style={{ color: palette.inkMuted }}>
-          Para pisos de estudiantes: deja de discutir por las tareas y el dinero.
+          {t('auth.tagline')}
         </Text>
         <Pressable
           onPress={() => {
@@ -68,7 +70,7 @@ export function LoginScreen() {
 
       <Animated.View entering={FadeInDown.delay(80).duration(420)} className="gap-3">
         <TextField
-          label="Email"
+          label={t('auth.email')}
           autoCapitalize="none"
           keyboardType="email-address"
           autoComplete="email"
@@ -76,16 +78,16 @@ export function LoginScreen() {
           onChangeText={setEmail}
         />
         <TextField
-          label="Contraseña"
+          label={t('auth.password')}
           secureTextEntry
           autoComplete="password"
           value={password}
           onChangeText={setPassword}
         />
         {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
-        <Button label="Entrar" loading={loading} onPress={() => void handleSubmit()} />
+        <Button label={t('auth.login')} loading={loading} onPress={() => void handleSubmit()} />
         <Button
-          label="Crear cuenta"
+          label={t('auth.register')}
           variant="ghost"
           onPress={() => router.push('/(auth)/register')}
         />

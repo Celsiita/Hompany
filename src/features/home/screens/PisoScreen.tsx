@@ -18,9 +18,9 @@ import { useHomePresence } from '@/features/home/hooks/useHomePresence';
 import { useHomeExpenses } from '@/features/expenses/hooks/useHomeExpenses';
 import { reassignRotatingTasksForPunctualAbsence } from '@/features/tasks/api/tasks-api';
 import { useHomeTasks } from '@/features/tasks/hooks/useHomeTasks';
-import { mascotScreenLine } from '@/lib/mascot';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 
 /**
  * Piso tab — life of the flat: quiet claim, my absences/silence/visits, Wi‑Fi, rules.
@@ -28,6 +28,7 @@ import { useHome } from '@/providers/HomeProvider';
 export function PisoScreen() {
   const { user } = useAuth();
   const { activeHome, updateHomePracticalInfo } = useHome();
+  const { t } = useLocale();
   const { tasks, isAdmin, members: taskMembers } = useHomeTasks();
   const { members } = useHomeExpenses();
   const {
@@ -74,9 +75,9 @@ export function PisoScreen() {
           contentInsetAdjustmentBehavior="never"
           contentContainerClassName="gap-4 pb-8 pt-2">
           <ScreenHeader
-            title="Piso"
-            subtitle={mascotScreenLine('piso')}
-            helpTitle="Piso"
+            title={t('tabs.piso')}
+            subtitle={t('screen.piso')}
+            helpTitle={t('tabs.piso')}
             helpMessage="Aquí gestionas tu ausencia, modo silencio y visitas, reclamas silencio, y ves Wi‑Fi y reglas del hogar."
             headerEnd={<MatchingSoonButton />}
           />

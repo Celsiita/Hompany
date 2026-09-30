@@ -30,9 +30,9 @@ import { useHomeTasks } from '@/features/tasks/hooks/useHomeTasks';
 import { canRequestTaskSwap } from '@/features/tasks/lib/board-filters';
 import { summarizeTasks } from '@/features/tasks/lib/task-summary';
 import { isUserSystemFrozen } from '@/lib/presence';
-import { mascotScreenLine } from '@/lib/mascot';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
 
@@ -44,6 +44,7 @@ export function HomeScreen() {
   const { user } = useAuth();
   const { activeHome } = useHome();
   const { registerHomeSectionSetter } = useTutorial();
+  const { t } = useLocale();
   const showToast = useToast();
   const {
     tasks,
@@ -144,7 +145,7 @@ export function HomeScreen() {
   const agendaMembers = members.length > 0 ? members : taskMembers;
 
   const subtitle =
-    section === 'FEED' ? mascotScreenLine('feed') : mascotScreenLine('agenda');
+    section === 'FEED' ? t('screen.feed') : t('screen.agenda');
 
   async function handleCancelOccurrence(item: AgendaItem) {
     if (item.kind === 'task') {

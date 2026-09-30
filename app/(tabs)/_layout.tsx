@@ -1,10 +1,14 @@
 import { SymbolView } from 'expo-symbols';
 import { Tabs } from 'expo-router';
 
+import { useLocale } from '@/providers/LocaleProvider';
+
 /**
  * Tab navigation: Inicio, Piso, Tareas, Gastos, Ajustes.
  */
 export default function TabLayout() {
+  const { t } = useLocale();
+
   return (
     <Tabs
       screenOptions={{
@@ -19,7 +23,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Inicio',
+          title: t('tabs.home'),
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: 'house.fill', android: 'home', web: 'home' }}
@@ -32,7 +36,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="piso"
         options={{
-          title: 'Piso',
+          title: t('tabs.piso'),
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{
@@ -49,7 +53,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="tasks"
         options={{
-          title: 'Tareas',
+          title: t('tabs.tasks'),
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{
@@ -66,7 +70,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="expenses"
         options={{
-          title: 'Gastos',
+          title: t('tabs.expenses'),
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{
@@ -83,7 +87,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Ajustes',
+          title: t('tabs.settings'),
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: 'gearshape.fill', android: 'settings', web: 'settings' }}

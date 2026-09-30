@@ -5,6 +5,7 @@ import { AuthProvider } from '@/providers/AuthProvider';
 import { ConfirmProvider } from '@/providers/ConfirmProvider';
 import { HomeProvider } from '@/providers/HomeProvider';
 import { IconPackProvider } from '@/providers/IconPackProvider';
+import { LocaleProvider } from '@/providers/LocaleProvider';
 import { PurchasesProvider } from '@/providers/PurchasesProvider';
 import { ToastProvider } from '@/providers/ToastProvider';
 import { TutorialProvider } from '@/providers/TutorialProvider';
@@ -15,19 +16,21 @@ import { TutorialProvider } from '@/providers/TutorialProvider';
 export function AppProviders({ children }: PropsWithChildren) {
   return (
     <SafeAreaProvider>
-      <ToastProvider>
-        <ConfirmProvider>
-          <AuthProvider>
-            <PurchasesProvider>
-              <HomeProvider>
-                <IconPackProvider>
-                  <TutorialProvider>{children}</TutorialProvider>
-                </IconPackProvider>
-              </HomeProvider>
-            </PurchasesProvider>
-          </AuthProvider>
-        </ConfirmProvider>
-      </ToastProvider>
+      <LocaleProvider>
+        <ToastProvider>
+          <ConfirmProvider>
+            <AuthProvider>
+              <PurchasesProvider>
+                <HomeProvider>
+                  <IconPackProvider>
+                    <TutorialProvider>{children}</TutorialProvider>
+                  </IconPackProvider>
+                </HomeProvider>
+              </PurchasesProvider>
+            </AuthProvider>
+          </ConfirmProvider>
+        </ToastProvider>
+      </LocaleProvider>
     </SafeAreaProvider>
   );
 }

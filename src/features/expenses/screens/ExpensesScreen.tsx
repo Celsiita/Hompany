@@ -26,10 +26,10 @@ import { ExpenseFilterBar } from '@/features/expenses/components/ExpenseFilterBa
 import { ExpenseFormModal } from '@/features/expenses/components/ExpenseFormModal';
 import { useHomeExpenses } from '@/features/expenses/hooks/useHomeExpenses';
 import { useBoardItemFocus } from '@/hooks/useBoardItemFocus';
-import { mascotScreenLine } from '@/lib/mascot';
 import { parseFocusId } from '@/lib/navigation/board-focus';
 import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { formatHistoryDate } from '@/lib/recurrence';
 import type { ExpenseWithRelations } from '@/types/database.types';
@@ -39,6 +39,7 @@ import type { ExpenseWithRelations } from '@/types/database.types';
  */
 export function ExpensesScreen() {
   const { user } = useAuth();
+  const { t } = useLocale();
   const confirm = useConfirmDialog();
   const showToast = useToast();
   const router = useRouter();
@@ -221,9 +222,9 @@ export function ExpensesScreen() {
         ListHeaderComponent={
           <View className="gap-4 mb-4 pt-2">
             <ScreenHeader
-              title="Gastos"
-              subtitle={mascotScreenLine('expenses')}
-              helpTitle="Gastos"
+              title={t('tabs.expenses')}
+              subtitle={t('screen.expenses')}
+              helpTitle={t('tabs.expenses')}
               helpMessage="Reparte a partes iguales, por % o cantidades fijas. Chips Debes / Tú pagaste. Mis deudas / Mis cobros. Saldar cierra la deuda."
               createAccent="amber"
               createAccessibilityLabel="Nuevo gasto"
