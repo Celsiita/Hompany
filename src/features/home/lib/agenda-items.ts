@@ -128,7 +128,8 @@ export type AgendaDayEmoji = {
 };
 
 /**
- * Status emojis shown below task/expense dots (not as dots).
+ * Status emojis under the day number: silencio / ausencia / visitas.
+ * Expenses use colored dots only (no diamond glyph).
  */
 export function computeAgendaDayEmojis(
   dayItems: AgendaItem[],

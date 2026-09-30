@@ -27,7 +27,7 @@ export function AgendaColorLegend() {
     <View className="gap-1.5 rounded-xl border border-stone-200 bg-white/80 px-3 py-2.5">
       <View className="flex-row flex-wrap items-center gap-x-3 gap-y-1.5">
         <LegendDot className="bg-blue-600" label="Tu tarea" />
-        <LegendDot className="border border-sky-600 bg-transparent" label="Compañero" />
+        <LegendDot className="bg-sky-500" label="Compañero" />
         <LegendDot className="bg-rose-500" label="Debes" />
         <LegendDot className="bg-amber-500" label="Te deben" />
         <LegendDot className="bg-red-500" label="Urgente" />
@@ -41,7 +41,7 @@ export function AgendaColorLegend() {
         </View>
         <HelpTip
           title="Colores de la agenda"
-          message="Azul = tus tareas. Círculo hueco cielo = tareas de compañeros. Rosa = gastos que debes. Ámbar = gastos que te deben. Rojo = vencida. 🔇 = modo silencio. 🧳 = ausencia."
+          message="Azul = tus tareas. Cielo = compañeros. Rosa = debes. Ámbar = te deben. Rojo = vencida. 🔇 = silencio. 🧳 = ausencia."
         />
       </View>
     </View>

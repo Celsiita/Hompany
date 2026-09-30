@@ -23,10 +23,8 @@ function dotClassName(dot: AgendaDayDot): string {
   if (dot.kind === 'mine-task') {
     return dot.open ? 'bg-blue-600' : 'bg-blue-300';
   }
-  if (dot.open) {
-    return 'border border-sky-600 bg-transparent';
-  }
-  return 'border border-sky-300 bg-transparent';
+  // Roommate tasks: filled soft sky (hollow borders look like diamonds at 6px).
+  return dot.open ? 'bg-sky-500' : 'bg-sky-300';
 }
 
 /**
