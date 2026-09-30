@@ -452,11 +452,11 @@ export function ExpenseFormModal({
                   includePayer ? interactive.borderedCardActive : undefined,
                 )}>
                 <Text className="text-sm font-medium text-gray-900">
-                  {includePayer ? '✓ ' : ''}Dividir entre todos
+                  {includePayer ? '✓ ' : ''}También me toca a mí
                 </Text>
                 <Text className="mt-1 text-xs text-gray-500">
-                  Activado: el total se reparte entre deudores y quien pagó. Desactivado: solo entre
-                  deudores (te deben el total).
+                  Activado: repartes el total con los demás (tú también pagas tu parte). Desactivado:
+                  ellos te deben el 100 %.
                 </Text>
               </SafePressable>
 
