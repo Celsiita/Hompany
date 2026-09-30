@@ -37,7 +37,11 @@ export function AlertsModal({ visible, alerts, onClose }: AlertsModalProps) {
               ? `${alerts.length} aviso${alerts.length === 1 ? '' : 's'} · ${urgentCount} urgente${urgentCount === 1 ? '' : 's'}. Toca uno para ir a la tarjeta.`
               : `${alerts.length} aviso${alerts.length === 1 ? '' : 's'}. Toca uno para ir a la tarjeta.`}
           </Text>
-        ) : null}
+        ) : (
+          <Text className="text-sm text-stone-500">
+            Aquí salen vencidas, revisiones y deudas cuando hay algo que mirar.
+          </Text>
+        )}
       </View>
       <AlertsInbox alerts={alerts} onPressAlert={openAlert} />
       <Pressable onPress={onClose} className="mt-4 rounded-xl bg-stone-100 px-3 py-3">

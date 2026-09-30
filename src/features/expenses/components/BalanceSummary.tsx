@@ -15,7 +15,7 @@ function memberName(members: HomeMemberWithProfile[], userId: string): string {
 }
 
 /**
- * Compact "quién debe a quién" card for the Home feed (amber = money).
+ * Compact "quién debe a quién" card for Pulso (amber = money).
  */
 export function BalanceSummary({ balances, members, currentUserId }: BalanceSummaryProps) {
   const relevantDebts = currentUserId
@@ -40,7 +40,12 @@ export function BalanceSummary({ balances, members, currentUserId }: BalanceSumm
       )}
 
       {relevantDebts.length === 0 ? (
-        <Text className="text-sm text-amber-900/80">Sin deudas abiertas entre vosotros.</Text>
+        <View className="mt-1 gap-0.5 rounded-xl border border-dashed border-amber-200/80 bg-white/50 px-3 py-3">
+          <Text className="text-sm font-semibold text-amber-950">Sin deudas abiertas</Text>
+          <Text className="text-sm leading-5 text-amber-900/70">
+            Cuando haya pendientes, verás quién debe a quién aquí.
+          </Text>
+        </View>
       ) : (
         relevantDebts.slice(0, 4).map((debt) => {
           const from = memberName(members, debt.fromUserId);

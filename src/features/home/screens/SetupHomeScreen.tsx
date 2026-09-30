@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import { TextField } from '@/components/ui/TextField';
+import { palette } from '@/lib/interactive-styles';
 import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useHome } from '@/providers/HomeProvider';
@@ -81,86 +83,92 @@ export function SetupHomeScreen() {
 
   return (
     <Screen className="justify-center gap-6">
-      <View className="gap-2">
-        <Text className="text-3xl font-bold text-teal-900">HOMPANY</Text>
-        <Text className="text-xl font-semibold text-gray-900">Tu piso compartido</Text>
-        <Text className="text-base text-gray-600">
+      <Animated.View entering={FadeInDown.duration(420)} className="gap-2">
+        <Text
+          className="text-4xl font-extrabold tracking-tight"
+          style={{ color: palette.brand }}>
+          HOMPANY
+        </Text>
+        <Text className="text-xl font-semibold text-stone-900">Tu piso compartido</Text>
+        <Text className="text-base text-stone-600">
           ¿Sois nuevos? Crea el piso y comparte el código. ¿Ya existe? Pega el código que te pasó un
           compañero.
         </Text>
-      </View>
+      </Animated.View>
 
       {homes.length > 0 ? (
-        <View className="gap-2">
-          <Text className="text-sm font-semibold text-gray-700">Tus pisos</Text>
+        <Animated.View entering={FadeInDown.delay(60).duration(420)} className="gap-2">
+          <Text className="text-sm font-semibold text-stone-700">Tus pisos</Text>
           {homes.map((home) => (
             <Pressable
               key={home.id}
-              className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3"
+              className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3"
               onPress={() => {
                 void setActiveHomeId(home.id);
               }}>
-              <Text className="text-base font-semibold text-gray-900">{home.name}</Text>
-              <Text className="text-sm text-gray-500">Código: {home.invite_code}</Text>
+              <Text className="text-base font-semibold text-stone-900">{home.name}</Text>
+              <Text className="text-sm text-stone-500">Código: {home.invite_code}</Text>
             </Pressable>
           ))}
-        </View>
+        </Animated.View>
       ) : null}
 
-      <View className="flex-row gap-2">
-        <View className="flex-1">
-          <Button
-            label="Crear piso"
-            variant={mode === 'create' ? 'primary' : 'secondary'}
-            onPress={() => setMode('create')}
-          />
-        </View>
-        <View className="flex-1">
-          <Button
-            label="Tengo código"
-            variant={mode === 'join' ? 'primary' : 'secondary'}
-            onPress={() => setMode('join')}
-          />
-        </View>
-      </View>
-
-      <View className="gap-3">
-        {mode === 'create' ? (
-          <>
-            <TextField
-              label="Nombre del piso"
-              value={name}
-              onChangeText={setName}
-              placeholder="Ej. Piso Erasmus / Calle Mayor 12"
-            />
-            {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
+      <Animated.View entering={FadeInDown.delay(100).duration(420)} className="gap-3">
+        <View className="flex-row gap-2">
+          <View className="flex-1">
             <Button
               label="Crear piso"
-              loading={loading}
-              onPress={() => void handleCreate()}
+              variant={mode === 'create' ? 'primary' : 'secondary'}
+              onPress={() => setMode('create')}
             />
-          </>
-        ) : (
-          <>
-            <TextField
-              label="Código de invitación"
-              autoCapitalize="characters"
-              value={inviteCode}
-              onChangeText={setInviteCode}
-              placeholder="Ej. A1B2C3"
-            />
-            <Text className="text-xs text-gray-500">
-              Lo ves en Ajustes → Invitar (quien creó el piso).
-            </Text>
-            {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
+          </View>
+          <View className="flex-1">
             <Button
-              label="Unirme al piso"
-              loading={loading}
-              onPress={() => void handleJoin()}
+              label="Tengo código"
+              variant={mode === 'join' ? 'primary' : 'secondary'}
+              onPress={() => setMode('join')}
             />
-          </>
-        )}
-      </View>
+          </View>
+        </View>
+
+        <View className="gap-3">
+          {mode === 'create' ? (
+            <>
+              <TextField
+                label="Nombre del piso"
+                value={name}
+                onChangeText={setName}
+                placeholder="Ej. Piso Erasmus / Calle Mayor 12"
+              />
+              {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
+              <Button
+                label="Crear piso"
+                loading={loading}
+                onPress={() => void handleCreate()}
+              />
+            </>
+          ) : (
+            <>
+              <TextField
+                label="Código de invitación"
+                autoCapitalize="characters"
+                value={inviteCode}
+                onChangeText={setInviteCode}
+                placeholder="Ej. A1B2C3"
+              />
+              <Text className="text-xs text-stone-500">
+                Lo ves en Ajustes → Invitar (quien creó el piso).
+              </Text>
+              {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
+              <Button
+                label="Unirme al piso"
+                loading={loading}
+                onPress={() => void handleJoin()}
+              />
+            </>
+          )}
+        </View>
+      </Animated.View>
 
       <Button
         label="Cerrar sesión"
