@@ -175,14 +175,14 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
             }}
             className={`gap-2 rounded-xl border p-3 ${
               isSelected
-                ? 'border-blue-200 bg-blue-50/40'
+                ? 'border-teal-300 bg-teal-50/50'
                 : isToday
                   ? 'border-gray-200 bg-white'
                   : 'border-gray-100 bg-white'
             }`}>
             <Text
               className={`text-xs font-bold uppercase ${
-                isToday ? 'text-blue-700' : 'text-gray-500'
+                isToday ? 'text-teal-800' : 'text-gray-500'
               }`}>
               {label}
             </Text>
