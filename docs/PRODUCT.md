@@ -76,7 +76,7 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 - **Calendario:** vista semanal = **7 días desde hoy** (sin días pasados; la flecha atrás se bloquea en hoy) o mes completo (botón Mes/Semana). Puntos: azul (tuyas), cielo hueco (compañeros), ámbar (gastos), violeta (ausencias), celeste (exámenes).
 - **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Libre».
 - Tareas (azul) y gastos (ámbar); **abiertas** vs **programadas** (tarjetas atenuadas). Gastos solo si estás involucrado.
-- **Ausencias** (Agenda): dos tipos — **Puntual** (solo tareas + reasignación) e **Indefinida/planificada** (congela la app salvo gastos atrasados). Sin «Estancia en el piso».
+- **Ausencias** (⋮): **Corta** (finde/viaje — solo tareas + reasignación) y **Larga / baja** (congela la app salvo gastos atrasados).
 - **Modo silencio** (morado): periodos de baja presión. Franjas violetas en calendario/lista con `🔇`.
 - **Modo silencio:** al impugnar una tarea de alguien en exámenes, el resto ve: «Recuerda que [Nombre] está en periodo de exámenes» (también documentado para notificaciones push futuras).
 - Asignación manual a alguien ausente en la fecha: bloqueo con `⚠️ [Nombre] estará ausente en esta fecha` (formulario de tarea y reasignación en agenda).
