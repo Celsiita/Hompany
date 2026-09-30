@@ -377,8 +377,7 @@ export function SettingsScreen() {
           />
           {!isConfigured ? (
             <Text className="text-xs text-amber-700">
-              Añade EXPO_PUBLIC_REVENUECAT_API_KEY en .env.local (Test Store) para probar
-              compras.
+              Falta la clave de compras en .env.local — el resto de la app funciona igual.
             </Text>
           ) : null}
         </View>

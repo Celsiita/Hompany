@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
@@ -40,8 +41,8 @@ export function RegisterScreen() {
   }
 
   return (
-    <Screen className="justify-center gap-6">
-      <View className="gap-2">
+    <Screen className="justify-center gap-8">
+      <Animated.View entering={FadeInDown.duration(420)} className="gap-2">
         <Text
           className="text-4xl font-extrabold tracking-tight"
           style={{ color: palette.brand }}>
@@ -51,9 +52,9 @@ export function RegisterScreen() {
         <Text className="text-base text-stone-600">
           Para tu piso de estudiantes: tareas, gastos y convivencia sin drama.
         </Text>
-      </View>
+      </Animated.View>
 
-      <View className="gap-3">
+      <Animated.View entering={FadeInDown.delay(80).duration(420)} className="gap-3">
         <TextField
           label="Nombre"
           autoComplete="name"
@@ -82,7 +83,7 @@ export function RegisterScreen() {
           variant="ghost"
           onPress={() => router.replace('/(auth)/login')}
         />
-      </View>
+      </Animated.View>
     </Screen>
   );
 }
