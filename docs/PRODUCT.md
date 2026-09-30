@@ -74,7 +74,7 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 - **Tutorial:** tour interactivo v2 (cambia secciones / pestañas) desde 1ª apertura o Ajustes.
 - **Filtros Agenda:** botón Filtros (▲/▼) con `Mis cosas` | `Compañeros` (sin selección = Todo el piso) + chips `Tareas` / `Gastos`.
 - **Calendario:** vista semanal = **7 días desde hoy** (sin días pasados; la flecha atrás se bloquea en hoy) o mes completo (botón Mes/Semana). Puntos: azul (tuyas), cielo hueco (compañeros), ámbar (gastos), violeta (ausencias), celeste (exámenes).
-- **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Nada previsto».
+- **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Libre».
 - Tareas (azul) y gastos (ámbar); **abiertas** vs **programadas** (tarjetas atenuadas). Gastos solo si estás involucrado.
 - **Ausencias** (Agenda): dos tipos — **Puntual** (solo tareas + reasignación) e **Indefinida/planificada** (congela la app salvo gastos atrasados). Sin «Estancia en el piso».
 - **Modo silencio** (morado): periodos de baja presión. Franjas violetas en calendario/lista con `🔇`.
