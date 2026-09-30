@@ -42,11 +42,11 @@ type AbsencesPanelProps = {
 };
 
 const INFO_MESSAGE =
-  'Puntual: solo afecta a tareas (rotativas se reasignan). Indefinida/planificada: congela la app para ti (salvo gastos atrasados).';
+  'Corta (finde/viaje): se reasignan tus tareas rotativas. Larga: la app se pausa para ti (excepto gastos vencidos).';
 
 const TYPE_OPTIONS = [
-  { value: 'PUNCTUAL' as const, label: 'Puntual' },
-  { value: 'SYSTEM' as const, label: 'Indefinida / planificada' },
+  { value: 'PUNCTUAL' as const, label: 'Corta' },
+  { value: 'SYSTEM' as const, label: 'Larga / baja' },
 ] as const;
 
 /**
