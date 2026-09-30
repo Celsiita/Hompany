@@ -177,19 +177,19 @@ export function DateTimePickerModal({
       <View className="flex-1 justify-end bg-black/40">
         <Pressable className="absolute inset-0" onPress={onClose} accessibilityLabel="Cerrar" />
         <View className="gap-3 rounded-t-3xl bg-white p-4">
-          <Text className="text-lg font-bold text-gray-900">{title}</Text>
+          <Text className="text-lg font-bold text-stone-900">{title}</Text>
           <View className="flex-row items-center justify-between">
             <Pressable onPress={() => bumpMonth(-1)} className="px-3 py-2">
               <Text className="text-lg text-teal-700">‹</Text>
             </Pressable>
-            <Text className="text-sm font-semibold capitalize text-gray-800">{monthLabel}</Text>
+            <Text className="text-sm font-semibold capitalize text-stone-800">{monthLabel}</Text>
             <Pressable onPress={() => bumpMonth(1)} className="px-3 py-2">
               <Text className="text-lg text-teal-700">›</Text>
             </Pressable>
           </View>
           <View className="flex-row">
             {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((label) => (
-              <Text key={label} className="flex-1 text-center text-[10px] font-bold text-gray-400">
+              <Text key={label} className="flex-1 text-center text-[10px] font-bold text-stone-400">
                 {label}
               </Text>
             ))}
@@ -240,7 +240,7 @@ export function DateTimePickerModal({
                 <Pressable
                   onPress={() => bumpTime('hours', -1)}
                   accessibilityLabel="Restar una hora"
-                  className="rounded-lg bg-gray-100 px-3 py-2">
+                  className="rounded-lg bg-stone-100 px-3 py-2">
                   <Text className="text-teal-700">−h</Text>
                 </Pressable>
                 <TextInput
@@ -252,31 +252,31 @@ export function DateTimePickerModal({
                   underlineColorAndroid="transparent"
                   autoCorrect={false}
                   accessibilityLabel="Hora en formato HH:mm"
-                  className="min-w-[72px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-xl font-bold text-gray-900"
+                  className="min-w-[72px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-xl font-bold text-stone-900"
                   placeholder="HH:mm"
                   placeholderTextColor="#9ca3af"
                 />
                 <Pressable
                   onPress={() => bumpTime('hours', 1)}
                   accessibilityLabel="Sumar una hora"
-                  className="rounded-lg bg-gray-100 px-3 py-2">
+                  className="rounded-lg bg-stone-100 px-3 py-2">
                   <Text className="text-teal-700">+h</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => bumpTime('minutes', -15)}
                   accessibilityLabel="Restar quince minutos"
-                  className="rounded-lg bg-gray-100 px-3 py-2">
+                  className="rounded-lg bg-stone-100 px-3 py-2">
                   <Text className="text-teal-700">−15</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => bumpTime('minutes', 15)}
                   accessibilityLabel="Sumar quince minutos"
-                  className="rounded-lg bg-gray-100 px-3 py-2">
+                  className="rounded-lg bg-stone-100 px-3 py-2">
                   <Text className="text-teal-700">+15</Text>
                 </Pressable>
               </View>
               {timeError ? <Text className="text-center text-xs text-red-600">{timeError}</Text> : null}
-              <Text className="text-center text-xs text-gray-500">
+              <Text className="text-center text-xs text-stone-500">
                 Escribe la hora (HH:mm) o usa −h / +h / −15 / +15.
               </Text>
             </>

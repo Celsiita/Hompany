@@ -84,7 +84,7 @@ export function DueDateFields({
 
   return (
     <View className="gap-2">
-      <Text className="text-sm font-medium text-gray-700">Ventana temporal</Text>
+      <Text className="text-sm font-medium text-stone-700">Ventana temporal</Text>
       <SafePressable
         onPress={toggleAllDay}
         contentStyle={mergeStyles(
@@ -93,8 +93,8 @@ export function DueDateFields({
           allDay ? interactive.borderedCardActive : undefined,
         )}>
         <View className="flex-1 pr-2">
-          <Text className="text-sm font-semibold text-gray-900">Todo el día</Text>
-          <Text className="text-xs text-gray-500">Oculta la hora; inicio 00:00 · límite 23:59</Text>
+          <Text className="text-sm font-semibold text-stone-900">Todo el día</Text>
+          <Text className="text-xs text-stone-500">Oculta la hora; inicio 00:00 · límite 23:59</Text>
         </View>
         <Text className="text-sm text-teal-700">{allDay ? '✓' : ''}</Text>
       </SafePressable>
@@ -102,25 +102,25 @@ export function DueDateFields({
       <SafePressable
         onPress={() => setPickerTarget('start')}
         contentStyle={interactive.borderedCard}>
-        <Text className="text-xs font-semibold uppercase text-gray-500">
+        <Text className="text-xs font-semibold uppercase text-stone-500">
           {isPeriodic ? 'Inicio (primera ventana)' : 'Fecha de inicio'}
         </Text>
-        <Text className="mt-1 text-sm font-semibold text-gray-900">
+        <Text className="mt-1 text-sm font-semibold text-stone-900">
           {allDay ? formatHistoryDate(startsAt.toISOString()) : formatDueDateTime(startsAt)}
         </Text>
-        <Text className="mt-0.5 text-xs text-gray-500">Desde cuándo se puede hacer</Text>
+        <Text className="mt-0.5 text-xs text-stone-500">Desde cuándo se puede hacer</Text>
       </SafePressable>
 
       <SafePressable
         onPress={() => setPickerTarget('due')}
         contentStyle={interactive.borderedCard}>
-        <Text className="text-xs font-semibold uppercase text-gray-500">
+        <Text className="text-xs font-semibold uppercase text-stone-500">
           {isPeriodic ? 'Límite (primera ventana)' : 'Fecha límite'}
         </Text>
-        <Text className="mt-1 text-sm font-semibold text-gray-900">
+        <Text className="mt-1 text-sm font-semibold text-stone-900">
           {allDay ? formatHistoryDate(dueAt.toISOString()) : formatDueDateTime(dueAt)}
         </Text>
-        <Text className="mt-0.5 text-xs text-gray-500">{preview.label}</Text>
+        <Text className="mt-0.5 text-xs text-stone-500">{preview.label}</Text>
       </SafePressable>
 
       <DateTimePickerModal

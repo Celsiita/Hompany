@@ -146,8 +146,8 @@ export function ScheduleEditor({
   return (
     <View className="gap-4">
       <View className="gap-2">
-        <Text className="text-sm font-medium text-gray-700">1. Primera vez (fechas)</Text>
-        <Text className="text-xs text-gray-500">
+        <Text className="text-sm font-medium text-stone-700">1. Primera vez (fechas)</Text>
+        <Text className="text-xs text-stone-500">
           Seleccionado: {formatRangeLabel(ordered.start, ordered.end)}
         </Text>
         <ScheduleRangeCalendar
@@ -158,7 +158,7 @@ export function ScheduleEditor({
       </View>
 
       <View className="gap-2">
-        <Text className="text-sm font-medium text-gray-700">2. Horas</Text>
+        <Text className="text-sm font-medium text-stone-700">2. Horas</Text>
         <SafePressable
           onPress={() => setAllDay(!allDay)}
           contentStyle={mergeStyles(
@@ -167,8 +167,8 @@ export function ScheduleEditor({
             allDay ? interactive.borderedCardActive : undefined,
           )}>
           <View className="flex-1 pr-2">
-            <Text className="text-sm font-semibold text-gray-900">Todo el día</Text>
-            <Text className="text-xs text-gray-500">
+            <Text className="text-sm font-semibold text-stone-900">Todo el día</Text>
+            <Text className="text-xs text-stone-500">
               Inicio 00:00 del primer día · fin 23:59 del último
             </Text>
           </View>
@@ -176,13 +176,13 @@ export function ScheduleEditor({
         </SafePressable>
 
         {!allDay ? (
-          <View className="gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3">
-            <Text className="text-xs text-gray-600">
+          <View className="gap-2 rounded-xl border border-stone-200 bg-stone-50 p-3">
+            <Text className="text-xs text-stone-600">
               Hora de inicio (primer día) · Hora de fin (último día)
             </Text>
             <View className="flex-row gap-3">
               <View className="flex-1 gap-1">
-                <Text className="text-xs font-semibold text-gray-500">Inicio</Text>
+                <Text className="text-xs font-semibold text-stone-500">Inicio</Text>
                 <TextInput
                   value={startTimeText}
                   onChangeText={(raw) => setStartTimeText(sanitizeTimeDraft(raw))}
@@ -191,11 +191,11 @@ export function ScheduleEditor({
                   maxLength={5}
                   placeholder="09:00"
                   placeholderTextColor="#9ca3af"
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-base font-semibold text-gray-900"
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-base font-semibold text-stone-900"
                 />
               </View>
               <View className="flex-1 gap-1">
-                <Text className="text-xs font-semibold text-gray-500">Fin</Text>
+                <Text className="text-xs font-semibold text-stone-500">Fin</Text>
                 <TextInput
                   value={endTimeText}
                   onChangeText={(raw) => setEndTimeText(sanitizeTimeDraft(raw))}
@@ -204,7 +204,7 @@ export function ScheduleEditor({
                   maxLength={5}
                   placeholder="18:00"
                   placeholderTextColor="#9ca3af"
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-base font-semibold text-gray-900"
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-base font-semibold text-stone-900"
                 />
               </View>
             </View>
@@ -214,7 +214,7 @@ export function ScheduleEditor({
       </View>
 
       <View className="gap-2">
-        <Text className="text-sm font-medium text-gray-700">3. Periodicidad</Text>
+        <Text className="text-sm font-medium text-stone-700">3. Periodicidad</Text>
         <RecurrenceEditor
           recurrence={recurrence}
           config={recurrenceConfig}

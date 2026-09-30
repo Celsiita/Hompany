@@ -58,12 +58,12 @@ export function ScheduleRangeCalendar({
   }
 
   return (
-    <View className="gap-2 rounded-xl border border-gray-200 bg-white p-3">
+    <View className="gap-2 rounded-xl border border-stone-200 bg-white p-3">
       <View className="flex-row items-center justify-between">
         <Pressable onPress={() => setVisibleMonth(shiftMonth(visibleMonth, -1))} className="px-3 py-2">
           <Text className="text-lg text-teal-700">‹</Text>
         </Pressable>
-        <Text className="text-sm font-semibold capitalize text-gray-800">
+        <Text className="text-sm font-semibold capitalize text-stone-800">
           {formatMonthTitle(visibleMonth)}
         </Text>
         <Pressable onPress={() => setVisibleMonth(shiftMonth(visibleMonth, 1))} className="px-3 py-2">
@@ -72,7 +72,7 @@ export function ScheduleRangeCalendar({
       </View>
       <View className="flex-row">
         {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((label) => (
-          <Text key={label} className="flex-1 text-center text-[10px] font-bold text-gray-400">
+          <Text key={label} className="flex-1 text-center text-[10px] font-bold text-stone-400">
             {label}
           </Text>
         ))}
@@ -101,7 +101,7 @@ export function ScheduleRangeCalendar({
           </View>
         ))}
       </View>
-      <Text className="text-xs text-gray-500">
+      <Text className="text-xs text-stone-500">
         Toca un día, o dos días para un rango. {pickingEnd ? 'Elige el día final.' : ''}
       </Text>
     </View>

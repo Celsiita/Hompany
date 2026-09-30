@@ -195,20 +195,20 @@ export function RecurrenceEditor({
 
       {repeats ? (
         <View className="gap-2">
-          <Text className="text-xs text-gray-600">Cada</Text>
+          <Text className="text-xs text-stone-600">Cada</Text>
           <View className="flex-row items-center gap-2">
             <SafePressable
               onPress={() => bumpInterval(-1)}
               contentStyle={mergeStyles(interactive.secondaryButton, { minWidth: 44 })}>
-              <Text className="text-center text-base font-bold text-gray-800">−</Text>
+              <Text className="text-center text-base font-bold text-stone-800">−</Text>
             </SafePressable>
-            <View className="min-w-[48px] items-center rounded-xl border border-gray-200 bg-white px-3 py-2">
-              <Text className="text-base font-semibold text-gray-900">{interval}</Text>
+            <View className="min-w-[48px] items-center rounded-xl border border-stone-200 bg-white px-3 py-2">
+              <Text className="text-base font-semibold text-stone-900">{interval}</Text>
             </View>
             <SafePressable
               onPress={() => bumpInterval(1)}
               contentStyle={mergeStyles(interactive.secondaryButton, { minWidth: 44 })}>
-              <Text className="text-center text-base font-bold text-gray-800">+</Text>
+              <Text className="text-center text-base font-bold text-stone-800">+</Text>
             </SafePressable>
           </View>
 
@@ -232,7 +232,7 @@ export function RecurrenceEditor({
 
           {recurrence === 'WEEKLY' ? (
             <View className="gap-2">
-              <Text className="text-xs text-gray-600">Días de la semana (mín. 1)</Text>
+              <Text className="text-xs text-stone-600">Días de la semana (mín. 1)</Text>
               <View className="flex-row gap-1">
                 {WEEKDAY_CHIPS.map((chip) => {
                   const active = selectedWeekdays.includes(chip.value);
@@ -258,7 +258,7 @@ export function RecurrenceEditor({
 
           {recurrence === 'MONTHLY' ? (
             <View className="gap-2">
-              <Text className="text-xs text-gray-600">Días del mes (mín. 1)</Text>
+              <Text className="text-xs text-stone-600">Días del mes (mín. 1)</Text>
               <View className="flex-row flex-wrap gap-1">
                 {MONTH_DAY_OPTIONS.map((day) => {
                   const active = selectedMonthDays.includes(day);
@@ -289,14 +289,14 @@ export function RecurrenceEditor({
                   })
                 }
                 contentStyle={borderedOption(config.due_day_type === 'LAST_DAY_OF_MONTH')}>
-                <Text className="text-sm text-gray-900">Último día del mes</Text>
+                <Text className="text-sm text-stone-900">Último día del mes</Text>
               </SafePressable>
             </View>
           ) : null}
 
           {recurrence === 'YEARLY' ? (
             <View className="gap-2">
-              <Text className="text-xs text-gray-600">Meses (mín. 1)</Text>
+              <Text className="text-xs text-stone-600">Meses (mín. 1)</Text>
               <View className="flex-row flex-wrap gap-1">
                 {MONTH_LABELS.map((label, index) => {
                   const value = index + 1;
@@ -339,8 +339,8 @@ export function RecurrenceEditor({
                   }
                 }}
                 contentStyle={borderedOption(Boolean(config.is_paused))}>
-                <Text className="text-sm font-semibold text-gray-900">Pausa indefinida</Text>
-                <Text className="text-xs text-gray-500">
+                <Text className="text-sm font-semibold text-stone-900">Pausa indefinida</Text>
+                <Text className="text-xs text-stone-500">
                   No genera nuevas instancias hasta que la reactives
                 </Text>
               </SafePressable>
@@ -348,7 +348,7 @@ export function RecurrenceEditor({
                 <SafePressable
                   onPress={() => patch({ is_paused: !config.is_paused })}
                   contentStyle={borderedOption(Boolean(config.is_paused))}>
-                  <Text className="text-sm text-gray-900">
+                  <Text className="text-sm text-stone-900">
                     {config.is_paused ? 'Pausada · tocar para reanudar' : 'Activa · tocar para pausar'}
                   </Text>
                 </SafePressable>
