@@ -435,8 +435,8 @@ export function ExpenseFormModal({
                           selected ? interactive.borderedCardActive : undefined,
                         )}>
                         <Text className="text-sm font-medium text-gray-900">{name}</Text>
-                        <Text className="text-sm text-blue-700">
-                          {selected ? '✓ Te debe' : 'Tocar'}
+                        <Text className="text-sm text-amber-800">
+                          {selected ? '✓ Te debe' : 'Incluir'}
                         </Text>
                       </SafePressable>
                     );
@@ -509,7 +509,7 @@ export function ExpenseFormModal({
                         selected ? interactive.borderedCardActive : undefined,
                       )}>
                       <Text className="text-sm font-medium text-gray-900">{name}</Text>
-                      <Text className="text-sm text-blue-700">{selected ? '✓' : ''}</Text>
+                      <Text className="text-sm text-amber-800">{selected ? '✓' : ''}</Text>
                     </SafePressable>
                   );
                 })}

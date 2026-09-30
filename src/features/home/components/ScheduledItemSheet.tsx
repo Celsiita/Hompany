@@ -95,7 +95,7 @@ export function ScheduledItemSheet({
                     selected ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'
                   }`}>
                   <Text className="text-sm font-medium text-gray-900">{name}</Text>
-                  <Text className="text-sm text-blue-700">{selected ? '✓' : ''}</Text>
+                  <Text className="text-sm text-teal-700">{selected ? '✓' : ''}</Text>
                 </Pressable>
               );
             })}

@@ -268,7 +268,7 @@ export function ShoppingListsPanel({
                       {member.profiles?.display_name ?? 'Compañero'}
                       {member.user_id === currentUserId ? ' · tú' : ''}
                     </Text>
-                    <Text className="text-sm text-blue-700">{selected ? '✓' : ''}</Text>
+                    <Text className="text-sm text-amber-800">{selected ? '✓' : ''}</Text>
                   </SafePressable>
                 );
               })}
@@ -327,7 +327,7 @@ export function ShoppingListsPanel({
                     <Text className="text-sm text-gray-900">
                       {member.profiles?.display_name ?? 'Compañero'}
                     </Text>
-                    <Text className="text-sm text-blue-700">{selected ? '✓' : ''}</Text>
+                    <Text className="text-sm text-amber-800">{selected ? '✓' : ''}</Text>
                   </SafePressable>
                 );
               })}
@@ -376,7 +376,7 @@ export function ShoppingListsPanel({
                           <Text className="text-sm text-gray-900">
                             {member.profiles?.display_name ?? 'Compañero'}
                           </Text>
-                          <Text className="text-sm text-blue-700">{selected ? '✓' : ''}</Text>
+                          <Text className="text-sm text-amber-800">{selected ? '✓' : ''}</Text>
                         </SafePressable>
                       );
                     })}
