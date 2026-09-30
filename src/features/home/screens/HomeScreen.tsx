@@ -41,14 +41,13 @@ import { isUserSystemFrozen } from '@/lib/presence';
 import { mascotScreenLine } from '@/lib/mascot';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
-import { useIconPack } from '@/providers/IconPackProvider';
 import { usePurchases } from '@/providers/PurchasesProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
 
 /**
  * Home — Feed (estado → ranking → cuentas), Agenda, Piso (info práctica).
- * Avisos solo en campanita. Ausencias / silencio / visitas en ⋮.
+ * Avisos solo en campanita. Packs de iconos en Ajustes. Ausencias / silencio / visitas en ⋮.
  */
 export function HomeScreen() {
   const { user } = useAuth();
@@ -105,11 +104,9 @@ export function HomeScreen() {
     error: leaderboardError,
     refresh: refreshLeaderboard,
   } = useHomeLeaderboard();
-  const { packId, setPackId, packs, isPackLocked } = useIconPack();
   const { isPlus } = usePurchases();
   const [section, setSection] = useState<HomeSection>('FEED');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [packOpen, setPackOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [lifeSheet, setLifeSheet] = useState<HomeLifeSheetKind | null>(null);
   const [feedRefreshing, setFeedRefreshing] = useState(false);
@@ -414,11 +411,6 @@ export function HomeScreen() {
         onClose={() => setMenuOpen(false)}
         actions={[
           {
-            key: 'alerts',
-            label: alerts.length > 0 ? `Avisos (${alerts.length})` : 'Avisos (campanita)',
-            onPress: () => setAlertsOpen(true),
-          },
-          {
             key: 'absences',
             label: 'Ausencias del calendario',
             onPress: () => setLifeSheet('absences'),
@@ -433,25 +425,7 @@ export function HomeScreen() {
             label: 'Visitas y eventos del piso',
             onPress: () => setLifeSheet('visits'),
           },
-          {
-            key: 'icons',
-            label: 'Packs de iconos',
-            onPress: () => setPackOpen(true),
-          },
         ]}
-      />
-
-      <OverflowMenu
-        visible={packOpen}
-        title="Elige un paquete"
-        onClose={() => setPackOpen(false)}
-        actions={packs.map((item) => ({
-          key: item.id,
-          label: `${item.name}${packId === item.id ? ' · activo' : ''}${isPackLocked(item.id) ? ' · Plus' : ''}`,
-          onPress: () => {
-            void setPackId(item.id);
-          },
-        }))}
       />
 
       <AlertsModal visible={alertsOpen} alerts={alerts} onClose={() => setAlertsOpen(false)} />
