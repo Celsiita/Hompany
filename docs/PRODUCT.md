@@ -72,7 +72,7 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 - **Avisos in-app:** solo campanita + inbox (no lista en el Feed). Ver [`notifications.md`](./notifications.md).
 - **Ayuda:** iconos `?` en cabeceras y secciones clave.
 - **Tutorial:** tour interactivo v2 (cambia secciones / pestañas) desde 1ª apertura o Ajustes.
-- **Filtros Agenda:** botón Filtros (🙈/🐵) con `Mis cosas` | `Compañeros` (sin selección = Todo el piso) + chips `Tareas` / `Gastos`.
+- **Filtros Agenda:** botón Filtros (▲/▼) con `Mis cosas` | `Compañeros` (sin selección = Todo el piso) + chips `Tareas` / `Gastos`.
 - **Calendario:** vista semanal = **7 días desde hoy** (sin días pasados; la flecha atrás se bloquea en hoy) o mes completo (botón Mes/Semana). Puntos: azul (tuyas), cielo hueco (compañeros), ámbar (gastos), violeta (ausencias), celeste (exámenes).
 - **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Nada previsto».
 - Tareas (azul) y gastos (ámbar); **abiertas** vs **programadas** (tarjetas atenuadas). Gastos solo si estás involucrado.
