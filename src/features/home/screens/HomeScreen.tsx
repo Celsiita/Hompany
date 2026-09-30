@@ -328,7 +328,7 @@ export function HomeScreen() {
               <FeedSectionHeader title="Convivencia" subtitle="Reglas y quejas del piso" />
               <HelpTip
                 title="Reglas y quejas"
-                message="Reglas visibles para todos. Las quejas pueden ser anónimas. Ideal para acuerdos de convivencia sin chats externos."
+                message="Acuerdos visibles para todos. Las quejas pueden ser anónimas — sin chat de WhatsApp interminable."
               />
             </View>
             <HomeNoticesPanel

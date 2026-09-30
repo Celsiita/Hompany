@@ -165,7 +165,7 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
     if (!isConfigured) {
       Alert.alert(
         'HOMPANY Plus',
-        'Configura EXPO_PUBLIC_REVENUECAT_API_KEY en .env.local para activar compras (Test Store o tienda).',
+        'Las compras no están configuradas en este dispositivo. El resto de la app sigue disponible.',
       );
       return false;
     }
@@ -193,7 +193,7 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
 
   const restorePurchases = useCallback(async () => {
     if (!isConfigured) {
-      Alert.alert('HOMPANY Plus', 'RevenueCat no está configurado en este entorno.');
+      Alert.alert('HOMPANY Plus', 'Las compras no están configuradas en este dispositivo.');
       return false;
     }
     try {
