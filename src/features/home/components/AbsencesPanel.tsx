@@ -179,9 +179,12 @@ export function AbsencesPanel({
       ) : (
         <View className="gap-3">
           {absences.length === 0 ? (
-            <Text className="text-sm text-amber-900/70">
-              Sin ausencias cortas. Añade una si te vas un fin de semana.
-            </Text>
+            <View className="gap-1 rounded-xl border border-dashed border-amber-200 bg-amber-50/40 px-3 py-4">
+              <Text className="text-sm font-semibold text-amber-950">Sin ausencias cortas</Text>
+              <Text className="text-sm leading-5 text-amber-900/70">
+                Añade una si te vas un fin de semana; el calendario lo muestra al resto.
+              </Text>
+            </View>
           ) : (
             <View className="gap-2">
               {mine.map((absence) => (

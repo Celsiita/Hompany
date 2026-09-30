@@ -156,9 +156,12 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
         </View>
 
         {!filled ? (
-          <Text className="text-sm text-stone-500">
-            Aún no hay datos. Añade Wi‑Fi o el código del portal para el resto del piso.
-          </Text>
+          <View className="gap-1 rounded-xl border border-dashed border-stone-200 bg-stone-50/80 px-3 py-4">
+            <Text className="text-sm font-semibold text-stone-800">Sin datos del piso</Text>
+            <Text className="text-sm leading-5 text-stone-500">
+              Añade Wi‑Fi o el código del portal para que el resto del piso lo tenga a mano.
+            </Text>
+          </View>
         ) : (
           <View className="gap-2">
             {rows.map((row) => {

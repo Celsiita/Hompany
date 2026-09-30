@@ -121,9 +121,12 @@ export function ExamPeriodsPanel({
       {isLoading ? (
         <MascotLoading />
       ) : examPeriods.length === 0 ? (
-        <Text className="text-sm text-violet-800/70">
-          Sin modo silencio. Actívalo en época de exámenes para bajar el ruido del piso.
-        </Text>
+        <View className="gap-1 rounded-xl border border-dashed border-violet-200 bg-violet-50/40 px-3 py-4">
+          <Text className="text-sm font-semibold text-violet-950">Sin modo silencio</Text>
+          <Text className="text-sm leading-5 text-violet-800/70">
+            Actívalo en época de exámenes para bajar el ruido del piso.
+          </Text>
+        </View>
       ) : (
         <View className="gap-2">
           {mine.map((period) => (

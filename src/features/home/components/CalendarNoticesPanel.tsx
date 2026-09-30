@@ -148,11 +148,13 @@ export function CalendarNoticesPanel({
         {isLoading ? (
           <MascotLoading />
         ) : notices.length === 0 ? (
-          <Text className="text-sm text-gray-500">
-            Sin visitas ni eventos. Añade una reparación o visita para que salga en el calendario.
-          </Text>
-        ) : (
-          <View className="gap-2">
+          <View className="gap-1 rounded-xl border border-dashed border-stone-200 bg-stone-50/80 px-3 py-4">
+            <Text className="text-sm font-semibold text-stone-800">Sin visitas ni eventos</Text>
+            <Text className="text-sm leading-5 text-stone-500">
+              Añade una reparación o visita para que salga en el calendario.
+            </Text>
+          </View>
+        ) : (          <View className="gap-2">
             {notices.map((notice) => {
               const canDelete =
                 isAdmin || (Boolean(currentUserId) && notice.author_id === currentUserId);

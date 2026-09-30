@@ -385,7 +385,12 @@ export function ShoppingListsPanel({
               ) : null}
 
               {activeList.items.length === 0 ? (
-                <Text className="text-sm text-gray-500">Lista vacía. Añade lo que falta.</Text>
+                <View className="gap-1 rounded-xl border border-dashed border-amber-200 bg-amber-50/40 px-3 py-4">
+                  <Text className="text-sm font-semibold text-amber-950">Lista vacía</Text>
+                  <Text className="text-sm leading-5 text-amber-900/70">
+                    Añade lo que falta comprar; el piso lo ve al instante.
+                  </Text>
+                </View>
               ) : (
                 activeList.items.map((item) => (
                   <View

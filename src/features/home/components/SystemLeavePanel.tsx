@@ -155,9 +155,12 @@ export function SystemLeavePanel({
       {isLoading ? (
         <MascotLoading />
       ) : systemLeaves.length === 0 ? (
-        <Text className="text-sm text-amber-900/70">
-          Nadie está de baja larga. Úsalo si te vas semanas o dejas el piso.
-        </Text>
+        <View className="gap-1 rounded-xl border border-dashed border-amber-200 bg-amber-50/40 px-3 py-4">
+          <Text className="text-sm font-semibold text-amber-950">Sin bajas largas</Text>
+          <Text className="text-sm leading-5 text-amber-900/70">
+            Úsalo si te vas semanas o dejas el piso; las tareas se reasignan.
+          </Text>
+        </View>
       ) : (
         <View className="gap-2">
           {mine.map((leave) => (
