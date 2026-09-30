@@ -29,6 +29,7 @@ function dotClassName(dot: AgendaDayDot): string {
 
 /**
  * Task/expense dots under the day number (blue / sky / rose / amber).
+ * Silence/absence stay as emojis only — they do not compete with the 4 money/task dots.
  */
 export function AgendaDayMarkers({ dots, emojis, showOthers = true }: AgendaDayMarkersProps) {
   const visibleDots = dots.filter(
@@ -54,9 +55,7 @@ export function AgendaDayMarkers({ dots, emojis, showOthers = true }: AgendaDayM
             </Text>
           ))}
         </View>
-      ) : (
-        <View className="h-3" />
-      )}
+      ) : null}
     </View>
   );
 }

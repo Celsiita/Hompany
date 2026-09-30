@@ -8,12 +8,18 @@ type CollapsibleFilterPanelProps = {
   children: ReactNode;
   /** Shown when one or more filters differ from default (e.g. "2 activos"). */
   activeHint?: string | null;
+  /** Hint under the title when the panel is closed. */
+  closedHint?: string;
 };
 
 /**
  * Toggle button that shows/hides a filter block (Home, Tareas, Gastos).
  */
-export function CollapsibleFilterPanel({ children, activeHint }: CollapsibleFilterPanelProps) {
+export function CollapsibleFilterPanel({
+  children,
+  activeHint,
+  closedHint = 'Alcance, tipo, periodicidad…',
+}: CollapsibleFilterPanelProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -31,7 +37,7 @@ export function CollapsibleFilterPanel({ children, activeHint }: CollapsibleFilt
             Filtros{activeHint ? ` · ${activeHint}` : ''}
           </Text>
           <Text className="text-[11px] text-stone-500">
-            {open ? 'Toca para ocultar' : 'Alcance, tipo, periodicidad…'}
+            {open ? 'Toca para ocultar' : closedHint}
           </Text>
         </View>
         <Text className="text-base text-teal-800" accessibilityLabel={open ? 'Ocultar filtros' : 'Mostrar filtros'}>

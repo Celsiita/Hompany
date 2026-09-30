@@ -33,7 +33,7 @@ import type { ExpenseWithRelations, TaskWithRelations } from '@/types/database.t
 
 const WEEKDAY_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 const WEEKDAY_SHORT = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
-const MONTH_CELL_HEIGHT = 76;
+const MONTH_CELL_HEIGHT = 68;
 
 type AgendaCalendarProps = {
   tasks: TaskWithRelations[];
@@ -226,15 +226,15 @@ export function AgendaCalendar({
             cssInterop={false}
             onPress={onToggleExpanded}
             style={styles.toggleButton}
-            accessibilityLabel={expanded ? 'Vista semanal' : 'Vista mensual'}>
-            <Text className="text-xs font-semibold text-stone-700">
-              {expanded ? 'Semana' : 'Mes'}
+            accessibilityLabel={expanded ? 'Volver a vista semanal' : 'Ver mes completo'}>
+            <Text className="text-xs font-semibold text-teal-800">
+              {expanded ? 'Ver semana' : 'Ver mes'}
             </Text>
           </Pressable>
         </View>
       </View>
 
-      <View className="rounded-xl border border-stone-200 bg-white p-2">
+      <View className="rounded-2xl border border-stone-200 bg-white/95 p-2">
         {expanded ? (
           <>
             <View className="mb-1 flex-row">
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   },
   toggleButton: {
     borderRadius: 9999,
-    backgroundColor: palette.gray100,
+    backgroundColor: palette.brandSoft,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   weekDayButton: {
     flex: 1,
     width: '100%',
-    minHeight: 76,
+    minHeight: 64,
   },
   monthDayButton: {
     flex: 1,
@@ -303,10 +303,10 @@ const styles = StyleSheet.create({
   daySurface: {
     borderRadius: 12,
     paddingHorizontal: 2,
-    paddingVertical: 4,
+    paddingVertical: 3,
   },
-  silenceDay: { backgroundColor: 'rgba(237, 233, 254, 0.9)' },
-  absenceDay: { backgroundColor: 'rgba(254, 243, 199, 0.9)' },
+  silenceDay: { backgroundColor: 'rgba(237, 233, 254, 0.55)' },
+  absenceDay: { backgroundColor: 'rgba(254, 243, 199, 0.55)' },
   selectedDay: { borderWidth: 2, borderColor: palette.brand },
   todayDay: { borderWidth: 1, borderColor: palette.brandMuted },
   weekdayShort: {

@@ -71,12 +71,12 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 - Una sola franja: Pendientes | Entregadas | Completadas.
 - **Clasificación** del piso: ranking por `reputation_points`, con nombre e info de tareas (hechas, pendientes, en revisión, vencidas). Calculado en Postgres (`get_home_leaderboard`).
 - Home se divide en **Feed** / **Agenda** / **Piso**.
-- **Agenda:** filtros, calendario, leyenda (azul tarea / cielo compañero / rosa Debes / ámbar Te deben) y lista. Ausencias / modo silencio / visitas → menú ⋮.
+- **Agenda:** filtros, calendario semanal compacto, leyenda corta (4 puntos + `?`) y lista. Ausencias / modo silencio / visitas → menú ⋮.
 - **Avisos in-app:** solo campanita + inbox (no lista en el Feed). Ver [`notifications.md`](./notifications.md).
 - **Ayuda:** iconos `?` en cabeceras y secciones clave.
 - **Tutorial:** tour interactivo v2 (cambia secciones / pestañas) desde 1ª apertura o Ajustes.
-- **Filtros Agenda:** botón Filtros (▲/▼) con grupos **Alcance** (`Mis cosas` | `Compañeros`) y **Tipo** (`Tareas` / `Gastos`), mismo estilo de pastillas que Tareas y Gastos.
-- **Calendario:** vista semanal = **7 días desde hoy** (sin días pasados; la flecha atrás se bloquea en hoy) o mes completo (botón Mes/Semana). Puntos: azul (tuyas), cielo hueco (compañeros), rosa/ámbar (deudas/cobros), violeta (ausencias), celeste (exámenes).
+- **Filtros Agenda:** botón Filtros con **Quién** (`Mis cosas` | `Compañeros`), **Qué** (`Tareas` / `Gastos`) y **Dinero** (`Debes` | `Te deben`).
+- **Calendario:** vista semanal por defecto (7 días desde hoy; atrás bloqueada en hoy) o mes (`Ver mes` / `Ver semana`). Puntos: azul / cielo hueco / rosa / ámbar. 🔇 y 🧳 solo en el día.
 - **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Libre».
 - Tareas (azul) y gastos (ámbar); **abiertas** vs **programadas** (tarjetas atenuadas). Gastos solo si estás involucrado.
 - **Ausencias** (⋮): **Corta** (finde/viaje — solo tareas + reasignación) y **Larga / baja** (congela la app salvo gastos atrasados).

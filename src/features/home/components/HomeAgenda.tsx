@@ -172,6 +172,9 @@ export function HomeAgenda({
     if (categories.expenses !== DEFAULT_AGENDA_CATEGORY_FILTER.expenses) {
       count += 1;
     }
+    if (categories.expenseDirection !== DEFAULT_AGENDA_CATEGORY_FILTER.expenseDirection) {
+      count += 1;
+    }
     return count > 0 ? `${count} activo${count === 1 ? '' : 's'}` : null;
   }, [viewScope, categories]);
 
@@ -201,14 +204,14 @@ export function HomeAgenda({
             />
           ) : undefined
         }>
-        <View className="gap-4 pb-8">
-          <View className="flex-row items-start justify-between gap-2">
+        <View className="gap-3 pb-8">
+          <View className="flex-row items-center justify-between gap-2">
             <Text className="flex-1 text-xs leading-4 text-stone-500">
-              Calendario y lista primero. Ausencias, silencio y visitas: menú ⋮.
+              Semana primero. Ausencias y silencio: ⋮
             </Text>
             <HelpTip
               title="Agenda"
-              message="Toca un día para saltar a su lista. Azul = tus tareas, cielo = compañeros, rosa = debes, ámbar = te deben. Rojo = vencida. Las tarjetas abiertas te llevan al tablero."
+              message="Toca un día para ver su lista. Azul = tuyas, cielo = compañeros, rosa = debes, ámbar = te deben. 🔇 / 🧳 en el día. Tarjetas abiertas van al tablero."
             />
           </View>
 
@@ -227,7 +230,9 @@ export function HomeAgenda({
 
           <AgendaColorLegend />
 
-          <CollapsibleFilterPanel activeHint={filterHint}>
+          <CollapsibleFilterPanel
+            activeHint={filterHint}
+            closedHint="Mis cosas · Compañeros · Debes · Te deben">
             <AgendaScopeBar
               viewScope={viewScope}
               categories={categories}

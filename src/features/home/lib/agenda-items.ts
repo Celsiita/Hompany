@@ -20,10 +20,15 @@ export type AgendaLifecycle = 'open' | 'scheduled';
 /** Who sees tasks/expenses in the agenda. None selected = Todo el piso. */
 export type AgendaViewScope = 'mine' | 'others' | 'ALL';
 
+/** Expense money direction for agenda (Debes / Te deben). */
+export type AgendaExpenseDirection = 'owe' | 'credit' | 'ALL';
+
 /** Category multi-select for agenda content. */
 export type AgendaCategoryFilter = {
   tasks: boolean;
   expenses: boolean;
+  /** Narrows expenses to Debes / Te deben when not ALL. */
+  expenseDirection: AgendaExpenseDirection;
 };
 
 export const DEFAULT_AGENDA_VIEW_SCOPE: AgendaViewScope = 'ALL';
@@ -31,6 +36,7 @@ export const DEFAULT_AGENDA_VIEW_SCOPE: AgendaViewScope = 'ALL';
 export const DEFAULT_AGENDA_CATEGORY_FILTER: AgendaCategoryFilter = {
   tasks: true,
   expenses: true,
+  expenseDirection: 'ALL',
 };
 
 /** @deprecated Internal projection flags; prefer {@link toAgendaScopeFilter}. */
@@ -43,6 +49,10 @@ export type AgendaScopeFilter = {
   myExpenses: boolean;
   /** Show expenses others owe me (I'm involved, not as debtor). */
   othersExpenses: boolean;
+  /** Include Debes (i_owe) expenses. */
+  expenseOwe: boolean;
+  /** Include Te deben (creditor) expenses. */
+  expenseCredit: boolean;
 };
 
 export const DEFAULT_AGENDA_SCOPE: AgendaScopeFilter = {
@@ -50,6 +60,8 @@ export const DEFAULT_AGENDA_SCOPE: AgendaScopeFilter = {
   othersTasks: true,
   myExpenses: true,
   othersExpenses: true,
+  expenseOwe: true,
+  expenseCredit: true,
 };
 
 /**
@@ -62,11 +74,14 @@ export function toAgendaScopeFilter(
 ): AgendaScopeFilter {
   const mine = viewScope === 'mine' || viewScope === 'ALL';
   const others = viewScope === 'others' || viewScope === 'ALL';
+  const direction = categories.expenseDirection ?? 'ALL';
   return {
     myTasks: categories.tasks && mine,
     othersTasks: categories.tasks && others,
     myExpenses: categories.expenses && mine,
     othersExpenses: categories.expenses && others,
+    expenseOwe: direction === 'ALL' || direction === 'owe',
+    expenseCredit: direction === 'ALL' || direction === 'credit',
   };
 }
 
@@ -383,9 +398,11 @@ export function buildAgendaItems(params: {
       const creditor = isMyCreditorExpense(expense, params.currentUserId);
       const involved = isMineExpense(expense, params.currentUserId);
       const owes = isUserOwesExpense(expense, params.currentUserId);
+      const showMineMoney =
+        scope.myExpenses &&
+        ((owes && scope.expenseOwe) || (creditor && scope.expenseCredit));
       const show =
-        (scope.myExpenses && (owes || creditor)) ||
-        (scope.othersExpenses && involved && !owes && !creditor);
+        showMineMoney || (scope.othersExpenses && involved && !owes && !creditor);
       if (!show) {
         continue;
       }

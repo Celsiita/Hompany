@@ -189,23 +189,35 @@ describe('agenda-items', () => {
   });
 
   it('maps view scope and categories to projection flags', () => {
-    expect(toAgendaScopeFilter('mine', { tasks: true, expenses: true })).toEqual({
+    expect(
+      toAgendaScopeFilter('mine', { tasks: true, expenses: true, expenseDirection: 'ALL' }),
+    ).toEqual({
       myTasks: true,
       othersTasks: false,
       myExpenses: true,
       othersExpenses: false,
+      expenseOwe: true,
+      expenseCredit: true,
     });
-    expect(toAgendaScopeFilter('others', { tasks: true, expenses: false })).toEqual({
+    expect(
+      toAgendaScopeFilter('others', { tasks: true, expenses: false, expenseDirection: 'ALL' }),
+    ).toEqual({
       myTasks: false,
       othersTasks: true,
       myExpenses: false,
       othersExpenses: false,
+      expenseOwe: true,
+      expenseCredit: true,
     });
-    expect(toAgendaScopeFilter('ALL', { tasks: false, expenses: true })).toEqual({
+    expect(
+      toAgendaScopeFilter('ALL', { tasks: false, expenses: true, expenseDirection: 'owe' }),
+    ).toEqual({
       myTasks: false,
       othersTasks: false,
       myExpenses: true,
       othersExpenses: true,
+      expenseOwe: true,
+      expenseCredit: false,
     });
   });
 
@@ -254,7 +266,11 @@ describe('agenda-items', () => {
       currentUserId: ANA,
       pack: ICON_PACKS.classic,
       now: new Date(2026, 7, 18),
-      scope: toAgendaScopeFilter('mine', { tasks: false, expenses: true }),
+      scope: toAgendaScopeFilter('mine', {
+        tasks: false,
+        expenses: true,
+        expenseDirection: 'ALL',
+      }),
     });
     expect(items.map((item) => item.entityId).sort()).toEqual([
       'creditor-expense',
@@ -266,6 +282,20 @@ describe('agenda-items', () => {
     );
     expect(items.find((item) => item.entityId === 'debtor-expense')?.mine).toBe(true);
     expect(items.find((item) => item.entityId === 'creditor-expense')?.mine).toBe(true);
+
+    const onlyDebts = buildAgendaItems({
+      tasks: [],
+      expenses: [creditorExpense, debtorExpense],
+      currentUserId: ANA,
+      pack: ICON_PACKS.classic,
+      now: new Date(2026, 7, 18),
+      scope: toAgendaScopeFilter('mine', {
+        tasks: false,
+        expenses: true,
+        expenseDirection: 'owe',
+      }),
+    });
+    expect(onlyDebts.map((item) => item.entityId)).toEqual(['debtor-expense']);
   });
 
   it('builds calendar dots and emojis separately', () => {
@@ -275,7 +305,7 @@ describe('agenda-items', () => {
       currentUserId: ANA,
       pack: ICON_PACKS.classic,
       now: new Date(2026, 7, 18),
-      scope: toAgendaScopeFilter('ALL', { tasks: true, expenses: true }),
+      scope: toAgendaScopeFilter('ALL', { tasks: true, expenses: true, expenseDirection: 'ALL' }),
     });
     const day = startOfDay(new Date(2026, 7, 20));
     const dayItems = agendaItemsForDay(items, day);
@@ -299,7 +329,11 @@ describe('agenda-items', () => {
       pack: ICON_PACKS.classic,
       now: new Date(2026, 7, 18),
       horizon: new Date(2026, 11, 31),
-      scope: toAgendaScopeFilter('ALL', { tasks: false, expenses: true }),
+      scope: toAgendaScopeFilter('ALL', {
+        tasks: false,
+        expenses: true,
+        expenseDirection: 'ALL',
+      }),
     });
     expect(items.some((item) => item.kind === 'expense' && item.lifecycle === 'open')).toBe(true);
     expect(items.some((item) => item.kind === 'expense' && item.lifecycle === 'scheduled')).toBe(
