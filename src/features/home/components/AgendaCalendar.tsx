@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { HelpTip } from '@/components/ui/HelpTip';
+import { AgendaColorLegend } from '@/features/home/components/AgendaColorLegend';
 import { AgendaDayMarkers } from '@/features/home/components/AgendaDayMarkers';
 import {
   agendaItemsForDay,
@@ -177,14 +179,21 @@ export function AgendaCalendar({
   return (
     <View className="gap-2">
       <View className="flex-row items-center justify-between">
-        <Text className="text-base font-semibold text-stone-900">
-          {monthTitleForCalendar({
-            expanded,
-            visibleMonth,
-            weekDays,
-            now,
-          })}
-        </Text>
+        <View className="min-w-0 flex-1 flex-row items-center gap-2 pr-2">
+          <Text className="text-base font-semibold text-stone-900" numberOfLines={1}>
+            {monthTitleForCalendar({
+              expanded,
+              visibleMonth,
+              weekDays,
+              now,
+            })}
+          </Text>
+          <HelpTip
+            title="Agenda"
+            message="Toca un día para ver su lista. Crear o editar ausencias, silencio y visitas: pestaña Piso."
+            extra={<AgendaColorLegend />}
+          />
+        </View>
         <View className="flex-row items-center gap-2">
           {expanded ? (
             <>

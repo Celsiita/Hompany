@@ -20,7 +20,6 @@ import {
   ScrollToTopButton,
 } from '@/components/ui/ScrollToTopButton';
 import { AgendaCalendar } from '@/features/home/components/AgendaCalendar';
-import { AgendaColorLegend } from '@/features/home/components/AgendaColorLegend';
 import { AgendaList, type AgendaListHandle } from '@/features/home/components/AgendaList';
 import { ScheduledItemSheet } from '@/features/home/components/ScheduledItemSheet';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
@@ -247,8 +246,6 @@ export function HomeAgenda({
             selectedDay={selectedDay}
             onSelectDay={handleSelectDay}
           />
-
-          <AgendaColorLegend />
 
           <CollapsibleFilterPanel
             activeHint={filterHint}

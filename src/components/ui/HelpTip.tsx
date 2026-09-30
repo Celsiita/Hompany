@@ -6,13 +6,16 @@ type HelpTipProps = {
   message: string;
   /** Compact trigger for headers; default "?". */
   label?: string;
+  /** Optional content rendered below the message inside the sheet. */
+  extra?: ReactNode;
+  /** Custom trigger content (replaces the default "?" label). */
   children?: ReactNode;
 };
 
 /**
  * Inline "?" that opens a short explanation sheet (Shipaton clarity).
  */
-export function HelpTip({ title, message, label = '?', children }: HelpTipProps) {
+export function HelpTip({ title, message, label = '?', extra, children }: HelpTipProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -34,6 +37,7 @@ export function HelpTip({ title, message, label = '?', children }: HelpTipProps)
             </View>
             <Text className="text-lg font-bold text-stone-900">{title}</Text>
             <Text className="text-sm leading-5 text-stone-600">{message}</Text>
+            {extra}
             <Pressable
               onPress={() => setOpen(false)}
               className="mt-1 rounded-xl bg-teal-700 px-4 py-3">

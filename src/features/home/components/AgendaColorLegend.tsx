@@ -1,7 +1,5 @@
 import { Text, View } from 'react-native';
 
-import { HelpTip } from '@/components/ui/HelpTip';
-
 type LegendDotProps = {
   className: string;
   label: string;
@@ -20,19 +18,20 @@ function LegendDot({ className, label }: LegendDotProps) {
 }
 
 /**
- * Short color legend under the calendar + single help tip for all agenda markers.
+ * Visual color key for agenda markers (shown inside the calendar HelpTip sheet).
  */
 export function AgendaColorLegend() {
   return (
-    <View className="flex-row flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-stone-200 bg-white/90 px-3 py-2">
-      <LegendDot className="bg-blue-600" label="Tu tarea" />
-      <LegendDot className="border border-sky-600 bg-transparent" label="Compañero" />
-      <LegendDot className="bg-rose-500" label="Debes" />
-      <LegendDot className="bg-amber-500" label="Te deben" />
-      <HelpTip
-        title="Agenda"
-        message="Toca un día para ver su lista. Azul = tuyas, cielo = compañeros, rosa = debes, ámbar = te deben. 🧳 ausencia, 🔇 silencio, 🚪 visita, 🔧 reparación, 📅 evento. Crear o editar: pestaña Piso."
-      />
+    <View className="gap-2 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5">
+      <View className="flex-row flex-wrap items-center gap-x-3 gap-y-1.5">
+        <LegendDot className="bg-blue-600" label="Tu tarea" />
+        <LegendDot className="border border-sky-600 bg-transparent" label="Compañero" />
+        <LegendDot className="bg-rose-500" label="Debes" />
+        <LegendDot className="bg-amber-500" label="Te deben" />
+      </View>
+      <Text className="text-[11px] leading-4 text-stone-500">
+        🧳 ausencia · 🔇 silencio · 🚪 visita · 🔧 reparación · 📅 evento
+      </Text>
     </View>
   );
 }

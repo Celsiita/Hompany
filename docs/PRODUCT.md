@@ -72,7 +72,7 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 - Una sola franja: Pendientes | Entregadas | Completadas.
 - **Clasificación** del piso: ranking por `reputation_points`, con nombre e info de tareas (hechas, pendientes, en revisión, vencidas). Calculado en Postgres (`get_home_leaderboard`).
 - Home se divide en **Feed** / **Agenda**. **Piso** es tab propia (tras Inicio).
-- **Agenda:** filtros, calendario semanal compacto, leyenda (4 puntos + un `?` con la guía completa) y lista. Crear/editar vida del hogar → **Piso**.
+- **Agenda:** filtros, calendario semanal compacto; el `?` junto al mes abre la leyenda de colores. Crear/editar vida del hogar → **Piso**.
 - **Avisos in-app:** solo campanita + inbox (no lista en el Feed). Ver [`notifications.md`](./notifications.md).
 - **Ayuda:** iconos `?` en cabeceras y secciones clave.
 - **Tutorial:** tour interactivo v2 (cambia secciones / pestañas) desde 1ª apertura o Ajustes.
