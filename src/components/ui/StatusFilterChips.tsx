@@ -7,6 +7,7 @@ export type TaskBoardStatusFilter =
   | 'PAUSED'
   | 'COMPLETED'
   | 'RESOLVED_LATE'
+  | 'RESOLVED_BY_PEER'
   | 'SKIPPED';
 
 export type ExpenseBoardStatusFilter =
@@ -26,6 +27,7 @@ const TASK_OPEN_CHIPS: { key: Exclude<TaskBoardStatusFilter, 'ALL'>; label: stri
 
 const TASK_HISTORY_CHIPS: { key: Exclude<TaskBoardStatusFilter, 'ALL'>; label: string }[] = [
   { key: 'COMPLETED', label: 'Completado' },
+  { key: 'RESOLVED_BY_PEER', label: 'Por compañero' },
   { key: 'RESOLVED_LATE', label: 'Atrasado' },
   { key: 'SKIPPED', label: 'Omitido' },
 ];

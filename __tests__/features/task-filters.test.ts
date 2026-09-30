@@ -4,6 +4,7 @@ import {
   filterOpenBoardTasks,
   filterReviewBoardTasks,
   filterTasksByAssigneeScope,
+  filterTasksByBoardStatus,
   filterTasksByCategory,
   filterTasksByRecurrence,
 } from '@/features/tasks/lib/board-filters';
@@ -201,6 +202,25 @@ describe('board filters', () => {
       'Baño',
       'Basura',
       'Compra',
+    ]);
+  });
+
+  it('separates completed from peer-resolved in history filters', () => {
+    const history = [
+      makeTask({
+        id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa10',
+        title: 'Hecha',
+        status: TASK_STATUS.COMPLETED,
+      }),
+      makeTask({
+        id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa11',
+        title: 'Por otro',
+        status: TASK_STATUS.RESOLVED_BY_PEER,
+      }),
+    ];
+    expect(filterTasksByBoardStatus(history, 'COMPLETED').map((t) => t.title)).toEqual(['Hecha']);
+    expect(filterTasksByBoardStatus(history, 'RESOLVED_BY_PEER').map((t) => t.title)).toEqual([
+      'Por otro',
     ]);
   });
 });

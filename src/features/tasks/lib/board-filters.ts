@@ -213,10 +213,10 @@ export function filterTasksByBoardStatus(
     );
   }
   if (status === 'COMPLETED') {
-    return tasks.filter(
-      (task) =>
-        task.status === TASK_STATUS.COMPLETED || task.status === TASK_STATUS.RESOLVED_BY_PEER,
-    );
+    return tasks.filter((task) => task.status === TASK_STATUS.COMPLETED);
+  }
+  if (status === 'RESOLVED_BY_PEER') {
+    return tasks.filter((task) => task.status === TASK_STATUS.RESOLVED_BY_PEER);
   }
   if (status === 'RESOLVED_LATE') {
     return tasks.filter((task) => task.status === TASK_STATUS.RESOLVED_LATE);
