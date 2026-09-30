@@ -252,7 +252,7 @@ export function DateTimePickerModal({
                   underlineColorAndroid="transparent"
                   autoCorrect={false}
                   accessibilityLabel="Hora en formato HH:mm"
-                  className="min-w-[72px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-xl font-bold text-stone-900"
+                  className="min-w-[72px] rounded-lg border border-stone-300 bg-white px-3 py-2 text-center text-xl font-bold text-stone-900"
                   placeholder="HH:mm"
                   placeholderTextColor="#9ca3af"
                 />

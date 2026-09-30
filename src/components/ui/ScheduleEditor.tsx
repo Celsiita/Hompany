@@ -191,7 +191,7 @@ export function ScheduleEditor({
                   maxLength={5}
                   placeholder="09:00"
                   placeholderTextColor="#9ca3af"
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-base font-semibold text-stone-900"
+                  className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-center text-base font-semibold text-stone-900"
                 />
               </View>
               <View className="flex-1 gap-1">
@@ -204,7 +204,7 @@ export function ScheduleEditor({
                   maxLength={5}
                   placeholder="18:00"
                   placeholderTextColor="#9ca3af"
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-base font-semibold text-stone-900"
+                  className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-center text-base font-semibold text-stone-900"
                 />
               </View>
             </View>

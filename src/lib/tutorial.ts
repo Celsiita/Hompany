@@ -101,6 +101,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     highlight: 'expenses',
     goTab: '/(tabs)/expenses',
     cta: 'Ir a Gastos',
+    tip: 'Arriba: listas compartidas del súper. Abajo: el tablero de gastos.',
   },
   {
     id: 'settings',
