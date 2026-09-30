@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { listHomeLeaderboard } from '@/features/home/api/leaderboard-api';
 import type { HomeLeaderboardRow } from '@/features/home/lib/leaderboard';
@@ -19,6 +19,8 @@ export function useHomeLeaderboard(): UseHomeLeaderboardResult {
   const [rows, setRows] = useState<HomeLeaderboardRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const rowsRef = useRef(rows);
+  rowsRef.current = rows;
 
   const refresh = useCallback(async () => {
     if (!activeHomeId) {
@@ -28,7 +30,9 @@ export function useHomeLeaderboard(): UseHomeLeaderboardResult {
       return;
     }
 
-    setIsLoading(true);
+    if (rowsRef.current.length === 0) {
+      setIsLoading(true);
+    }
     setError(null);
     try {
       const next = await listHomeLeaderboard(activeHomeId);
