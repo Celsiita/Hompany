@@ -459,7 +459,7 @@ export function SettingsScreen() {
                 <Text className="flex-1 text-sm text-stone-600">
                   Código: {activeHome.invite_code}
                 </Text>
-                <Pressable onPress={() => void handleCopyCode()} className="rounded-lg bg-gray-100 px-3 py-2">
+                <Pressable onPress={() => void handleCopyCode()} className="rounded-lg bg-stone-100 px-3 py-2">
                   <Text className="text-xs font-semibold text-teal-700">
                     {copied ? '¡Copiado!' : 'Copiar código'}
                   </Text>
@@ -512,7 +512,7 @@ export function SettingsScreen() {
               const mine = member.user_id === user?.id;
               return (
                 <View key={member.id} className="flex-row items-center justify-between gap-2">
-                  <Text className="text-sm text-gray-800 flex-1">
+                  <Text className="text-sm text-stone-800 flex-1">
                     {member.profiles?.display_name ?? 'Compañero'}
                     {mine ? ' · tú' : ''} · {homeRoleLabel(member.role)}
                   </Text>
@@ -523,7 +523,7 @@ export function SettingsScreen() {
           )}
 
           {activeHome && canManage ? (
-            <View className="gap-3 border-t border-gray-100 pt-3">
+            <View className="gap-3 border-t border-stone-100 pt-3">
               <Text className="text-sm font-medium text-stone-700">Prueba de tareas</Text>
               <Text className="text-xs text-stone-500">
                 Cómo se entrega la foto al completar una tarea en este piso.
