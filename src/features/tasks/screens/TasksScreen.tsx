@@ -98,6 +98,7 @@ export function TasksScreen() {
   const [busyTaskId, setBusyTaskId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [swapTask, setSwapTask] = useState<TaskWithRelations | null>(null);
+  const [boardRefreshing, setBoardRefreshing] = useState(false);
 
   const findTask = useCallback((id: string) => tasks.find((task) => task.id === id), [tasks]);
 
@@ -260,7 +261,21 @@ export function TasksScreen() {
           }, 250);
         }}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={() => void refresh()} />
+          <RefreshControl
+            refreshing={boardRefreshing}
+            tintColor="#0f766e"
+            colors={['#0f766e']}
+            onRefresh={() => {
+              void (async () => {
+                setBoardRefreshing(true);
+                try {
+                  await refresh();
+                } finally {
+                  setBoardRefreshing(false);
+                }
+              })();
+            }}
+          />
         }
         ListHeaderComponent={
           <View className="gap-4 mb-4 pt-2">
@@ -307,7 +322,15 @@ export function TasksScreen() {
             ) : null}
 
             {error || actionError ? (
-              <Text className="text-sm text-red-600">{error ?? actionError}</Text>
+              <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
+                <Text className="text-sm font-semibold text-amber-950">
+                  {error ? 'No se pudo cargar el tablero' : 'Acción no completada'}
+                </Text>
+                <Text className="text-sm leading-5 text-amber-900/80">{error ?? actionError}</Text>
+                {error ? (
+                  <Button label="Reintentar" variant="secondary" onPress={() => void refresh()} />
+                ) : null}
+              </View>
             ) : null}
 
             {!isHistory && incomingSwaps.length > 0 ? (

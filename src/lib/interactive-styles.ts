@@ -38,6 +38,9 @@ export const palette = {
   coralSoft: '#fce8e2',
   amber50: '#fffbeb',
   amber600: '#d97706',
+  rose200: '#fecdd3',
+  sky200: '#bae6fd',
+  emerald200: '#a7f3d0',
 } as const;
 
 export const interactive = StyleSheet.create({

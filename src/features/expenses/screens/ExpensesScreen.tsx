@@ -10,6 +10,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { BoardSectionBar, type BoardSection } from '@/components/ui/BoardSectionBar';
+import { Button } from '@/components/ui/Button';
 import { CollapsibleFilterPanel } from '@/components/ui/CollapsibleFilterPanel';
 import { MascotEmpty } from '@/components/ui/MascotEmpty';
 import { MascotLoading } from '@/components/ui/MascotLoading';
@@ -85,6 +86,7 @@ export function ExpensesScreen() {
   const [formMode, setFormMode] = useState<'create' | 'edit' | 'repeat'>('create');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [boardRefreshing, setBoardRefreshing] = useState(false);
 
   const findExpense = useCallback(
     (id: string) => expenses.find((expense) => expense.id === id),
@@ -200,10 +202,18 @@ export function ExpensesScreen() {
         }}
         refreshControl={
           <RefreshControl
-            refreshing={isLoading}
+            refreshing={boardRefreshing}
+            tintColor="#0f766e"
+            colors={['#0f766e']}
             onRefresh={() => {
-              void refresh();
-              void refreshShopping();
+              void (async () => {
+                setBoardRefreshing(true);
+                try {
+                  await Promise.all([refresh(), refreshShopping()]);
+                } finally {
+                  setBoardRefreshing(false);
+                }
+              })();
             }}
           />
         }
@@ -267,7 +277,15 @@ export function ExpensesScreen() {
             </CollapsibleFilterPanel>
 
             {error || actionError ? (
-              <Text className="text-sm text-red-600">{error ?? actionError}</Text>
+              <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
+                <Text className="text-sm font-semibold text-amber-950">
+                  {error ? 'No se pudo cargar el tablero' : 'Acción no completada'}
+                </Text>
+                <Text className="text-sm leading-5 text-amber-900/80">{error ?? actionError}</Text>
+                {error ? (
+                  <Button label="Reintentar" variant="secondary" onPress={() => void refresh()} />
+                ) : null}
+              </View>
             ) : null}
 
             {isHistory && activityEvents.length > 0 ? (

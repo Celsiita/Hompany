@@ -94,7 +94,13 @@ export function ExpenseCard({
         },
         highlighted
           ? { borderColor: palette.amber500, backgroundColor: palette.amber50 }
-          : { borderColor: palette.gray200 },
+          : isCreditor
+            ? { borderColor: palette.amber200 }
+            : iOwe
+              ? { borderColor: palette.rose200 }
+              : ownershipLabel
+                ? { borderColor: palette.emerald200 }
+                : { borderColor: palette.gray200 },
       )}>
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-row items-start gap-3 flex-1">

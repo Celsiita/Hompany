@@ -120,6 +120,8 @@ export function useHomeTasks(): UseHomeTasksResult {
   const [recurrenceFilter, setRecurrenceFilter] = useState<RecurrenceFilter>('ALL');
   const [statusFilter, setStatusFilter] = useState<TaskBoardStatusFilter>('ALL');
   const instanceId = useRef(Symbol('useHomeTasks'));
+  const tasksRef = useRef(tasks);
+  tasksRef.current = tasks;
 
   const load = useCallback(async () => {
     if (!activeHomeId) {
@@ -131,7 +133,9 @@ export function useHomeTasks(): UseHomeTasksResult {
       return;
     }
 
-    setIsLoading(true);
+    if (tasksRef.current.length === 0) {
+      setIsLoading(true);
+    }
     setError(null);
     try {
       await ensureRecurringTaskInstances(activeHomeId);

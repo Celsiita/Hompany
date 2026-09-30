@@ -103,6 +103,8 @@ export function useHomeExpenses(): UseHomeExpensesResult {
     import('@/types/database.types').HomeActivityEventWithActor[]
   >([]);
   const instanceId = useRef(Symbol('useHomeExpenses'));
+  const expensesRef = useRef(expenses);
+  expensesRef.current = expenses;
 
   const load = useCallback(async () => {
     if (!activeHomeId) {
@@ -113,7 +115,9 @@ export function useHomeExpenses(): UseHomeExpensesResult {
       return;
     }
 
-    setIsLoading(true);
+    if (expensesRef.current.length === 0) {
+      setIsLoading(true);
+    }
     setError(null);
     try {
       const [nextExpenses, nextMembers, nextActivity] = await Promise.all([

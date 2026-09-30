@@ -317,6 +317,9 @@ export function HomeScreen() {
             calendarNotices={calendarNotices}
             currentUserId={user?.id}
             isAdmin={isAdmin}
+            onRefresh={async () => {
+              await Promise.all([refreshTasks(), refreshExpenses()]);
+            }}
             onCancelOccurrence={handleCancelOccurrence}
             onReassignOccurrence={handleReassignOccurrence}
             onRequestSwap={(item) => {

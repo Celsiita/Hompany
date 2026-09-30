@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 
 import {
@@ -38,6 +38,7 @@ type HomeAgendaProps = {
   calendarNotices?: HomeNotice[];
   currentUserId?: string | null;
   isAdmin?: boolean;
+  onRefresh?: () => Promise<void>;
   onCancelOccurrence: (item: AgendaItem) => Promise<void>;
   onReassignOccurrence: (item: AgendaItem, userId: string) => Promise<void>;
   onRequestSwap?: (item: AgendaItem) => void;
@@ -56,6 +57,7 @@ export function HomeAgenda({
   calendarNotices = [],
   currentUserId,
   isAdmin = false,
+  onRefresh,
   onCancelOccurrence,
   onReassignOccurrence,
   onRequestSwap,
@@ -72,6 +74,7 @@ export function HomeAgenda({
   const [weekAnchor, setWeekAnchor] = useState(() => startOfDay(new Date()));
   const [selected, setSelected] = useState<AgendaItem | null>(null);
   const [busy, setBusy] = useState(false);
+  const [agendaRefreshing, setAgendaRefreshing] = useState(false);
 
   const scope = useMemo(
     () => toAgendaScopeFilter(viewScope, categories),
@@ -178,7 +181,26 @@ export function HomeAgenda({
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
         bounces
-        overScrollMode="auto">
+        overScrollMode="auto"
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl
+              refreshing={agendaRefreshing}
+              tintColor="#0f766e"
+              colors={['#0f766e']}
+              onRefresh={() => {
+                void (async () => {
+                  setAgendaRefreshing(true);
+                  try {
+                    await onRefresh();
+                  } finally {
+                    setAgendaRefreshing(false);
+                  }
+                })();
+              }}
+            />
+          ) : undefined
+        }>
         <View className="gap-4 pb-8">
           <View className="flex-row items-start justify-between gap-2">
             <Text className="flex-1 text-xs text-stone-500">
