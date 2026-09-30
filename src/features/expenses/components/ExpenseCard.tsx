@@ -192,12 +192,8 @@ export function ExpenseCard({
                 <Text className="flex-1 text-sm text-gray-800">
                   {name}
                   {settled ? ' · pagado' : ` · ${formatEuro(share.share_amount)}`}
+                  {isDebtor && !settled ? ' · te toca' : ''}
                 </Text>
-
-                {/* Debtor request flow blocked for now (notifications later). */}
-                {showActions && isDebtor && !settled ? (
-                  <Text className="text-sm font-semibold text-gray-400">Solicitar</Text>
-                ) : null}
 
                 {showActions && isCreditor && onSettleShare ? (
                   <Pressable

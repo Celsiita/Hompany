@@ -42,7 +42,7 @@ export function ConfirmModal({
             </Pressable>
             <Pressable
               onPress={onConfirm}
-              className={`flex-1 rounded-xl py-3 ${tone === 'danger' ? 'bg-red-600' : 'bg-blue-600'}`}>
+              className={`flex-1 rounded-xl py-3 ${tone === 'danger' ? 'bg-red-600' : 'bg-teal-700'}`}>
               <Text className="text-center text-sm font-semibold text-white">{confirmLabel}</Text>
             </Pressable>
           </View>
