@@ -82,9 +82,11 @@ export function SetupHomeScreen() {
   return (
     <Screen className="justify-center gap-6">
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-gray-900">Tu piso</Text>
+        <Text className="text-3xl font-bold text-teal-900">HOMPANY</Text>
+        <Text className="text-xl font-semibold text-gray-900">Tu piso compartido</Text>
         <Text className="text-base text-gray-600">
-          Crea un hogar, únete con un código, o elige uno al que ya pertenezcas.
+          Crea el hogar de tu piso de estudiantes, únete con el código de un compañero, o entra a uno
+          que ya tengas.
         </Text>
       </View>
 
@@ -129,7 +131,7 @@ export function SetupHomeScreen() {
               label="Nombre del piso"
               value={name}
               onChangeText={setName}
-              placeholder="Ej. Calle Mayor 12"
+              placeholder="Ej. Piso Erasmus / Calle Mayor 12"
             />
             {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
             <Button
@@ -145,7 +147,7 @@ export function SetupHomeScreen() {
               autoCapitalize="characters"
               value={inviteCode}
               onChangeText={setInviteCode}
-              placeholder="Código del piso"
+              placeholder="ABC123"
             />
             {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
             <Button

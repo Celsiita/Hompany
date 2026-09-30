@@ -141,8 +141,8 @@ const EMPTY_COPY: Record<MascotEmptyKind, { title: string; body: string }> = {
     body: 'Aún no hay compañeros en el piso.',
   },
   alerts: {
-    title: 'Sin avisos',
-    body: 'Todo tranquilo de momento.',
+    title: 'Bandeja limpia',
+    body: 'Cuando haya vencidas, revisiones o deudas urgentes, saldrán aquí.',
   },
 };
 

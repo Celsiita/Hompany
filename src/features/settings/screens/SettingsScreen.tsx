@@ -349,12 +349,12 @@ export function SettingsScreen() {
             </Text>
           </View>
           <Text className="text-xs text-teal-900/80">
-            Desbloquea packs de iconos Hogar y Play, e importa packs JSON propios. Potenciado
-            con RevenueCat.
+            Packs de iconos Hogar y Play + importar JSON. El núcleo (tareas, gastos, agenda) sigue
+            gratis. Monetización con RevenueCat.
           </Text>
           {!isPlus ? (
             <Button
-              label="Mejorar a Plus"
+              label="Probar HOMPANY Plus"
               onPress={() => {
                 void presentPaywall().then((ok) => {
                   if (ok) {

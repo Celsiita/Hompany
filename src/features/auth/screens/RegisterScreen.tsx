@@ -46,7 +46,9 @@ export function RegisterScreen() {
           HOMPANY
         </Text>
         <Text className="text-3xl font-bold text-stone-900">Crear cuenta</Text>
-        <Text className="text-base text-stone-600">Únete a tu piso compartido</Text>
+        <Text className="text-base text-stone-600">
+          Para tu piso de estudiantes: tareas, gastos y convivencia sin drama.
+        </Text>
       </View>
 
       <View className="gap-3">

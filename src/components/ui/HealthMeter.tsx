@@ -49,14 +49,18 @@ export function HealthMeter({ summary }: HealthMeterProps) {
       }}>
       <View className="flex-row items-center justify-between">
         <Text className="text-sm text-stone-500">Estado del piso</Text>
-        <Text className={`text-sm font-bold ${tone.text}`}>{summary.healthLabel}</Text>
+        <Text className={`text-base font-bold ${tone.text}`}>{summary.healthLabel}</Text>
       </View>
       <View className="h-3.5 overflow-hidden rounded-full bg-white/90">
         <View className={`h-3.5 rounded-full ${tone.bar}`} style={{ width }} />
       </View>
       <Text className="text-sm text-stone-700">
         Salud {summary.healthScore}%
-        {summary.overdue > 0 ? ` · ${summary.overdue} vencidas` : ''}
+        {summary.overdue > 0
+          ? ` · ${summary.overdue} vencida${summary.overdue === 1 ? '' : 's'}`
+          : summary.pending > 0
+            ? ` · ${summary.pending} pendiente${summary.pending === 1 ? '' : 's'}`
+            : ' · al día'}
       </Text>
     </View>
   );

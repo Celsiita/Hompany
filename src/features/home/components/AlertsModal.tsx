@@ -33,7 +33,7 @@ export function AlertsModal({ visible, alerts, onClose }: AlertsModalProps) {
         <Text className="text-lg font-bold text-stone-900">Avisos</Text>
         <Text className="text-sm text-stone-500">
           {alerts.length === 0
-            ? 'Nada pendiente ahora mismo.'
+            ? 'Cuando haya algo que requiera tu atención (vencidas, revisiones, deudas), aparecerá aquí.'
             : urgentCount > 0
               ? `${alerts.length} aviso${alerts.length === 1 ? '' : 's'} · ${urgentCount} urgente${urgentCount === 1 ? '' : 's'}`
               : `${alerts.length} aviso${alerts.length === 1 ? '' : 's'} activos`}

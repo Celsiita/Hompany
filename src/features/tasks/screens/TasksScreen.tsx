@@ -308,11 +308,18 @@ export function TasksScreen() {
 
             {!isHistory && incomingSwaps.length > 0 ? (
               <View className="gap-2">
-                <Text className="text-lg font-semibold text-gray-900">Intercambios</Text>
-                {incomingSwaps.map((swap) => (
+                <Text className="text-lg font-semibold text-gray-900">Intercambios pendientes</Text>
+                <Text className="text-xs text-gray-500">
+                  Un compañero quiere que asumas su tarea. Acéptala o recházala.
+                </Text>
+                {incomingSwaps.map((swap) => {
+                  const taskTitle =
+                    tasks.find((task) => task.id === swap.task_id)?.title ?? 'una tarea';
+                  return (
                   <View key={swap.id} className="rounded-xl border border-blue-200 bg-blue-50 p-3 gap-2">
-                    <Text className="text-sm text-gray-800">
-                      {swap.from_profile?.display_name ?? 'Un compañero'} te propone un intercambio.
+                    <Text className="text-sm font-semibold text-gray-900">⇄ {taskTitle}</Text>
+                    <Text className="text-sm text-gray-700">
+                      {swap.from_profile?.display_name ?? 'Un compañero'} te propone el cambio.
                     </Text>
                     <View className="flex-row gap-2">
                       <View className="flex-1">
@@ -332,7 +339,8 @@ export function TasksScreen() {
                       </View>
                     </View>
                   </View>
-                ))}
+                  );
+                })}
               </View>
             ) : null}
 
