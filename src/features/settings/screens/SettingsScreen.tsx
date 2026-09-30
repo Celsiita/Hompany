@@ -457,14 +457,14 @@ export function SettingsScreen() {
                   Código: {activeHome.invite_code}
                 </Text>
                 <Pressable onPress={() => void handleCopyCode()} className="rounded-lg bg-gray-100 px-3 py-2">
-                  <Text className="text-xs font-semibold text-blue-700">
+                  <Text className="text-xs font-semibold text-teal-700">
                     {copied ? '¡Copiado!' : 'Copiar código'}
                   </Text>
                 </Pressable>
               </View>
               <Text className="text-sm font-medium text-gray-700">Invitar con enlace o QR</Text>
               <Text className="text-xs text-gray-500">
-                Comparte el enlace o el QR para que un compañero se una sin rellenar formularios largos.
+                Comparte el enlace o el QR: tu compañero entra con el código sin líos.
               </Text>
               <View className="flex-row gap-2">
                 <View className="flex-1">
@@ -490,7 +490,7 @@ export function SettingsScreen() {
                   <Pressable
                     key={home.id}
                     onPress={() => void setActiveHomeId(home.id)}
-                    className={`rounded-xl border px-3 py-3 ${active ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
+                    className={`rounded-xl border px-3 py-3 ${active ? 'border-teal-500 bg-teal-50' : 'border-gray-200 bg-white'}`}>
                     <Text className="text-sm font-medium text-gray-900">{home.name}</Text>
                     <Text className="text-xs text-gray-500">{home.invite_code}</Text>
                   </Pressable>

@@ -54,8 +54,8 @@ Invite code seed: `DEMO2026`. Tras un reset, cierra sesión y vuelve a entrar.
 2. **Feed:** salud + ranking + cuentas; toca `?`.
 3. **Agenda:** leyenda de colores + un día.
 4. **Piso:** Wi‑Fi / reglas.
-5. **Tareas** → entregar / countdown; **campanita** si hay avisos.
-6. **Gastos** → balance.
+5. **Tareas** → chips Tuya/Compañero + countdown; **campanita** si hay avisos.
+6. **Gastos** → chips Debes / Tú pagaste + balance.
 7. **Ajustes** → HOMPANY Plus → unlock packs.
 
 Detalle: [`docs/PRODUCT.md`](./docs/PRODUCT.md). Monetización: [`docs/monetization.md`](./docs/monetization.md). Guion vídeo: [`docs/SHIPATON-DEMO.md`](./docs/SHIPATON-DEMO.md).

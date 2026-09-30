@@ -97,12 +97,12 @@ const MOOD_PERSONA: Record<MascotMood, MascotPersona> = {
 
 const EMPTY_COPY: Record<MascotEmptyKind, { title: string; body: string }> = {
   tasks_open: {
-    title: 'Sin tareas abiertas',
-    body: '¿Todo hecho? Crea una nueva con el botón +.',
+    title: 'Nada pendiente',
+    body: 'El cuadrante está limpio. Crea una tarea con + o disfruta el momento.',
   },
   tasks_history: {
     title: 'Historial vacío',
-    body: 'Cuando cerréis tareas, aparecerán aquí.',
+    body: 'Cuando cerréis tareas, aparecerán aquí con fecha de realización.',
   },
   tasks_filtered: {
     title: 'Nada con estos filtros',
@@ -110,11 +110,11 @@ const EMPTY_COPY: Record<MascotEmptyKind, { title: string; body: string }> = {
   },
   expenses_open: {
     title: 'Sin gastos abiertos',
-    body: 'Crea uno con el botón + o disfruta de las cuentas en paz.',
+    body: 'Crea uno con + o disfruta de las cuentas en paz.',
   },
   expenses_history: {
     title: 'Sin historial de gastos',
-    body: 'Los gastos saldados aparecerán aquí.',
+    body: 'Los gastos saldados aparecen aquí con fecha.',
   },
   expenses_i_owe: {
     title: 'No debes nada',
@@ -129,12 +129,12 @@ const EMPTY_COPY: Record<MascotEmptyKind, { title: string; body: string }> = {
     body: 'Afloja un filtro y reintenta.',
   },
   agenda_day: {
-    title: 'Nada previsto este día',
-    body: 'Agenda en blanco.',
+    title: 'Día libre',
+    body: 'Nada previsto. Toca otro día o crea algo desde Tareas / Gastos.',
   },
   agenda_list: {
-    title: 'Nada previsto',
-    body: 'No hay eventos por aquí.',
+    title: 'Agenda en calma',
+    body: 'No hay eventos en este rango. Prueba Mis cosas o Compañeros en filtros.',
   },
   leaderboard: {
     title: 'Clasificación vacía',
