@@ -292,7 +292,7 @@ export function TaskFormModal({
                 onChangeText={setPoints}
               />
 
-              <Text className="text-sm font-medium text-gray-700">Asignados</Text>
+              <Text className="text-sm font-medium text-gray-700">Quién la hace</Text>
               <View className="gap-2">
                 {members.map((member) => {
                   const selected = assigneeIds.includes(member.user_id);
@@ -315,7 +315,7 @@ export function TaskFormModal({
                           {absentMemberWarning(name)}
                         </Text>
                       ) : (
-                        <Text className="text-sm text-blue-700">{selected ? '✓' : ''}</Text>
+                        <Text className="text-sm text-blue-700">{selected ? '✓ Asignado' : 'Tocar'}</Text>
                       )}
                     </Pressable>
                   );
@@ -326,10 +326,10 @@ export function TaskFormModal({
                 onPress={() => setAutoAssign((value) => !value)}
                 className={`rounded-xl border px-3 py-3 ${autoAssign ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
                 <Text className="text-sm font-medium text-gray-900">
-                  {autoAssign ? '✓ ' : ''}Adjudicación automática
+                  {autoAssign ? '✓ ' : ''}Rotación automática
                 </Text>
                 <Text className="text-xs text-gray-500 mt-1">
-                  Rota al siguiente compañero cada vez que se genere la tarea.
+                  Cada ciclo toca al siguiente compañero de la lista.
                 </Text>
               </Pressable>
 
