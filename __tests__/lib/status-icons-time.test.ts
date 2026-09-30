@@ -45,6 +45,11 @@ describe('status badges', () => {
     expect(taskStatusBadge(TASK_STATUS.RESOLVED_BY_PEER).bg).toContain('sky');
     expect(taskStatusBadge(TASK_STATUS.PENDING, { paused: true }).bg).toContain('slate');
   });
+
+  it('shows Pendiente for open expenses instead of Abierto', () => {
+    expect(expenseStatusBadge({ status: 'OPEN' }).label).toBe('Pendiente');
+    expect(expenseStatusBadge({ status: 'SETTLED' }).label).toBe('Saldado');
+  });
 });
 
 describe('icon pack import', () => {
