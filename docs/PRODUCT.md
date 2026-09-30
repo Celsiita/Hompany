@@ -34,7 +34,9 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 - Al **aprobar**: sugerencia opcional.
 - **Intercambiar** solo en pendientes/vencidas. **Eliminar** dentro de Editar. Crear con **+**.
 - **No se puede reabrir** una tarea cerrada. **Repetir** crea una nueva (sin movimiento “repetí” en historial de actividad).
-- Badges: Pendiente, En revisión, Completado, Atrasado, Omitido, etc.
+- Badges: Pendiente, En revisión, Completado, Atrasado, **Por compañero**, Omitido, etc.
+- Chips de propiedad: **Tuya** / **Compañero** en tarjetas de tarea; **Debes** / **Tú pagaste** / **Pagado** en gastos.
+- Botones de acción de tareas usan copy de Mico (`mascotReaction`).
 
 ## Filtros
 

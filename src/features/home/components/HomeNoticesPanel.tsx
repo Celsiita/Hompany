@@ -127,12 +127,12 @@ export function HomeNoticesPanel({
               setEditorOpen(true);
             }}
             contentStyle={mergeStyles(interactive.chip, interactive.chipInactive)}>
-            <Text className="text-xs font-semibold text-blue-700">Añadir</Text>
+            <Text className="text-xs font-semibold text-teal-700">Añadir</Text>
           </SafePressable>
         </View>
 
         {isLoading ? (
-          <ActivityIndicator color="#2563eb" />
+          <ActivityIndicator color="#0f766e" />
         ) : sorted.length === 0 ? (
           <Text className="text-sm text-gray-500">
             Aún no hay reglas ni quejas. Publica la primera desde Añadir.

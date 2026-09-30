@@ -360,7 +360,7 @@ export function TasksScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <ActivityIndicator color="#2563eb" />
+            <ActivityIndicator color="#0f766e" />
           ) : (
             <MascotEmpty
               kind={

@@ -145,7 +145,7 @@ export function CalendarNoticesPanel({
         </Text>
 
         {isLoading ? (
-          <ActivityIndicator color="#2563eb" />
+          <ActivityIndicator color="#0f766e" />
         ) : notices.length === 0 ? (
           <Text className="text-sm text-gray-500">
             Sin visitas ni eventos. Añade una reparación o visita para que salga en el calendario.

@@ -1,13 +1,23 @@
 import { isShareSettled } from '@/features/expenses/lib/expense-settlement';
-import type { ExpenseShareWithProfile, ExpenseWithRelations } from '@/types/database.types';
 
 export type ExpenseOwnershipLabel = 'Tú pagaste' | 'Debes' | 'Pagado';
+
+type ShareLike = {
+  user_id: string;
+  settlement_status?: 'PENDING' | 'REQUESTED' | 'SETTLED' | null;
+  is_settled?: boolean;
+};
+
+type ExpenseLike = {
+  paid_by: string;
+  expense_shares: readonly ShareLike[];
+};
 
 /**
  * Personal ownership chip for the current viewer on an expense card.
  */
 export function expenseOwnershipLabel(
-  expense: Pick<ExpenseWithRelations, 'paid_by' | 'expense_shares'>,
+  expense: ExpenseLike,
   currentUserId: string | null | undefined,
 ): ExpenseOwnershipLabel | null {
   if (!currentUserId) {
@@ -17,8 +27,7 @@ export function expenseOwnershipLabel(
     return 'Tú pagaste';
   }
   const myShare = expense.expense_shares.find(
-    (share: ExpenseShareWithProfile) =>
-      share.user_id === currentUserId && share.user_id !== expense.paid_by,
+    (share) => share.user_id === currentUserId && share.user_id !== expense.paid_by,
   );
   if (!myShare) {
     return null;

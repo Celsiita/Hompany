@@ -240,7 +240,7 @@ export function ExpensesScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <ActivityIndicator color="#2563eb" />
+            <ActivityIndicator color="#0f766e" />
           ) : (
             <MascotEmpty kind={emptyKind} />
           )

@@ -180,14 +180,14 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
                   </View>
                   {row.secret ? (
                     <Pressable onPress={() => setShowPassword((v) => !v)} hitSlop={8}>
-                      <Text className="text-xs font-semibold text-blue-700">
+                      <Text className="text-xs font-semibold text-teal-700">
                         {showPassword ? 'Ocultar' : 'Ver'}
                       </Text>
                     </Pressable>
                   ) : null}
                   {row.copyable ? (
                     <Pressable onPress={() => void handleCopy(row)} hitSlop={8}>
-                      <Text className="text-xs font-semibold text-blue-700">
+                      <Text className="text-xs font-semibold text-teal-700">
                         {copiedKey === row.key ? 'Copiado' : 'Copiar'}
                       </Text>
                     </Pressable>
