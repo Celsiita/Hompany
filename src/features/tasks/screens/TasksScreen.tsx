@@ -278,7 +278,8 @@ export function TasksScreen() {
             <BoardSectionBar
               section={section}
               onSectionChange={setSection}
-              activeLabel="En curso"
+              activeLabel={`En curso (${filteredOpenTasks.length})`}
+              historyLabel={`Historial (${filteredClosedTasks.length})`}
               accent="blue"
             />
 

@@ -203,7 +203,8 @@ export function ExpensesScreen() {
             <BoardSectionBar
               section={section}
               onSectionChange={setSection}
-              activeLabel="En curso"
+              activeLabel={`En curso (${filteredExpenses.length})`}
+              historyLabel={`Historial (${filteredSettledExpenses.length})`}
               accent="amber"
             />
 
