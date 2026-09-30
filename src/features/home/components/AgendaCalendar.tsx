@@ -172,7 +172,7 @@ export function AgendaCalendar({
   return (
     <View className="gap-2">
       <View className="flex-row items-center justify-between">
-        <Text className="text-base font-semibold text-gray-900">
+        <Text className="text-base font-semibold text-stone-900">
           {monthTitleForCalendar({
             expanded,
             visibleMonth,
@@ -188,14 +188,14 @@ export function AgendaCalendar({
                 onPress={() => onVisibleMonthChange(shiftMonth(visibleMonth, -1))}
                 style={styles.navButton}
                 accessibilityLabel="Mes anterior">
-                <Text className="text-base font-bold text-gray-700">‹</Text>
+                <Text className="text-base font-bold text-stone-700">‹</Text>
               </Pressable>
               <Pressable
                 cssInterop={false}
                 onPress={() => onVisibleMonthChange(shiftMonth(visibleMonth, 1))}
                 style={styles.navButton}
                 accessibilityLabel="Mes siguiente">
-                <Text className="text-base font-bold text-gray-700">›</Text>
+                <Text className="text-base font-bold text-stone-700">›</Text>
               </Pressable>
             </>
           ) : (
@@ -211,14 +211,14 @@ export function AgendaCalendar({
                 style={[styles.navButton, !canGoPrevWeek ? { opacity: 0.35 } : null]}
                 accessibilityLabel="Semana anterior"
                 accessibilityState={{ disabled: !canGoPrevWeek }}>
-                <Text className="text-base font-bold text-gray-700">‹</Text>
+                <Text className="text-base font-bold text-stone-700">‹</Text>
               </Pressable>
               <Pressable
                 cssInterop={false}
                 onPress={() => onWeekAnchorChange(shiftWeek(weekAnchor, 1, now))}
                 style={styles.navButton}
                 accessibilityLabel="Semana siguiente">
-                <Text className="text-base font-bold text-gray-700">›</Text>
+                <Text className="text-base font-bold text-stone-700">›</Text>
               </Pressable>
             </>
           )}
@@ -227,20 +227,20 @@ export function AgendaCalendar({
             onPress={onToggleExpanded}
             style={styles.toggleButton}
             accessibilityLabel={expanded ? 'Vista semanal' : 'Vista mensual'}>
-            <Text className="text-xs font-semibold text-gray-700">
+            <Text className="text-xs font-semibold text-stone-700">
               {expanded ? 'Semana' : 'Mes'}
             </Text>
           </Pressable>
         </View>
       </View>
 
-      <View className="rounded-xl border border-gray-200 bg-white p-2">
+      <View className="rounded-xl border border-stone-200 bg-white p-2">
         {expanded ? (
           <>
             <View className="mb-1 flex-row">
               {WEEKDAY_LABELS.map((label) => (
                 <View key={label} className="flex-1 items-center py-1">
-                  <Text className="text-[10px] font-bold uppercase text-gray-400">{label}</Text>
+                  <Text className="text-[10px] font-bold uppercase text-stone-400">{label}</Text>
                 </View>
               ))}
             </View>

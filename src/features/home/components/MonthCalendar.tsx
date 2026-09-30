@@ -91,25 +91,25 @@ export function MonthCalendar({
   return (
     <View className="gap-2">
       <View className="flex-row items-center justify-between">
-        <Text className="text-sm font-semibold text-gray-500">Calendario mensual</Text>
+        <Text className="text-sm font-semibold text-stone-500">Calendario mensual</Text>
         <View className="flex-row gap-2">
           <Pressable
             onPress={() => setVisibleMonth((month) => shiftMonth(month, -1))}
             accessibilityLabel="Mes anterior"
             className="h-9 w-9 items-center justify-center rounded-full bg-gray-100">
-            <Text className="text-base font-bold text-gray-700">‹</Text>
+            <Text className="text-base font-bold text-stone-700">‹</Text>
           </Pressable>
           <Pressable
             onPress={() => setVisibleMonth((month) => shiftMonth(month, 1))}
             accessibilityLabel="Mes siguiente"
             className="h-9 w-9 items-center justify-center rounded-full bg-gray-100">
-            <Text className="text-base font-bold text-gray-700">›</Text>
+            <Text className="text-base font-bold text-stone-700">›</Text>
           </Pressable>
         </View>
       </View>
 
-      <Text className="text-base font-semibold text-gray-900">{formatMonthTitle(visibleMonth)}</Text>
-      <Text className="text-xs text-gray-500">
+      <Text className="text-base font-semibold text-stone-900">{formatMonthTitle(visibleMonth)}</Text>
+      <Text className="text-xs text-stone-500">
         Azul = tuyas · teal = otras · ámbar = gastos · celeste = exámenes · violeta = ausencias
       </Text>
 
@@ -120,11 +120,11 @@ export function MonthCalendar({
         monthEnd={monthEnd}
       />
 
-      <View className="rounded-xl border border-gray-200 bg-white p-2">
+      <View className="rounded-xl border border-stone-200 bg-white p-2">
         <View className="mb-1 flex-row">
           {WEEKDAY_LABELS.map((label) => (
             <View key={label} className="flex-1 items-center py-1">
-              <Text className="text-[10px] font-bold uppercase text-gray-400">{label}</Text>
+              <Text className="text-[10px] font-bold uppercase text-stone-400">{label}</Text>
             </View>
           ))}
         </View>
@@ -151,7 +151,7 @@ export function MonthCalendar({
                 }`}>
                 <Text
                   className={`text-sm ${
-                    cell.isToday ? 'font-bold text-teal-800' : 'font-medium text-gray-800'
+                    cell.isToday ? 'font-bold text-teal-800' : 'font-medium text-stone-800'
                   }`}>
                   {cell.date.getDate()}
                 </Text>
