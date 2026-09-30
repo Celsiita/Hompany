@@ -525,6 +525,9 @@ export function SettingsScreen() {
               Falta la clave de compras en .env.local — el resto de la app funciona igual.
             </Text>
           ) : null}
+          <Text className="text-xs leading-4 text-teal-800/80">
+            Próximamente con Plus: emparejar piso ↔ gente (ver teaser en la tab Piso).
+          </Text>
         </SettingsSection>
 
         <SettingsSection

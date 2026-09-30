@@ -8,6 +8,7 @@ import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { HomeInfoCard } from '@/features/home/components/HomeInfoCard';
 import { HomeNoticesPanel } from '@/features/home/components/HomeNoticesPanel';
+import { MatchingPreviewCard } from '@/features/home/components/MatchingPreviewCard';
 import { PisoLifePanels } from '@/features/home/components/PisoLifePanels';
 import { QuietNowCard } from '@/features/home/components/QuietNowCard';
 import { useHomeAbsences } from '@/features/home/hooks/useHomeAbsences';
@@ -140,6 +141,8 @@ export function PisoScreen() {
             }}
             onRemoveCalendarNotice={removeNotice}
           />
+
+          <MatchingPreviewCard />
 
           <View className="flex-row items-center justify-between">
             <FeedSectionHeader title="Info práctica" subtitle="Wi‑Fi, portal, basura y notas" />
