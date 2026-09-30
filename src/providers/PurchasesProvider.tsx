@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { Alert, Platform } from 'react-native';
@@ -15,6 +16,7 @@ import Purchases, {
 } from 'react-native-purchases';
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 
+import { PlusPaywallSheet } from '@/features/settings/components/PlusPaywallSheet';
 import { getEnv } from '@/lib/env';
 import {
   hasActiveEntitlement,
@@ -31,7 +33,7 @@ type PurchasesContextValue = {
   isConfigured: boolean;
   /** Latest CustomerInfo from RevenueCat, if any. */
   customerInfo: CustomerInfo | null;
-  /** Opens the RevenueCat paywall (or a fallback alert). */
+  /** Opens the RevenueCat paywall, or in-app fallback on Expo Go Preview. */
   presentPaywall: () => Promise<boolean>;
   /** Opens Customer Center (manage subscription) when available. */
   presentCustomerCenter: () => Promise<void>;
@@ -53,6 +55,20 @@ function readApiKey(): string | null {
   }
 }
 
+function shouldUseFallbackPaywall(err: unknown): boolean {
+  const message =
+    err && typeof err === 'object' && 'message' in err
+      ? String((err as { message: unknown }).message)
+      : String(err ?? '');
+  const lower = message.toLowerCase();
+  return (
+    lower.includes('preview') ||
+    lower.includes('document is not available') ||
+    lower.includes('browser environment') ||
+    lower.includes('no effect')
+  );
+}
+
 /**
  * Configures RevenueCat, syncs App User ID with Supabase auth, and exposes Plus status.
  * Without an API key the provider stays inert (`isPlus` false) so local/tests still boot.
@@ -62,6 +78,8 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isConfigured, setIsConfigured] = useState(false);
+  const [fallbackOpen, setFallbackOpen] = useState(false);
+  const fallbackResolverRef = useRef<((ok: boolean) => void) | null>(null);
 
   const refreshCustomerInfo = useCallback(async () => {
     if (!isConfigured) {
@@ -163,6 +181,24 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
     };
   }, [isConfigured]);
 
+  const openFallbackPaywall = useCallback(() => {
+    return new Promise<boolean>((resolve) => {
+      fallbackResolverRef.current = resolve;
+      setFallbackOpen(true);
+    });
+  }, []);
+
+  const handleFallbackClose = useCallback(
+    (purchased: boolean) => {
+      setFallbackOpen(false);
+      void refreshCustomerInfo();
+      const resolve = fallbackResolverRef.current;
+      fallbackResolverRef.current = null;
+      resolve?.(purchased);
+    },
+    [refreshCustomerInfo],
+  );
+
   const presentPaywall = useCallback(async () => {
     if (!isConfigured) {
       Alert.alert(
@@ -178,20 +214,25 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
       });
       const info = await Purchases.getCustomerInfo();
       setCustomerInfo(info);
+      if (
+        result === PAYWALL_RESULT.NOT_PRESENTED ||
+        result === PAYWALL_RESULT.ERROR
+      ) {
+        return openFallbackPaywall();
+      }
       return (
         result === PAYWALL_RESULT.PURCHASED ||
         result === PAYWALL_RESULT.RESTORED ||
         hasActiveEntitlement(info)
       );
     } catch (err) {
-      const message =
-        err && typeof err === 'object' && 'message' in err
-          ? String((err as PurchasesError).message)
-          : 'No se pudo abrir el paywall';
-      Alert.alert('HOMPANY Plus', message);
-      return false;
+      if (shouldUseFallbackPaywall(err)) {
+        return openFallbackPaywall();
+      }
+      // Expo Go Preview often throws "document is not available".
+      return openFallbackPaywall();
     }
-  }, [isConfigured]);
+  }, [isConfigured, openFallbackPaywall]);
 
   const presentCustomerCenter = useCallback(async () => {
     if (!isConfigured) {
@@ -203,6 +244,13 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
       const info = await Purchases.getCustomerInfo();
       setCustomerInfo(info);
     } catch (err) {
+      if (shouldUseFallbackPaywall(err)) {
+        Alert.alert(
+          'HOMPANY Plus',
+          'El centro de suscripción nativo no está disponible en Expo Go. Usa Restaurar compras o un development build.',
+        );
+        return;
+      }
       const message =
         err && typeof err === 'object' && 'message' in err
           ? String((err as PurchasesError).message)
@@ -260,7 +308,10 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
   );
 
   return (
-    <PurchasesContext.Provider value={value}>{children}</PurchasesContext.Provider>
+    <PurchasesContext.Provider value={value}>
+      {children}
+      <PlusPaywallSheet visible={fallbackOpen} onClose={handleFallbackClose} />
+    </PurchasesContext.Provider>
   );
 }
 

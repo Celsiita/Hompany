@@ -38,7 +38,7 @@ EXPO_PUBLIC_REVENUECAT_API_KEY=test_xxxxxxxx
 
 7. Reinicia Metro (`npm start`). En Ajustes → Ver HOMPANY Plus.
 
-En Expo Go el SDK usa Preview API Mode; compra real de Test Store suele requerir development build.
+En **Expo Go** el paywall nativo de RevenueCatUI no funciona (Preview API). La app abre un **sheet propio** con monthly / yearly / lifetime vía `getOfferings` + `purchasePackage`. Para el paywall visual de RC: development build (`npx expo run:android` / EAS).
 
 ## Arquitectura
 
