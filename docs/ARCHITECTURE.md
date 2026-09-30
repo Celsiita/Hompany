@@ -16,7 +16,7 @@
 
 ```
 app/                    # Solo routing (Expo Router)
-  (tabs)/               # Home | Tareas | Gastos | Ajustes
+  (tabs)/               # Inicio | Tareas | Gastos | Ajustes
   _layout.tsx           # Providers globales + global.css
 
 src/

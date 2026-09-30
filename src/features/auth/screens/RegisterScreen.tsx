@@ -42,10 +42,12 @@ export function RegisterScreen() {
   return (
     <Screen className="justify-center gap-6">
       <View className="gap-2">
-        <Text className="text-sm font-semibold tracking-wide" style={{ color: palette.brand }}>
+        <Text
+          className="text-4xl font-extrabold tracking-tight"
+          style={{ color: palette.brand }}>
           HOMPANY
         </Text>
-        <Text className="text-3xl font-bold text-stone-900">Crear cuenta</Text>
+        <Text className="text-2xl font-bold text-stone-900">Crear cuenta</Text>
         <Text className="text-base text-stone-600">
           Para tu piso de estudiantes: tareas, gastos y convivencia sin drama.
         </Text>
