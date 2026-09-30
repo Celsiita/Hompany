@@ -171,7 +171,7 @@ export function HomeScreen() {
       ? `${mascotScreenLine('feed')}${isPlus ? ' · Plus' : ''}`
       : section === 'AGENDA'
         ? mascotScreenLine('agenda')
-        : 'Info práctica y reglas';
+        : mascotScreenLine('piso');
 
   async function handleCancelOccurrence(item: AgendaItem) {
     if (item.kind === 'task') {

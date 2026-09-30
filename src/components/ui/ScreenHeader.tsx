@@ -58,7 +58,7 @@ export function ScreenHeader({
             onPress={onCreatePress}
             accessibilityRole="button"
             accessibilityLabel={createAccessibilityLabel}
-            className="h-11 w-11 items-center justify-center rounded-full bg-teal-700">
+            className="h-11 w-11 items-center justify-center rounded-xl bg-teal-700">
             <Text className="text-2xl font-bold leading-none text-white">+</Text>
           </Pressable>
         ) : null}

@@ -22,7 +22,7 @@ export function HeaderAlertsButton({ count, urgentCount = 0, onPress }: HeaderAl
         count > 0 ? `Avisos, ${count} pendientes` : 'Avisos, ninguno pendiente'
       }
       accessibilityHint="Abre la bandeja de avisos del piso"
-      className={`h-11 w-11 items-center justify-center rounded-full bg-white/90 border ${
+      className={`h-11 w-11 items-center justify-center rounded-xl bg-white/90 border ${
         count > 0 ? 'border-stone-200' : 'border-teal-100'
       }`}>
       <Text className="text-lg">🔔</Text>
