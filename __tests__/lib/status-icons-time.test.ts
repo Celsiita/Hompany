@@ -37,6 +37,8 @@ describe('status badges', () => {
     expect(taskStatusBadge(TASK_STATUS.PENDING).label).toBe('Pendiente');
     expect(taskStatusBadge(TASK_STATUS.SUBMITTED).label).toBe('En revisión');
     expect(taskStatusBadge(TASK_STATUS.COMPLETED).label).toBe('Completado');
+    expect(taskStatusBadge(TASK_STATUS.RESOLVED_BY_PEER).label).toBe('Por compañero');
+    expect(taskStatusBadge(TASK_STATUS.RESOLVED_LATE).label).toBe('Atrasado');
   });
 
   it('shows Pendiente for open expenses instead of Abierto', () => {

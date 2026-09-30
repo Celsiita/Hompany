@@ -26,6 +26,7 @@ import { useHomeExamPeriods } from '@/features/home/hooks/useHomeExamPeriods';
 import { useHomeItemTypes } from '@/features/home/hooks/useHomeItemTypes';
 import { useHomeTasks } from '@/features/tasks/hooks/useHomeTasks';
 import { canRequestTaskSwap } from '@/features/tasks/lib/board-filters';
+import { mascotScreenLine } from '@/lib/mascot';
 import {
   canViewerParticipateInTasks,
   isViewerAbsentOnDate,
@@ -263,7 +264,7 @@ export function TasksScreen() {
           <View className="gap-4 mb-4 pt-2">
             <ScreenHeader
               title="Tareas"
-              subtitle="Cuadrante · foto y puntos"
+              subtitle={mascotScreenLine('tasks')}
               helpTitle="Tareas"
               helpMessage="Crea con +. Entrega con foto si el piso lo pide. Los compañeros aprueban o impugnan. Intercambia pendientes. Lo cerrado no se reabre."
               onCreatePress={() => {

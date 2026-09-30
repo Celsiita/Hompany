@@ -8,6 +8,7 @@ import { formatDueSummary } from '@/features/tasks/lib/countdown';
 import { isPausedRecurring, recurrenceLabel } from '@/features/tasks/lib/recurrence';
 import { taskOwnershipLabel } from '@/features/tasks/lib/task-ownership';
 import { glyphForTaskIcon } from '@/lib/icons/packs';
+import { mascotReaction } from '@/lib/mascot';
 import { formatHistoryDateTime } from '@/lib/recurrence';
 import { taskStatusBadge } from '@/lib/status-badges';
 import { useIconPack } from '@/providers/IconPackProvider';
@@ -188,27 +189,32 @@ export function TaskCard({
       ) : null}
 
       {task.status === TASK_STATUS.SUBMITTED && !onApprove && !onDispute ? (
-        <Text className="text-sm text-sky-800">
-          En revisión. Esperando a que un compañero la valide
-          {task.proof_image_url ? ' (con foto).' : '.'}
-        </Text>
+        <Text className="text-sm text-sky-800">{mascotReaction('waiting_review').body}</Text>
       ) : null}
 
       {showSubmit ? (
-        <Button label="Completar" loading={busy} onPress={() => onSubmitProof?.(task)} />
+        <Button
+          label={mascotReaction('complete').button}
+          loading={busy}
+          onPress={() => onSubmitProof?.(task)}
+        />
       ) : null}
 
       {showReview ? (
         <View className="flex-row gap-2">
           {onApprove ? (
             <View className="flex-1">
-              <Button label="Aprobar" loading={busy} onPress={() => onApprove(task)} />
+              <Button
+                label={mascotReaction('approve').button}
+                loading={busy}
+                onPress={() => onApprove(task)}
+              />
             </View>
           ) : null}
           {onDispute ? (
             <View className="flex-1">
               <Button
-                label="Impugnar"
+                label={mascotReaction('dispute').button}
                 variant="secondary"
                 loading={busy}
                 onPress={() => onDispute(task)}
@@ -229,7 +235,7 @@ export function TaskCard({
 
       {showSwap ? (
         <Button
-          label="⇄ Intercambiar"
+          label={mascotReaction('swap').button}
           variant="secondary"
           loading={busy}
           onPress={() => onRequestSwap?.(task)}

@@ -36,6 +36,7 @@ import { useHomeTasks } from '@/features/tasks/hooks/useHomeTasks';
 import { canRequestTaskSwap } from '@/features/tasks/lib/board-filters';
 import { summarizeTasks } from '@/features/tasks/lib/task-summary';
 import { isUserSystemFrozen } from '@/lib/presence';
+import { mascotScreenLine } from '@/lib/mascot';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
 import { useIconPack } from '@/providers/IconPackProvider';
@@ -166,11 +167,9 @@ export function HomeScreen() {
 
   const subtitle =
     section === 'FEED'
-      ? isPlus
-        ? 'Estado y ranking · Plus'
-        : 'Estado y ranking'
+      ? `${mascotScreenLine('feed')}${isPlus ? ' · Plus' : ''}`
       : section === 'AGENDA'
-        ? 'Calendario del piso'
+        ? mascotScreenLine('agenda')
         : 'Info práctica y reglas';
 
   async function handleCancelOccurrence(item: AgendaItem) {

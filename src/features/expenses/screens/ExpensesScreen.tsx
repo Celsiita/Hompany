@@ -20,6 +20,7 @@ import { ExpenseFilterBar } from '@/features/expenses/components/ExpenseFilterBa
 import { ExpenseFormModal } from '@/features/expenses/components/ExpenseFormModal';
 import { useHomeExpenses } from '@/features/expenses/hooks/useHomeExpenses';
 import { useBoardItemFocus } from '@/hooks/useBoardItemFocus';
+import { mascotScreenLine } from '@/lib/mascot';
 import { parseFocusId } from '@/lib/navigation/board-focus';
 import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
@@ -188,7 +189,7 @@ export function ExpensesScreen() {
           <View className="gap-4 mb-4 pt-2">
             <ScreenHeader
               title="Gastos"
-              subtitle="Súper, casa y ocio"
+              subtitle={mascotScreenLine('expenses')}
               helpTitle="Gastos"
               helpMessage="Reparte en partes iguales, por porcentaje o cantidades fijas. Usa Mis deudas / Mis cobros. Saldar cierra la deuda."
               createAccessibilityLabel="Nuevo gasto"

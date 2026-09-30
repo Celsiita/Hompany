@@ -92,8 +92,9 @@ export function taskStatusBadge(
     case TASK_STATUS.SUBMITTED:
       return STATUS_BADGE.review;
     case TASK_STATUS.COMPLETED:
-    case TASK_STATUS.RESOLVED_BY_PEER:
       return STATUS_BADGE.completed;
+    case TASK_STATUS.RESOLVED_BY_PEER:
+      return STATUS_BADGE.peer;
     case TASK_STATUS.OVERDUE:
       return STATUS_BADGE.overdue;
     case TASK_STATUS.RESOLVED_LATE:
