@@ -35,7 +35,7 @@ export function OverflowMenu({ visible, title, actions, onClose }: OverflowMenuP
           <View className="items-center pb-1">
             <View className="h-1 w-10 rounded-full bg-stone-300" />
           </View>
-          {title ? <Text className="text-sm font-semibold text-gray-500 mb-2">{title}</Text> : null}
+          {title ? <Text className="text-sm font-semibold text-stone-500 mb-2">{title}</Text> : null}
           {actions.map((action) => (
             <SafePressable
               key={action.key}
@@ -49,7 +49,7 @@ export function OverflowMenu({ visible, title, actions, onClose }: OverflowMenuP
                 action.disabled ? interactive.disabled : undefined,
               )}>
               <Text
-                className={`text-base font-medium ${action.destructive ? 'text-red-600' : 'text-gray-900'}`}>
+                className={`text-base font-medium ${action.destructive ? 'text-red-600' : 'text-stone-900'}`}>
                 {action.label}
               </Text>
             </SafePressable>
@@ -59,7 +59,7 @@ export function OverflowMenu({ visible, title, actions, onClose }: OverflowMenuP
             contentStyle={mergeStyles(
               { borderRadius: 12, backgroundColor: palette.gray100, paddingHorizontal: 12, paddingVertical: 12, marginTop: 8 },
             )}>
-            <Text className="text-center text-sm font-semibold text-gray-700">Cerrar</Text>
+            <Text className="text-center text-sm font-semibold text-stone-700">Cerrar</Text>
           </SafePressable>
         </View>
       </View>
@@ -79,7 +79,7 @@ export function OverflowMenuButton({ onPress, label = '⋮' }: { onPress: () => 
       accessibilityRole="button"
       accessibilityLabel="Más opciones"
       style={styles.menuButton}>
-      <Text className="text-lg font-bold text-gray-700">{label}</Text>
+      <Text className="text-lg font-bold text-stone-700">{label}</Text>
     </Pressable>
   );
 }

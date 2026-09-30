@@ -197,7 +197,7 @@ export function BottomSheetModal({
           style={{ transform: [{ translateY: dragY }] }}
           {...sheetPan.panHandlers}>
           <View {...handlePan.panHandlers} className="mb-2 items-center py-2">
-            <View className="h-1.5 w-10 rounded-full bg-gray-300" />
+            <View className="h-1.5 w-10 rounded-full bg-stone-300" />
           </View>
           <ScrollView
             keyboardShouldPersistTaps="handled"

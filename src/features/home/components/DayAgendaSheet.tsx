@@ -52,8 +52,8 @@ export function DayAgendaSheet({
 
   return (
     <BottomSheetModal visible={visible} onClose={onClose} maxHeightClassName="max-h-[70%]" animationType="fade">
-      <Text className="mb-1 text-sm font-semibold capitalize text-gray-500">{dayLabel}</Text>
-      <Text className="mb-3 text-xs text-gray-500">
+      <Text className="mb-1 text-sm font-semibold capitalize text-stone-500">{dayLabel}</Text>
+      <Text className="mb-3 text-xs text-stone-500">
         Tareas · gastos · programadas atenuadas. Toca un ítem para abrirlo.
       </Text>
       {examLabels.length > 0 ? (
@@ -73,10 +73,10 @@ export function DayAgendaSheet({
             key={item.id}
             onPress={() => onOpenItem(item)}
             className={`mb-2 rounded-xl border px-3 py-3 ${rowClass(item)}`}>
-            <Text className="text-sm font-semibold text-gray-900">
+            <Text className="text-sm font-semibold text-stone-900">
               {item.glyph} {stripCycleSuffix(item.title)}
             </Text>
-            <Text className="mt-1 text-xs text-gray-600">
+            <Text className="mt-1 text-xs text-stone-600">
               {item.kind === 'task' ? 'Tarea' : 'Gasto'}
               {item.lifecycle === 'scheduled' ? ' · Programada' : ' · Abierta'}
               {' · '}
@@ -85,8 +85,8 @@ export function DayAgendaSheet({
           </Pressable>
         ))
       )}
-      <Pressable onPress={onClose} className="mt-3 rounded-xl bg-gray-100 px-3 py-3">
-        <Text className="text-center text-sm font-semibold text-gray-700">Cerrar</Text>
+      <Pressable onPress={onClose} className="mt-3 rounded-xl bg-stone-100 px-3 py-3">
+        <Text className="text-center text-sm font-semibold text-stone-700">Cerrar</Text>
       </Pressable>
     </BottomSheetModal>
   );
