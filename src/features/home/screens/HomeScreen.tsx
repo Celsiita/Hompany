@@ -44,7 +44,7 @@ import { usePurchases } from '@/providers/PurchasesProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
 
 /**
- * Home — Feed (estado → ranking → cuentas), Agenda, Piso (info práctica).
+ * Home — Pulso (estado → ranking → cuentas), Agenda, Piso (info práctica).
  * Avisos solo en campanita. Ausencias / silencio / visitas en ⋮.
  */
 export function HomeScreen() {

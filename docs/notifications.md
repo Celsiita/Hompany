@@ -20,7 +20,7 @@ Definido en [`src/features/home/lib/alerts.ts`](../src/features/home/lib/alerts.
 - Campanita en la cabecera de Home (badge rojo si hay urgentes) abre el inbox. También en el menú ⋮. **No hay lista de avisos en el Pulso.**
 - Inbox agrupado: Urgente / Pronto / Por revisar / Gastos. Tocar un aviso abre la tarjeta en Tareas o Gastos.
 - Ausencias, modo silencio y visitas del calendario se gestionan desde el menú ⋮.
-- Iconos `?` explican cada sección (Feed, Agenda, Piso, Tareas, Gastos, Ajustes).
+- Iconos `?` explican cada sección (Pulso, Agenda, Piso, Tareas, Gastos, Ajustes).
 - Tarjetas de tarea y gasto muestran cuenta atrás respecto a `due_at`.
 - `home_activity_events` registra admin, repetir, reabrir, roles y expulsiones (historial, no editable).
 

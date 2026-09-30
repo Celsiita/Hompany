@@ -102,7 +102,7 @@ Si ves `AuthRetryableFetchError: Failed to fetch` / `Host unreachable`: Supabase
 - `AuthProvider`: sesión Supabase persistida con AsyncStorage
 - `HomeProvider`: `activeHomeId` en AsyncStorage (`hompany.activeHomeId`)
 - Gate de navegación: sin sesión → login; sin hogar → setup; con ambos → tabs
-- Home: secciones Feed | Agenda | Piso; avisos en campanita; ausencias/silencio/visitas en ⋮
+- Home: secciones Pulso | Agenda | Piso; avisos en campanita; ausencias/silencio/visitas en ⋮
 - Tutorial interactivo v2 (`TutorialProvider`)
 - RPCs: `create_home`, `get_home_by_invite_code`, `join_home_by_invite_code`, `leave_home`, `kick_home_member`, `delete_own_account`, `get_home_leaderboard`.
 

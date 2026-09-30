@@ -60,9 +60,9 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 
 ## Salud y agenda
 
-- **Mico**: voz del tutorial de onboarding (1ª apertura + Ajustes → Ver tutorial). El Feed no muestra cara ni bocadillos «Mico dice».
-- **Info del piso** en Feed: Wi‑Fi, portal, basura, notas.
-- **Reglas y quejas** en Feed (quejas pueden ser anónimas).
+- **Mico**: voz del tutorial de onboarding (1ª apertura + Ajustes → Ver tutorial). El Pulso no muestra cara ni bocadillos «Mico dice».
+- **Info del piso** en Piso: Wi‑Fi, portal, basura, notas.
+- **Reglas y quejas** en Piso (quejas pueden ser anónimas).
 - **Agenda — avisos del piso**: visitas, reparaciones, eventos (rango de fechas, marcadores en calendario).
 - Barra de salud: **Excelente** / **Regular** / **Crítico**.
 - Una sola franja: Pendientes | Entregadas | Completadas.
@@ -85,7 +85,7 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 - Tocar una tarjeta abierta en Tareas/Gastos abre **Editar** (sin menú ⋮).
 - Tocar un ítem abierto en Agenda abre su tarjeta en Tareas/Gastos (resaltada). Programadas abren sheet de acciones.
 - Al **crear** una tarea o gasto, la app salta a su tarjeta en el tablero (feedback visual breve).
-- Avisos: ya no van en el Feed; se abren desde el menú ⋮ → **Avisos / Notificaciones**.
+- Avisos: ya no van en el Pulso; se abren desde la campanita (también en el menú ⋮).
 
 ## Layout
 
