@@ -77,7 +77,7 @@ export function AgendaItemCard({ item, onPress, now = new Date() }: AgendaItemCa
         <Text className="text-base">{item.glyph}</Text>
         <View className="flex-1 gap-1">
           <View className="flex-row flex-wrap items-center gap-1.5">
-            <View className={`rounded-full px-2 py-0.5 ${chip.className}`}>
+            <View className={`rounded-md px-2 py-0.5 ${chip.className}`}>
               <Text className="text-[10px] font-bold">{chip.label}</Text>
             </View>
             {item.lifecycle === 'scheduled' ? (

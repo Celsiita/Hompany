@@ -177,8 +177,8 @@ export function HomeAgenda({
       <ScrollView
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
-        bounces={false}
-        overScrollMode="never">
+        bounces
+        overScrollMode="auto">
         <View className="gap-4 pb-8">
           <View className="flex-row items-start justify-between gap-2">
             <Text className="flex-1 text-xs text-stone-500">
