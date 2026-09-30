@@ -12,6 +12,7 @@ import { formatAppError } from '@/lib/error-message';
 import { interactive, mergeStyles } from '@/lib/interactive-styles';
 import type { ShoppingListWithItems } from '@/schemas/shopping-list.schema';
 import type { ExpenseWithRelations } from '@/types/database.types';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type ShoppingListsPanelProps = {
   lists: ShoppingListWithItems[];
@@ -52,6 +53,7 @@ export function ShoppingListsPanel({
   onEnsureExpense,
   onOpenExpense,
 }: ShoppingListsPanelProps) {
+  const { t } = useLocale();
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [addFormOpen, setAddFormOpen] = useState(false);
   const [newListName, setNewListName] = useState('');
@@ -258,7 +260,7 @@ export function ShoppingListsPanel({
                 placeholder="Súper, baño…"
               />
               <TextField
-                label="Importe del gasto (€)"
+                label={t('money.amountLabel')}
                 value={newListAmount}
                 onChangeText={setNewListAmount}
                 keyboardType="decimal-pad"

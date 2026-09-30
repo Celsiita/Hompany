@@ -59,9 +59,9 @@ export function LoginScreen() {
             setError(null);
           }}
           accessibilityRole="button"
-          accessibilityLabel="Rellenar credenciales de demo"
+          accessibilityLabel={t('auth.demoFill')}
           className="mt-1 gap-0.5 rounded-xl border border-teal-200 bg-teal-50/80 px-3 py-2.5">
-          <Text className="text-xs font-semibold text-teal-900">Demo local · tocar para rellenar</Text>
+          <Text className="text-xs font-semibold text-teal-900">{t('auth.demoFill')}</Text>
           <Text className="text-xs leading-4 text-teal-800/80">
             ana@hompany.local · password123
           </Text>

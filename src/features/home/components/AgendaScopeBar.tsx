@@ -11,6 +11,7 @@ import {
   type AgendaLifeFocus,
   type AgendaViewScope,
 } from '@/features/home/lib/agenda-items';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type AgendaScopeBarProps = {
   viewScope: AgendaViewScope;
@@ -20,22 +21,6 @@ type AgendaScopeBarProps = {
   onCategoriesChange: (categories: AgendaCategoryFilter) => void;
   onLifeFocusChange: (focus: AgendaLifeFocus) => void;
 };
-
-const SCOPE_OPTIONS = [
-  { value: 'mine' as const, label: 'Mis cosas' },
-  { value: 'others' as const, label: 'Compañeros' },
-] as const;
-
-const CATEGORY_CHIPS: { key: 'tasks' | 'expenses'; label: string; accent: 'blue' | 'amber' }[] = [
-  { key: 'tasks', label: 'Tareas', accent: 'blue' },
-  { key: 'expenses', label: 'Gastos', accent: 'amber' },
-];
-
-const LIFE_CHIPS: { key: 'absences' | 'silence' | 'visits'; label: string }[] = [
-  { key: 'absences', label: 'Ausencias' },
-  { key: 'silence', label: 'Silencio' },
-  { key: 'visits', label: 'Visitas' },
-];
 
 /**
  * Agenda filters: Mis cosas / Compañeros, Tareas / Gastos, Ausencias / Silencio / Visitas.
@@ -48,6 +33,21 @@ export function AgendaScopeBar({
   onCategoriesChange,
   onLifeFocusChange,
 }: AgendaScopeBarProps) {
+  const { t } = useLocale();
+  const scopeOptions = [
+    { value: 'mine' as const, label: t('filters.mine') },
+    { value: 'others' as const, label: t('filters.others') },
+  ];
+  const categoryChips: { key: 'tasks' | 'expenses'; label: string; accent: 'blue' | 'amber' }[] = [
+    { key: 'tasks', label: t('filters.tasks'), accent: 'blue' },
+    { key: 'expenses', label: t('filters.expenses'), accent: 'amber' },
+  ];
+  const lifeChips: { key: 'absences' | 'silence' | 'visits'; label: string }[] = [
+    { key: 'absences', label: t('filters.absences') },
+    { key: 'silence', label: t('filters.silence') },
+    { key: 'visits', label: t('filters.visits') },
+  ];
+
   const categoryValue: 'tasks' | 'expenses' | 'ALL' =
     categories.tasks && !categories.expenses
       ? 'tasks'
@@ -57,13 +57,13 @@ export function AgendaScopeBar({
 
   return (
     <View className="gap-3">
-      <FilterGroup label="Quién">
-        <FilterTogglePair value={viewScope} options={SCOPE_OPTIONS} onChange={onViewScopeChange} />
+      <FilterGroup label={t('filters.who')}>
+        <FilterTogglePair value={viewScope} options={scopeOptions} onChange={onViewScopeChange} />
       </FilterGroup>
-      <FilterGroup label="Qué">
+      <FilterGroup label={t('filters.what')}>
         <ToggleChipRow
           value={categoryValue}
-          chips={CATEGORY_CHIPS}
+          chips={categoryChips}
           onChange={(next) => {
             if (next === 'ALL') {
               onCategoriesChange({ tasks: true, expenses: true });
@@ -76,10 +76,10 @@ export function AgendaScopeBar({
           }}
         />
       </FilterGroup>
-      <FilterGroup label="Vida del piso">
+      <FilterGroup label={t('filters.life')}>
         <ToggleChipRow
           value={lifeFocus}
-          chips={LIFE_CHIPS}
+          chips={lifeChips}
           onChange={(next) => onLifeFocusChange(next === 'ALL' ? 'ALL' : next)}
         />
       </FilterGroup>

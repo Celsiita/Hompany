@@ -34,6 +34,7 @@ import {
   percentsSumToHundred,
 } from '@/features/expenses/lib/expense-balances';
 import type { ExpenseWithRelations } from '@/types/database.types';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type ExpenseFormModalProps = {
   visible: boolean;
@@ -76,6 +77,7 @@ export function ExpenseFormModal({
   onSubmit,
   onDelete,
 }: ExpenseFormModalProps) {
+  const { t } = useLocale();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [kind, setKind] = useState<ExpenseKind>('GROCERY');
@@ -347,7 +349,7 @@ export function ExpenseFormModal({
       <View className="gap-3">
               <TextField label="Título" value={title} onChangeText={setTitle} />
               <TextField
-                label="Importe (€)"
+                label={t('money.amountLabel')}
                 keyboardType="decimal-pad"
                 value={amount}
                 onChangeText={setAmount}
@@ -486,7 +488,7 @@ export function ExpenseFormModal({
                         onChangeText={(next) =>
                           setShareDrafts((current) => ({ ...current, [userId]: next }))
                         }
-                        placeholder={splitMode === 'PERCENT' ? '%' : '€'}
+                        placeholder={splitMode === 'PERCENT' ? '%' : t('money.symbol')}
                       />
                     );
                   })}

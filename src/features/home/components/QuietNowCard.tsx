@@ -3,9 +3,10 @@ import { Text, View } from 'react-native';
 import { HelpTip } from '@/components/ui/HelpTip';
 import { SafePressable } from '@/components/ui/SafePressable';
 import { mergeStyles } from '@/lib/interactive-styles';
-import { useConfirmDialog } from '@/providers/ConfirmProvider';
-import { useToast } from '@/providers/ToastProvider';
 import { toDateKey } from '@/lib/absences';
+import { useConfirmDialog } from '@/providers/ConfirmProvider';
+import { useLocale } from '@/providers/LocaleProvider';
+import { useToast } from '@/providers/ToastProvider';
 
 type QuietNowCardProps = {
   authorName: string;
@@ -22,14 +23,15 @@ type QuietNowCardProps = {
  * Primary CTA to claim quiet for today (calendar EVENT).
  */
 export function QuietNowCard({ authorName, busy = false, onRequest }: QuietNowCardProps) {
+  const { t } = useLocale();
   const confirm = useConfirmDialog();
   const showToast = useToast();
 
   async function handleRequest() {
     const ok = await confirm({
-      title: '¿Reclamar silencio?',
-      message: 'Avisas al piso de que necesitas tranquilidad un rato.',
-      confirmLabel: 'Reclamar silencio',
+      title: t('piso.quiet.confirmTitle'),
+      message: t('piso.quiet.confirmBody'),
+      confirmLabel: t('piso.quiet'),
     });
     if (!ok) {
       return;
@@ -38,14 +40,14 @@ export function QuietNowCard({ authorName, busy = false, onRequest }: QuietNowCa
     try {
       await onRequest({
         kind: 'EVENT',
-        title: `🔇 Silencio · ${authorName}`,
+        title: `${t('piso.quiet.titlePrefix')} · ${authorName}`,
         starts_on: today,
         ends_on: today,
       });
-      showToast({ message: 'Silencio reclamado', tone: 'success' });
+      showToast({ message: t('piso.quiet.ok'), tone: 'success' });
     } catch (err) {
       showToast({
-        message: err instanceof Error ? err.message : 'No se pudo reclamar silencio',
+        message: err instanceof Error ? err.message : t('piso.quiet.fail'),
         tone: 'error',
       });
     }
@@ -67,25 +69,20 @@ export function QuietNowCard({ authorName, busy = false, onRequest }: QuietNowCa
             opacity: busy ? 0.7 : 1,
           })}
           accessibilityRole="button"
-          accessibilityLabel="Reclamar silencio">
+          accessibilityLabel={t('piso.quiet')}>
           <View className="h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
             <Text className="text-2xl">🔇</Text>
           </View>
           <View className="min-w-0 flex-1 gap-0.5">
             <Text className="text-base font-bold text-white">
-              {busy ? 'Enviando…' : 'Reclamar silencio'}
+              {busy ? t('common.sending') : t('piso.quiet')}
             </Text>
-            <Text className="text-xs leading-4 text-violet-100">
-              Avisa al piso · sale hoy en la agenda
-            </Text>
+            <Text className="text-xs leading-4 text-violet-100">{t('piso.quiet.sub')}</Text>
           </View>
           <Text className="text-xl font-bold text-white/90">›</Text>
         </SafePressable>
         <View className="justify-center border-l border-white/20 px-3">
-          <HelpTip
-            title="Reclamar silencio"
-            message="Avisa al piso de que necesitas tranquilidad ahora. Sale hoy en la agenda."
-          />
+          <HelpTip title={t('piso.quiet')} message={t('piso.quiet.help')} />
         </View>
       </View>
     </View>

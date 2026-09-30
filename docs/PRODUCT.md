@@ -43,6 +43,7 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 
 - Jerarquía: secciones Feed con barra teal; tabs Home / En curso–Historial en pastillas sólidas.
 - Semántica: tareas azul, gastos ámbar, deudas rosa, cobros ámbar, urgentes rojo.
+- **Idioma (Ajustes):** Español o English en toda la app (tabs, Feed, Piso, tutorial Mico, paywall). En **ES** los importes se muestran en **€**; en **EN** en **$**.
 - Filtros iguales en Agenda/Tareas/Gastos (grupos etiquetados + pastillas).
 - Feedback: toasts flotantes sin botones; campanita para avisos urgentes.
 - Ayuda `?` y tutorial Mico con foco visual en la zona explicada.

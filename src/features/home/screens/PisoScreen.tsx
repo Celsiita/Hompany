@@ -78,18 +78,18 @@ export function PisoScreen() {
             title={t('tabs.piso')}
             subtitle={t('screen.piso')}
             helpTitle={t('tabs.piso')}
-            helpMessage="Aquí gestionas tu ausencia, modo silencio y visitas, reclamas silencio, y ves Wi‑Fi y reglas del hogar."
+            helpMessage={t('piso.help')}
             headerEnd={<MatchingSoonButton />}
           />
 
           <View className="flex-row items-center justify-between">
             <FeedSectionHeader
-              title="Vida en el piso"
-              subtitle="Tu calendario · y el de tus compañeros"
+              title={t('piso.life')}
+              subtitle={t('piso.life.sub')}
             />
             <HelpTip
-              title="Vida en el piso"
-              message="Registras lo tuyo y ves lo que viene de tus compañeros. Todo sale también en la Agenda."
+              title={t('piso.life')}
+              message={t('piso.help')}
             />
           </View>
 
@@ -145,10 +145,10 @@ export function PisoScreen() {
           />
 
           <View className="flex-row items-center justify-between">
-            <FeedSectionHeader title="Info práctica" subtitle="Wi‑Fi, portal, basura y notas" />
+            <FeedSectionHeader title={t('piso.info')} subtitle={t('piso.info.sub')} />
             <HelpTip
-              title="Info del piso"
-              message="Datos que todos necesitan: red Wi‑Fi, código del portal, día de basura."
+              title={t('piso.info')}
+              message={t('piso.info.sub')}
             />
           </View>
           <HomeInfoCard
@@ -159,10 +159,10 @@ export function PisoScreen() {
           />
 
           <View className="flex-row items-center justify-between">
-            <FeedSectionHeader title="Reglas y quejas" subtitle="Acuerdos del hogar" />
+            <FeedSectionHeader title={t('piso.rules')} subtitle={t('piso.rules.sub')} />
             <HelpTip
-              title="Reglas y quejas"
-              message="Acuerdos visibles para todos. Las quejas pueden ser anónimas."
+              title={t('piso.rules')}
+              message={t('piso.rules.sub')}
             />
           </View>
           <HomeNoticesPanel

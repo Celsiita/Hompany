@@ -181,10 +181,10 @@ export function HomeScreen() {
     <Screen>
       <View className="flex-1 gap-4 pt-2">
         <ScreenHeader
-          title={activeHome?.name ?? 'El piso'}
+          title={activeHome?.name ?? t('home.defaultTitle')}
           subtitle={subtitle}
-          helpTitle="Inicio"
-          helpMessage="HOMPANY: deja de discutir por fregar y por el súper. Feed = estado y ranking. Agenda = calendario. Piso = vida del hogar. Campanita = urgentes."
+          helpTitle={t('home.helpTitle')}
+          helpMessage={t('home.help')}
           onAlertsPress={() => setAlertsOpen(true)}
           alertsCount={alerts.length}
           urgentAlertsCount={urgentAlertsCount}
@@ -209,34 +209,34 @@ export function HomeScreen() {
               }
               contentContainerClassName="gap-5 pb-8">
               <View className="flex-row items-center justify-between">
-                <FeedSectionHeader title="Estado" subtitle="Salud del piso esta semana" />
+                <FeedSectionHeader title={t('home.estado')} subtitle={t('home.estado.sub')} />
                 <HelpTip
-                  title="Estado del piso"
-                  message="El % resume si el piso va bien. Pendientes, en revisión (foto) y hechas van debajo. Lo urgente está en la campanita."
+                  title={t('home.estado.helpTitle')}
+                  message={t('home.estado.help')}
                 />
               </View>
               {isLoading ? <MascotLoading /> : <HealthMeter summary={healthSummary} />}
 
               <View className="flex-row items-center justify-between">
                 <FeedSectionHeader
-                  title="Clasificación"
-                  subtitle="Reputación semanal · 100 pts de salida"
+                  title={t('home.ranking')}
+                  subtitle={t('home.ranking.sub')}
                 />
                 <HelpTip
-                  title="Clasificación"
-                  message="Empiezas con 100 pts. Cumplir tareas suma; fallar resta. El chip «tú» te marca en el ranking."
+                  title={t('home.ranking')}
+                  message={t('home.ranking.help')}
                 />
               </View>
               {leaderboardLoading ? (
-                <MascotLoading label="Ordenando el ranking…" />
+                <MascotLoading label={t('home.ranking.loading')} />
               ) : leaderboardError ? (
                 <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
                   <Text className="text-sm font-semibold text-amber-950">
-                    No se pudo cargar la clasificación
+                    {t('home.ranking.error')}
                   </Text>
                   <Text className="text-sm leading-5 text-amber-900/80">{leaderboardError}</Text>
                   <Button
-                    label="Reintentar"
+                    label={t('common.retry')}
                     variant="secondary"
                     onPress={() => void refreshLeaderboard()}
                   />
@@ -246,14 +246,14 @@ export function HomeScreen() {
               )}
 
               <View className="flex-row items-center justify-between">
-                <FeedSectionHeader title="Cuentas" subtitle="Quién debe a quién" />
+                <FeedSectionHeader title={t('home.cuentas')} subtitle={t('home.cuentas.sub')} />
                 <HelpTip
-                  title="Cuentas"
-                  message="Resumen rápido de deudas entre compañeros. El detalle y saldar están en la pestaña Gastos."
+                  title={t('home.cuentas')}
+                  message={t('home.cuentas.help')}
                 />
               </View>
               {expensesLoading ? (
-                <MascotLoading label="Sumando quién debe a quién…" />
+                <MascotLoading label={t('home.cuentas.loading')} />
               ) : (
                 <BalanceSummary balances={balances} members={members} currentUserId={user?.id} />
               )}

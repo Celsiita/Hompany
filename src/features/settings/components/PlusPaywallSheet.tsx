@@ -9,6 +9,7 @@ import { BottomSheetModal } from '@/components/ui/BottomSheetModal';
 import { Button } from '@/components/ui/Button';
 import { SafePressable } from '@/components/ui/SafePressable';
 import { mergeStyles, interactive, palette } from '@/lib/interactive-styles';
+import { formatProductPrice } from '@/lib/i18n/format-price';
 import {
   hasActiveEntitlement,
   HOMPANY_PLUS_ENTITLEMENT,
@@ -42,7 +43,7 @@ function packageKind(pkg: PurchasesPackage): 'monthly' | 'yearly' | 'lifetime' |
  * (Expo Go Preview API mode / no native paywall module).
  */
 export function PlusPaywallSheet({ visible, onClose }: PlusPaywallSheetProps) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [loading, setLoading] = useState(false);
   const [buyingId, setBuyingId] = useState<string | null>(null);
@@ -157,7 +158,7 @@ export function PlusPaywallSheet({ visible, onClose }: PlusPaywallSheetProps) {
                   <View className="flex-row items-center justify-between">
                     <Text className="text-base font-bold text-stone-900">{labelFor(pkg)}</Text>
                     <Text className="text-base font-semibold text-teal-800">
-                      {pkg.product.priceString}
+                      {formatProductPrice(pkg.product, locale)}
                     </Text>
                   </View>
                   <Text className="text-xs font-semibold text-teal-700">

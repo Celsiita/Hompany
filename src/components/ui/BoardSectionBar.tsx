@@ -24,7 +24,7 @@ export function BoardSectionBar({
   section,
   onSectionChange,
   activeLabel,
-  historyLabel = 'Historial',
+  historyLabel = 'History',
   accent = 'teal',
 }: BoardSectionBarProps) {
   const fill = ACTIVE_FILL[accent];

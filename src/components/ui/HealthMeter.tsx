@@ -2,6 +2,7 @@ import { Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import type { TaskBoardSummary } from '@/features/tasks/lib/task-summary';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type HealthMeterProps = {
   summary: TaskBoardSummary;
@@ -47,20 +48,36 @@ const CARD_SHADOW = {
  */
 export function formatHealthDetailLine(
   summary: Pick<TaskBoardSummary, 'overdue' | 'pending'>,
+  t: (key: string, vars?: Record<string, string | number>) => string = (key) => key,
 ): string {
   if (summary.overdue > 0) {
-    return `${summary.overdue} vencida${summary.overdue === 1 ? '' : 's'}`;
+    return summary.overdue === 1
+      ? t('health.overdueOne')
+      : t('health.overdueMany', { n: summary.overdue });
   }
   if (summary.pending > 0) {
-    return `${summary.pending} pendiente${summary.pending === 1 ? '' : 's'}`;
+    return summary.pending === 1
+      ? t('health.pendingOne')
+      : t('health.pendingMany', { n: summary.pending });
   }
-  return 'Sin vencidas';
+  return t('health.noOverdue');
+}
+
+function healthLabelKey(label: TaskBoardSummary['healthLabel']): string {
+  if (label === 'Crítico') {
+    return 'health.critical';
+  }
+  if (label === 'Regular') {
+    return 'health.ok';
+  }
+  return 'health.excellent';
 }
 
 /**
  * Hero health card for Feed: big %, label chip, bar, and task counters in one block.
  */
 export function HealthMeter({ summary }: HealthMeterProps) {
+  const { t } = useLocale();
   const tone = TONE[summary.healthLabel];
   const width = `${Math.max(4, Math.min(100, summary.healthScore))}%` as `${number}%`;
 
@@ -72,14 +89,16 @@ export function HealthMeter({ summary }: HealthMeterProps) {
       <View className="flex-row items-end justify-between gap-3">
         <View className="gap-1">
           <Text className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">
-            Cumplimiento
+            {t('health.compliance')}
           </Text>
           <Text className={`text-4xl font-black tracking-tight ${tone.text}`}>
             {summary.healthScore}%
           </Text>
         </View>
         <View className={`rounded-full px-3 py-1.5 ${tone.chip}`}>
-          <Text className={`text-sm font-bold ${tone.text}`}>{summary.healthLabel}</Text>
+          <Text className={`text-sm font-bold ${tone.text}`}>
+            {t(healthLabelKey(summary.healthLabel))}
+          </Text>
         </View>
       </View>
 
@@ -87,7 +106,9 @@ export function HealthMeter({ summary }: HealthMeterProps) {
         <View className={`h-4 rounded-full ${tone.bar}`} style={{ width }} />
       </View>
 
-      <Text className="text-sm leading-5 text-stone-700">{formatHealthDetailLine(summary)}</Text>
+      <Text className="text-sm leading-5 text-stone-700">
+        {formatHealthDetailLine(summary, t)}
+      </Text>
 
       <MetricsBar
         pending={summary.pending}
@@ -116,25 +137,26 @@ export function MetricsBar({
   completed,
   embedded = false,
 }: MetricsBarProps) {
+  const { t } = useLocale();
   const body = (
     <>
       <MetricCell
         value={pending}
-        label="Pendientes"
+        label={t('health.pending')}
         activeClass="text-blue-800"
         active={pending > 0}
       />
       <View className="w-px self-stretch bg-stone-200/90" />
       <MetricCell
         value={submitted}
-        label="En revisión"
+        label={t('health.submitted')}
         activeClass="text-sky-800"
         active={submitted > 0}
       />
       <View className="w-px self-stretch bg-stone-200/90" />
       <MetricCell
         value={completed}
-        label="Hechas"
+        label={t('health.done')}
         activeClass="text-emerald-800"
         active={completed > 0}
       />

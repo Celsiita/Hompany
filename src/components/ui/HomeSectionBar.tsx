@@ -1,5 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 
+import { useLocale } from '@/providers/LocaleProvider';
+
 export type HomeSection = 'FEED' | 'AGENDA';
 
 type HomeSectionBarProps = {
@@ -7,18 +9,19 @@ type HomeSectionBarProps = {
   onSectionChange: (value: HomeSection) => void;
 };
 
-const TABS: Array<{ id: HomeSection; label: string; hint: string }> = [
-  { id: 'FEED', label: 'Feed', hint: 'Estado' },
-  { id: 'AGENDA', label: 'Agenda', hint: 'Calendario' },
-];
-
 /**
  * Switches Home between Feed and Agenda (pill segments).
  */
 export function HomeSectionBar({ section, onSectionChange }: HomeSectionBarProps) {
+  const { t } = useLocale();
+  const tabs: Array<{ id: HomeSection; label: string; hint: string }> = [
+    { id: 'FEED', label: t('home.feed'), hint: t('home.feed.hint') },
+    { id: 'AGENDA', label: t('home.agenda'), hint: t('home.agenda.hint') },
+  ];
+
   return (
     <View className="flex-row gap-2 rounded-2xl border border-stone-200 bg-white/80 p-1.5">
-      {TABS.map((tab) => {
+      {tabs.map((tab) => {
         const active = section === tab.id;
         return (
           <Pressable

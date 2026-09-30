@@ -332,7 +332,7 @@ export function SettingsScreen() {
           title={t('settings.title')}
           subtitle={t('screen.settings')}
           helpTitle={t('settings.title')}
-          helpMessage="Primero tu piso e invitación. Luego Plus e iconos. Al final, tutorial y cuenta."
+          helpMessage={t('settings.help')}
         />
 
         <SettingsSection
@@ -351,14 +351,24 @@ export function SettingsScreen() {
           />
         </SettingsSection>
 
-        <SettingsSection title="Perfil" subtitle="Cómo te ven tus compañeros">
+        <SettingsSection title={t('settings.profile')} subtitle={t('settings.profile.sub')}>
           <Text className="text-sm text-stone-600">{user?.email ?? '—'}</Text>
-          <TextField label="Nombre visible" value={displayName} onChangeText={setDisplayName} />
-          <Button label="Guardar nombre" loading={savingName} onPress={() => void handleSaveName()} />
+          <TextField
+            label={t('settings.displayName')}
+            value={displayName}
+            onChangeText={setDisplayName}
+          />
+          <Button
+            label={t('settings.saveName')}
+            loading={savingName}
+            onPress={() => void handleSaveName()}
+          />
         </SettingsSection>
 
-        <SettingsSection title="Piso activo" subtitle="Invita compañeros y cambia de hogar">
-          <Text className="text-lg font-semibold text-stone-900">{activeHome?.name ?? 'Sin piso'}</Text>
+        <SettingsSection title={t('settings.home')} subtitle={t('settings.home.sub')}>
+          <Text className="text-lg font-semibold text-stone-900">
+            {activeHome?.name ?? t('settings.home.none')}
+          </Text>
           {activeHome ? (
             <View className="gap-3">
               <View className="flex-row items-center gap-2">

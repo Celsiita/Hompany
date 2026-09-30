@@ -29,8 +29,8 @@ describe('mascot', () => {
     expect(mascotEmptyCopy('tasks_open').body).not.toContain(MASCOT_NAME);
     expect(mascotEmptyCopy('expenses_i_owe').body).not.toContain(MASCOT_NAME);
     expect(mascotScreenLine('feed')).not.toContain(MASCOT_NAME);
-    expect(mascotScreenLine('piso')).toMatch(/Ausencias|silencio|Wi/);
-    expect(mascotScreenLine('settings')).toMatch(/Piso|tutorial|Plus/i);
+    expect(mascotScreenLine('piso')).toMatch(/ausencias|silencio|Wi/i);
+    expect(mascotScreenLine('settings')).toMatch(/Piso|Flat|Plus|icon/i);
     expect(mascotQuip('thriving')).toContain(MASCOT_NAME);
     expect(mascotReaction('approve').button).toMatch(/aprobar/i);
     expect(mascotReaction('complete').button).toMatch(/completar/i);

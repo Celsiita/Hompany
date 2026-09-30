@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { BottomSheetModal } from '@/components/ui/BottomSheetModal';
 import { Button } from '@/components/ui/Button';
+import { useLocale } from '@/providers/LocaleProvider';
 import { usePurchases } from '@/providers/PurchasesProvider';
 
 type PreviewTileProps = {
@@ -38,6 +39,7 @@ function PreviewTile({ glyph, title, subtitle }: PreviewTileProps) {
  * Matching vision sheet (Shipaton teaser — no fake search flow).
  */
 export function MatchingPreviewSheet({ visible, onClose }: MatchingPreviewSheetProps) {
+  const { t } = useLocale();
   const { isPlus, presentPaywall } = usePurchases();
 
   return (
@@ -45,41 +47,41 @@ export function MatchingPreviewSheet({ visible, onClose }: MatchingPreviewSheetP
       <View className="gap-4">
         <View className="gap-1">
           <View className="flex-row flex-wrap items-center gap-2">
-            <Text className="text-lg font-bold text-stone-900">Piso ↔ gente</Text>
+            <Text className="text-lg font-bold text-stone-900">{t('matching.title')}</Text>
             <View className="rounded-full bg-amber-100 px-2 py-0.5">
-              <Text className="text-[10px] font-bold uppercase text-amber-900">Próximamente</Text>
+              <Text className="text-[10px] font-bold uppercase text-amber-900">
+                {t('piso.soon')}
+              </Text>
             </View>
           </View>
-          <Text className="text-sm leading-5 text-stone-600">
-            Con Plus podrás buscar piso o compañeros usando la reputación del hogar como señal de
-            confianza. Perfiles opt-in → listados → solicitud → aceptar → entrar. El piso que ya
-            tienes sigue gratis.
-          </Text>
+          <Text className="text-sm leading-5 text-stone-600">{t('matching.body')}</Text>
         </View>
 
         <View className="flex-row gap-2">
           <PreviewTile
             glyph="🏠"
-            title="Buscar piso"
-            subtitle="Zona, plazas, reglas y salud del hogar"
+            title={t('matching.findFlat')}
+            subtitle={t('matching.findFlat.sub')}
           />
           <PreviewTile
             glyph="👋"
-            title="Buscar gente"
-            subtitle="Uni, presupuesto, hábitos y reputación"
+            title={t('matching.findPeople')}
+            subtitle={t('matching.findPeople.sub')}
           />
         </View>
 
         <View className="gap-2 rounded-2xl border border-stone-200 bg-stone-50 px-3 py-3">
-          <Text className="text-xs font-bold uppercase tracking-wide text-stone-500">Qué verías</Text>
-          <Text className="text-sm text-stone-800">1. Perfil corto (ciudad, uni, hábitos)</Text>
-          <Text className="text-sm text-stone-800">2. Listados Plus con filtros simples</Text>
-          <Text className="text-sm text-stone-800">3. Solicitud → aceptar → ya estás en el piso</Text>
+          <Text className="text-xs font-bold uppercase tracking-wide text-stone-500">
+            {t('matching.preview')}
+          </Text>
+          <Text className="text-sm text-stone-800">{t('matching.step1')}</Text>
+          <Text className="text-sm text-stone-800">{t('matching.step2')}</Text>
+          <Text className="text-sm text-stone-800">{t('matching.step3')}</Text>
         </View>
 
         {!isPlus ? (
           <Button
-            label="Ver HOMPANY Plus"
+            label={t('settings.plus.see')}
             onPress={() => {
               onClose();
               void presentPaywall();
@@ -88,12 +90,12 @@ export function MatchingPreviewSheet({ visible, onClose }: MatchingPreviewSheetP
         ) : (
           <View className="rounded-xl bg-amber-600 px-3 py-3">
             <Text className="text-center text-sm font-semibold text-white">
-              Plus activo · matching en camino
+              {t('matching.plusActive')}
             </Text>
           </View>
         )}
 
-        <Button label="Entendido" variant="secondary" onPress={onClose} />
+        <Button label={t('common.understood')} variant="secondary" onPress={onClose} />
       </View>
     </BottomSheetModal>
   );
@@ -103,6 +105,7 @@ export function MatchingPreviewSheet({ visible, onClose }: MatchingPreviewSheetP
  * Amber “Próximamente” control that opens the matching vision sheet.
  */
 export function MatchingSoonButton({ layout = 'compact' }: MatchingSoonButtonProps) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
 
   return (
@@ -111,16 +114,14 @@ export function MatchingSoonButton({ layout = 'compact' }: MatchingSoonButtonPro
         <Pressable
           onPress={() => setOpen(true)}
           accessibilityRole="button"
-          accessibilityLabel="Próximamente: buscar piso o gente con Plus"
+          accessibilityLabel={t('matching.a11y')}
           className="flex-row items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3">
           <View className="rounded-full bg-amber-200/80 px-2.5 py-1">
-            <Text className="text-[10px] font-bold uppercase text-amber-950">Próximamente</Text>
+            <Text className="text-[10px] font-bold uppercase text-amber-950">{t('piso.soon')}</Text>
           </View>
           <View className="min-w-0 flex-1 gap-0.5">
-            <Text className="text-sm font-bold text-amber-950">Buscar piso o compañeros</Text>
-            <Text className="text-[11px] leading-4 text-amber-900/80">
-              La reputación Plus será tu carta de presentación
-            </Text>
+            <Text className="text-sm font-bold text-amber-950">{t('matching.rowTitle')}</Text>
+            <Text className="text-[11px] leading-4 text-amber-900/80">{t('matching.rowSub')}</Text>
           </View>
           <Text className="text-base font-bold text-amber-800">›</Text>
         </Pressable>
@@ -128,9 +129,9 @@ export function MatchingSoonButton({ layout = 'compact' }: MatchingSoonButtonPro
         <Pressable
           onPress={() => setOpen(true)}
           accessibilityRole="button"
-          accessibilityLabel="Próximamente: buscar piso o gente con Plus"
+          accessibilityLabel={t('matching.a11y')}
           className="h-11 flex-row items-center rounded-xl border border-amber-300 bg-amber-50 px-3">
-          <Text className="text-xs font-bold text-amber-950">Próximamente</Text>
+          <Text className="text-xs font-bold text-amber-950">{t('piso.soon')}</Text>
         </Pressable>
       )}
       <MatchingPreviewSheet visible={open} onClose={() => setOpen(false)} />

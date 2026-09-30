@@ -8,30 +8,20 @@ import { TutorialFocusFrame } from '@/features/onboarding/components/TutorialFoc
 import { TutorialPreview } from '@/features/onboarding/components/TutorialPreview';
 import { MASCOT_NAME } from '@/lib/mascot';
 import {
+  getTutorialSteps,
   isTutorialCompleted,
   markTutorialCompleted,
-  TUTORIAL_STEPS,
-  type TutorialHighlight,
+  tutorialHighlightLabel,
 } from '@/lib/tutorial';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type TutorialHostProps = {
   /** Force-open from Settings (replay). */
   forceOpen?: boolean;
   onForceOpenHandled?: () => void;
   setHomeSection: (section: HomeSection) => void;
-};
-
-const HIGHLIGHT_COPY: Record<TutorialHighlight, string> = {
-  welcome: 'Tour guiado',
-  feed: 'Sección Feed',
-  agenda: 'Sección Agenda',
-  piso: 'Pestaña Piso',
-  bell: 'Campanita de avisos',
-  tasks: 'Pestaña Tareas',
-  expenses: 'Pestaña Gastos',
-  settings: 'Pestaña Ajustes',
 };
 
 /**
@@ -45,13 +35,15 @@ export function TutorialHost({
 }: TutorialHostProps) {
   const { user, isLoading: authLoading } = useAuth();
   const { activeHomeId, isLoading: homeLoading } = useHome();
+  const { locale, t } = useLocale();
   const [ready, setReady] = useState(false);
   const [visible, setVisible] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
 
+  const steps = useMemo(() => getTutorialSteps(locale), [locale]);
   const canShow = Boolean(user && activeHomeId && !authLoading && !homeLoading);
-  const step = TUTORIAL_STEPS[stepIndex] ?? TUTORIAL_STEPS[0];
-  const isLast = stepIndex >= TUTORIAL_STEPS.length - 1;
+  const step = steps[stepIndex] ?? steps[0];
+  const isLast = stepIndex >= steps.length - 1;
 
   useEffect(() => {
     let cancelled = false;
@@ -127,8 +119,8 @@ export function TutorialHost({
   }, [canShow, finish, isLast, setHomeSection, step.goTab, step.homeSection]);
 
   const progressLabel = useMemo(
-    () => `${stepIndex + 1} / ${TUTORIAL_STEPS.length}`,
-    [stepIndex],
+    () => `${stepIndex + 1} / ${steps.length}`,
+    [stepIndex, steps.length],
   );
 
   if ((!ready && !forceOpen) || !canShow || !visible) {
@@ -142,13 +134,13 @@ export function TutorialHost({
         <View className="mx-3 mb-3 gap-3 rounded-3xl bg-white p-5" style={{ elevation: 8, zIndex: 2 }}>
           <View className="flex-row items-center justify-between">
             <Text className="text-xs font-semibold uppercase tracking-wide text-teal-800">
-              {MASCOT_NAME} · tour
+              {MASCOT_NAME} · {t('tutorial.tour')}
             </Text>
             <Text className="text-xs text-stone-500">{progressLabel}</Text>
           </View>
 
           <View className="flex-row gap-1.5">
-            {TUTORIAL_STEPS.map((item, index) => (
+            {steps.map((item, index) => (
               <View
                 key={item.id}
                 className={`h-1.5 flex-1 rounded-full ${
@@ -160,7 +152,7 @@ export function TutorialHost({
 
           <View className="self-start rounded-md bg-teal-50 px-3 py-1">
             <Text className="text-[11px] font-bold text-teal-900">
-              {HIGHLIGHT_COPY[step.highlight]}
+              {tutorialHighlightLabel(step.highlight, locale)}
             </Text>
           </View>
 
@@ -176,7 +168,7 @@ export function TutorialHost({
 
           <View className="flex-row gap-2">
             <View className="flex-1">
-              <Button label="Saltar tour" variant="secondary" onPress={() => void finish()} />
+              <Button label={t('tutorial.skip')} variant="secondary" onPress={() => void finish()} />
             </View>
             <View className="flex-1">
               <Button label={step.cta} onPress={runCta} />
@@ -185,15 +177,15 @@ export function TutorialHost({
 
           {!isLast ? (
             <Pressable
-              onPress={() => setStepIndex((index) => Math.min(index + 1, TUTORIAL_STEPS.length - 1))}
+              onPress={() => setStepIndex((index) => Math.min(index + 1, steps.length - 1))}
               hitSlop={8}>
               <Text className="text-center text-xs font-semibold text-stone-500">
-                Siguiente sin cambiar de pantalla
+                {t('tutorial.nextStay')}
               </Text>
             </Pressable>
           ) : (
             <Pressable onPress={() => void finish()} hitSlop={8}>
-              <Text className="text-center text-xs text-stone-400">Cerrar</Text>
+              <Text className="text-center text-xs text-stone-400">{t('tutorial.close')}</Text>
             </Pressable>
           )}
         </View>

@@ -1,5 +1,6 @@
 import type { ExpenseWithRelations } from '@/types/database.types';
 import { isShareSettled } from '@/features/expenses/lib/expense-settlement';
+import { formatMoney } from '@/lib/i18n/format-price';
 
 export type PairwiseDebt = {
   fromUserId: string;
@@ -65,13 +66,11 @@ export function amountsSumToTotal(amounts: number[], total: number): boolean {
 }
 
 /**
- * Formats a euro amount with Spanish-style decimals.
+ * Formats a money amount for the active app locale (EUR in ES, USD in EN).
+ * Kept as `formatEuro` for call-site compatibility.
  */
 export function formatEuro(amount: number): string {
-  const absolute = Math.abs(amount);
-  const [integerPart, decimalPart] = absolute.toFixed(2).split('.');
-  const grouped = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  return `${grouped},${decimalPart} €`;
+  return formatMoney(amount);
 }
 
 function roundCents(value: number): number {
