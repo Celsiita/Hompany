@@ -23,6 +23,7 @@ import { copyToClipboard } from '@/lib/clipboard';
 import { homeInviteQrImageUrl, homeInviteUrl } from '@/lib/home-invite';
 import { isBuiltinIconPackId } from '@/lib/icons/packs';
 import { isHomeAdminRole, homeRoleLabel } from '@/lib/roles';
+import { mascotScreenLine } from '@/lib/mascot';
 import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useHome } from '@/providers/HomeProvider';
@@ -328,7 +329,7 @@ export function SettingsScreen() {
         contentContainerClassName="pt-2 pb-10 gap-4">
         <ScreenHeader
           title="Ajustes"
-          subtitle="Tu cuenta, tu piso y la sesión"
+          subtitle={mascotScreenLine('settings')}
           helpTitle="Ajustes"
           helpMessage="Perfil, invitación, compañeros, foto de prueba y Plus: packs de iconos opcionales. Desde aquí puedes repetir el tutorial."
         />
