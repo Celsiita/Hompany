@@ -307,8 +307,8 @@ const styles = StyleSheet.create({
   },
   silenceDay: { backgroundColor: 'rgba(237, 233, 254, 0.9)' },
   absenceDay: { backgroundColor: 'rgba(254, 243, 199, 0.9)' },
-  selectedDay: { borderWidth: 2, borderColor: palette.blue400 },
-  todayDay: { borderWidth: 1, borderColor: '#93c5fd' },
+  selectedDay: { borderWidth: 2, borderColor: palette.brand },
+  todayDay: { borderWidth: 1, borderColor: palette.brandMuted },
   weekdayShort: {
     fontSize: 10,
     fontWeight: '600',
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   },
   dayNumberToday: {
     fontWeight: '700',
-    color: '#1e40af',
+    color: palette.brandDark,
   },
 });
 

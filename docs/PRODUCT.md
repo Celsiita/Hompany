@@ -28,7 +28,7 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 - **Una vez**: selector de fecha y hora; tipo **Fecha límite** o **Fecha de ejecución**. Al completar/saldar → solo Historial.
 - Recurrentes: el calendario fija el **primer vencimiento**; semanal/mensual sincronizan día de la semana o día del mes (obligatorios). Sin «meses activos» en UI; **pausa indefinida** sí.
 - Recurrentes: primer vencimiento en el **periodo actual** si el día aún no ha pasado; cuenta atrás al próximo `due_at` de la instancia abierta.
-- Historial: **Programada** + **Realización** (`completed_at`).
+- Historial: Completada / Por compañero / Atrasado / Omitida (filtros de historial incluyen chip **Por compañero**).
 - Completar con foto según ajustes del piso: **opcional/obligatoria** y **cámara o galería / solo cámara**.
 - Al **impugnar**: motivo obligatorio → banner *Requiere revisión: motivo…* hasta nueva entrega.
 - Al **aprobar**: sugerencia opcional.
