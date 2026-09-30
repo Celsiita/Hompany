@@ -182,7 +182,7 @@ export function HomeAgenda({
         <View className="gap-4 pb-8">
           <View className="flex-row items-start justify-between gap-2">
             <Text className="flex-1 text-xs text-stone-500">
-              Calendario y lista del día. Ausencias, modo silencio y visitas → menú ⋮.
+              Calendario y lista del día. Ausencias, silencio y visitas están en el menú ⋮.
             </Text>
             <HelpTip
               title="Agenda"
