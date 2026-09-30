@@ -263,7 +263,7 @@ export function ShoppingListsPanel({
                 keyboardType="decimal-pad"
                 placeholder="0 = recordatorio"
               />
-              <Text className="text-xs text-gray-600">¿Con quién se comparte?</Text>
+              <Text className="text-xs text-stone-600">¿Con quién se comparte?</Text>
               {members.map((member) => {
                 const selected = newMemberIds.includes(member.user_id);
                 return (
@@ -323,7 +323,7 @@ export function ShoppingListsPanel({
                 />
               </View>
 
-              <Text className="text-xs font-semibold text-gray-700">Compartida con</Text>
+              <Text className="text-xs font-semibold text-stone-700">Compartida con</Text>
               {members.map((member) => {
                 const selected = activeList.member_ids.includes(member.user_id);
                 return (
@@ -410,7 +410,7 @@ export function ShoppingListsPanel({
                       onPress={() => void onToggleNeeded(item.id, !item.needed)}
                       style={{ flex: 1 }}>
                       <Text
-                        className={`text-sm ${item.needed ? 'font-semibold text-amber-900' : 'text-gray-400 line-through'}`}>
+                        className={`text-sm ${item.needed ? 'font-semibold text-amber-900' : 'text-stone-400 line-through'}`}>
                         {item.needed ? '⚠️ ' : '✓ '}
                         {item.title}
                       </Text>
@@ -441,9 +441,9 @@ export function ShoppingListsPanel({
                 </View>
               </View>
             </View>
-          ) : (
-            <Text className="text-sm text-stone-500">Crea la primera lista compartida.</Text>
-          )}
+          ) : lists.length > 0 ? (
+            <Text className="text-sm text-stone-500">Elige una lista arriba para ver los ítems.</Text>
+          ) : null}
 
           {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
         </View>
