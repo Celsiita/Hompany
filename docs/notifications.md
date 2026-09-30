@@ -8,16 +8,16 @@ Definido en [`src/features/home/lib/alerts.ts`](../src/features/home/lib/alerts.
 
 | Id | Evento | Cuándo | Canal hoy |
 |----|--------|--------|-----------|
-| `task_due_soon` | Tarea próxima a vencer | `PENDING` y faltan ≤ 24 h | Menú Home ⋮ → Avisos |
-| `task_overdue` | Tarea fuera de plazo | `OVERDUE` o `due_at` pasado | Menú Home ⋮ → Avisos |
-| `task_proof_review` | Foto para validar | Compañero en `SUBMITTED` | Menú Home ⋮ → Avisos |
-| `expense_created` | Nuevo gasto | Alta que te incluye (≤ 48 h) | Menú Home ⋮ → Avisos |
-| `expense_settled` | Deuda saldada | Gasto `SETTLED` reciente (≤ 48 h) | Menú Home ⋮ → Avisos |
-| `expense_overdue` | Gasto fuera de plazo | `OPEN` y `due_at` pasado | Menú Home ⋮ → Avisos + countdown en tarjeta |
+| `task_due_soon` | Tarea próxima a vencer | `PENDING` y faltan ≤ 24 h | Campanita Home |
+| `task_overdue` | Tarea fuera de plazo | `OVERDUE` o `due_at` pasado | Campanita Home |
+| `task_proof_review` | Foto para validar | Compañero en `SUBMITTED` | Campanita Home |
+| `expense_created` | Nuevo gasto | Alta que te incluye (≤ 48 h) | Campanita Home |
+| `expense_settled` | Deuda saldada | Gasto `SETTLED` reciente (≤ 48 h) | Campanita Home |
+| `expense_overdue` | Gasto fuera de plazo | `OPEN` y `due_at` pasado | Campanita Home + countdown |
 
 ## Comportamiento actual
 
-- Campanita en la cabecera de Home (badge rojo si hay urgentes) abre el inbox. **No hay lista de avisos en el Feed.**
+- Campanita en la cabecera de Home (badge rojo si hay urgentes) abre el inbox. También en el menú ⋮. **No hay lista de avisos en el Feed.**
 - Inbox agrupado: Urgente / Pronto / Por revisar / Gastos. Tocar un aviso abre la tarjeta en Tareas o Gastos.
 - Ausencias, modo silencio y visitas del calendario se gestionan desde el menú ⋮.
 - Iconos `?` explican cada sección (Feed, Agenda, Piso, Tareas, Gastos, Ajustes).
