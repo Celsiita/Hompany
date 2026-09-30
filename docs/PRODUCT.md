@@ -6,7 +6,7 @@ Guía de producto para quien use o revise la app. La periodicidad está detallad
 
 | Tab | Para qué sirve |
 |-----|----------------|
-| **Inicio** | Tres secciones: **Feed** (estado, ranking, cuentas), **Agenda** (calendario + lista), **Piso** (Wi‑Fi/reglas). Campanita de avisos. Menú ⋮: ausencias, modo silencio, visitas, iconos. |
+| **Inicio** | Tres secciones: **Feed** (estado, ranking, cuentas), **Agenda** (calendario + lista), **Piso** (Wi‑Fi/reglas). Campanita de avisos. Menú ⋮: ausencias, modo silencio, visitas. |
 | **Tareas** | En curso / Historial. Chips **Tuya** / **Compañero**. Botón **+** para crear. Filtros, tipos, intercambios, foto. Ayuda `?`. |
 | **Gastos** | Súper/casa/ocio. Chips **Debes** / **Tú pagaste**. Botón **+** para crear. Ayuda `?`. |
 | **Ajustes** | Perfil, Plus, iconos, invitación, compañeros, tutorial, foto de prueba (admin), cuenta. |
@@ -88,7 +88,7 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 - Tocar una tarjeta abierta en Tareas/Gastos abre **Editar** (sin menú ⋮).
 - Tocar un ítem abierto en Agenda abre su tarjeta en Tareas/Gastos (resaltada). Programadas abren sheet de acciones.
 - Al **crear** una tarea o gasto, la app salta a su tarjeta en el tablero (feedback visual breve).
-- Avisos: ya no van en el Feed; se abren desde la campanita (también en el menú ⋮).
+- Avisos: ya no van en el Feed; se abren solo desde la campanita.
 
 ## Layout
 
