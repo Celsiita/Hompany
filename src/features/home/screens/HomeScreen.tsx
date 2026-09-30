@@ -3,7 +3,7 @@ import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { FeedSectionHeader } from '@/components/ui/FeedSectionHeader';
-import { HealthMeter, MetricsBar } from '@/components/ui/HealthMeter';
+import { HealthMeter } from '@/components/ui/HealthMeter';
 import { HelpTip } from '@/components/ui/HelpTip';
 import { HomeSectionBar, type HomeSection } from '@/components/ui/HomeSectionBar';
 import { MascotLoading } from '@/components/ui/MascotLoading';
@@ -247,25 +247,18 @@ export function HomeScreen() {
                 colors={['#0f766e']}
               />
             }
-            contentContainerClassName="gap-4 pb-8">
+            contentContainerClassName="gap-5 pb-8">
             <View className="flex-row items-center justify-between">
-              <FeedSectionHeader title="Estado" subtitle="Cumplimiento de esta semana" />
+              <FeedSectionHeader title="Estado" subtitle="Salud del piso esta semana" />
               <HelpTip
                 title="Estado del piso"
-                message="La barra resume si el piso va bien. Pendientes, en revisión (foto) y hechas. Lo urgente está en la campanita."
+                message="El % resume si el piso va bien. Pendientes, en revisión (foto) y hechas van debajo. Lo urgente está en la campanita."
               />
             </View>
             {isLoading ? <MascotLoading /> : <HealthMeter summary={healthSummary} />}
-            {!isLoading ? (
-              <MetricsBar
-                pending={healthSummary.pending}
-                submitted={healthSummary.submitted}
-                completed={healthSummary.completed}
-              />
-            ) : null}
 
             <View className="flex-row items-center justify-between">
-              <FeedSectionHeader title="Clasificación" subtitle="Puntos de reputación esta semana" />
+              <FeedSectionHeader title="Clasificación" subtitle="Reputación semanal · 100 pts de salida" />
               <HelpTip
                 title="Clasificación"
                 message="Empiezas con 100 pts. Cumplir tareas suma; fallar resta. El chip «tú» te marca en el ranking."

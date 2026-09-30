@@ -1,4 +1,5 @@
 import { Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { MascotEmpty } from '@/components/ui/MascotEmpty';
 import {
@@ -25,6 +26,14 @@ function rankTone(rank: number): { badge: string; text: string } {
   return { badge: 'bg-stone-200', text: 'text-stone-700' };
 }
 
+const CARD_SHADOW = {
+  shadowColor: '#1c1917',
+  shadowOpacity: 0.08,
+  shadowRadius: 12,
+  shadowOffset: { width: 0, height: 4 },
+  elevation: 2,
+} as const;
+
 /**
  * Feed card: ranked roommates with reputation score and task stats.
  */
@@ -34,50 +43,60 @@ export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
   }
 
   return (
-    <View className="rounded-2xl border border-teal-200 bg-teal-50/30 p-4 gap-3">
-      <Text className="text-xs text-teal-900/70">
-        Puntos de reputación (100 al inicio de semana) y tareas cumplidas
-      </Text>
+    <Animated.View
+      entering={FadeInDown.delay(60).duration(320).springify().damping(18)}
+      className="gap-2.5 rounded-3xl border border-stone-200/90 bg-white/95 p-4"
+      style={CARD_SHADOW}>
+      {rows.map((row) => {
+        const isMe = Boolean(currentUserId && row.user_id === currentUserId);
+        const isFirst = row.rank === 1;
+        const tone = rankTone(row.rank);
+        const initial = leaderboardInitial(row.display_name);
 
-      <View className="gap-2">
-        {rows.map((row) => {
-          const isMe = Boolean(currentUserId && row.user_id === currentUserId);
-          const tone = rankTone(row.rank);
-          const initial = leaderboardInitial(row.display_name);
-
-          return (
-            <View
-              key={row.user_id}
-              className={`flex-row items-center gap-3 rounded-xl px-3 py-2.5 ${
-                isMe ? 'border border-teal-300 bg-teal-50' : 'bg-stone-50'
-              }`}>
-              <View
-                className={`h-8 w-8 items-center justify-center rounded-full ${tone.badge}`}>
-                <Text className={`text-xs font-bold ${tone.text}`}>{row.rank}</Text>
-              </View>
-
-              <View className="h-10 w-10 items-center justify-center rounded-full bg-white border border-stone-200">
-                <Text className="text-sm font-bold text-stone-800">{initial}</Text>
-              </View>
-
-              <View className="flex-1 gap-0.5">
-                <Text className="text-sm font-semibold text-stone-900" numberOfLines={1}>
-                  {row.display_name}
-                  {isMe ? ' · tú' : ''}
-                </Text>
-                <Text className="text-[11px] text-stone-500" numberOfLines={2}>
-                  {formatLeaderboardTaskInfo(row)}
-                </Text>
-              </View>
-
-              <View className="items-end">
-                <Text className="text-lg font-bold text-stone-900">{row.reputation_points}</Text>
-                <Text className="text-[10px] uppercase tracking-wide text-stone-500">puntos</Text>
-              </View>
+        return (
+          <View
+            key={row.user_id}
+            className={`flex-row items-center gap-3 rounded-2xl px-3 py-3 ${
+              isMe
+                ? 'border border-teal-300 bg-teal-50'
+                : isFirst
+                  ? 'border border-amber-200 bg-amber-50/70'
+                  : 'bg-stone-50/90'
+            }`}>
+            <View className={`h-9 w-9 items-center justify-center rounded-full ${tone.badge}`}>
+              <Text className={`text-sm font-bold ${tone.text}`}>{row.rank}</Text>
             </View>
-          );
-        })}
-      </View>
-    </View>
+
+            <View className="h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white">
+              <Text className="text-base font-bold text-stone-800">{initial}</Text>
+            </View>
+
+            <View className="min-w-0 flex-1 gap-0.5">
+              <Text className="text-[15px] font-semibold text-stone-900" numberOfLines={1}>
+                {row.display_name}
+                {isMe ? (
+                  <Text className="font-bold text-teal-700"> · tú</Text>
+                ) : null}
+              </Text>
+              <Text className="text-[11px] leading-4 text-stone-500" numberOfLines={2}>
+                {formatLeaderboardTaskInfo(row)}
+              </Text>
+            </View>
+
+            <View className="items-end pl-1">
+              <Text
+                className={`text-2xl font-black tracking-tight ${
+                  isMe ? 'text-teal-800' : 'text-stone-900'
+                }`}>
+                {row.reputation_points}
+              </Text>
+              <Text className="text-[10px] font-medium uppercase tracking-wide text-stone-500">
+                pts
+              </Text>
+            </View>
+          </View>
+        );
+      })}
+    </Animated.View>
   );
 }

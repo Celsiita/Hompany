@@ -27,10 +27,15 @@ export function TutorialPreview({ highlight }: TutorialPreviewProps) {
       return (
         <FocusRing label="Estado + clasificación">
           <View className="gap-2 rounded-xl bg-white p-3">
-            <View className="h-2.5 overflow-hidden rounded-full bg-stone-100">
-              <View className="h-2.5 w-3/4 rounded-full bg-emerald-500" />
+            <View className="flex-row items-end justify-between">
+              <Text className="text-2xl font-black text-emerald-900">78%</Text>
+              <View className="rounded-full bg-emerald-100 px-2 py-0.5">
+                <Text className="text-[10px] font-bold text-emerald-900">Excelente</Text>
+              </View>
             </View>
-            <Text className="text-xs font-semibold text-teal-900">Cumplimiento 78% · Excelente</Text>
+            <View className="h-2 overflow-hidden rounded-full bg-stone-100">
+              <View className="h-2 w-3/4 rounded-full bg-emerald-500" />
+            </View>
             <View className="flex-row justify-between rounded-xl bg-teal-50 px-3 py-2">
               <Text className="text-xs text-stone-600">1. Tú · 112 pts</Text>
               <Text className="text-xs text-amber-800">Te deben 12 €</Text>
