@@ -46,7 +46,7 @@ export const homeSchema = z.object({
 });
 
 /**
- * Payload to update shared practical flat info (Feed card).
+ * Payload to update shared practical flat info (Piso card).
  */
 export const updateHomePracticalInfoSchema = z.object({
   wifi_ssid: z.string().max(120),

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { FeedSectionHeader } from '@/components/ui/FeedSectionHeader';
 import { HealthMeter, MetricsBar } from '@/components/ui/HealthMeter';
@@ -219,6 +220,7 @@ export function HomeScreen() {
         <HomeSectionBar section={section} onSectionChange={setSection} />
 
         {section === 'FEED' ? (
+          <Animated.View key="pulso" entering={FadeIn.duration(240)} className="flex-1">
           <ScrollView
             showsVerticalScrollIndicator={false}
             bounces={false}
@@ -269,9 +271,11 @@ export function HomeScreen() {
               <BalanceSummary balances={balances} members={members} currentUserId={user?.id} />
             )}
           </ScrollView>
+          </Animated.View>
         ) : null}
 
         {section === 'AGENDA' ? (
+          <Animated.View key="agenda" entering={FadeIn.duration(240)} className="flex-1">
           <HomeAgenda
             tasks={agendaTasks}
             expenses={agendaExpenses}
@@ -298,9 +302,11 @@ export function HomeScreen() {
               void requestSwap(task, other.user_id);
             }}
           />
+          </Animated.View>
         ) : null}
 
         {section === 'PISO' ? (
+          <Animated.View key="piso" entering={FadeIn.duration(240)} className="flex-1">
           <ScrollView
             showsVerticalScrollIndicator={false}
             bounces={false}
@@ -343,6 +349,7 @@ export function HomeScreen() {
               onRemove={removeNotice}
             />
           </ScrollView>
+          </Animated.View>
         ) : null}
       </View>
 

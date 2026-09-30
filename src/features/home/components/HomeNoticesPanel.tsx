@@ -135,9 +135,14 @@ export function HomeNoticesPanel({
         {isLoading ? (
           <MascotLoading />
         ) : sorted.length === 0 ? (
-          <Text className="text-sm text-gray-500">
-            Aún no hay reglas ni quejas. Publica la primera desde Añadir.
-          </Text>
+          <View className="items-center gap-1 rounded-2xl border border-stone-200 bg-white/80 px-4 py-6">
+            <Text className="text-center text-sm font-semibold text-stone-800">
+              Sin reglas ni quejas
+            </Text>
+            <Text className="text-center text-sm leading-5 text-stone-500">
+              Publica la primera desde Añadir para que todo el piso la vea.
+            </Text>
+          </View>
         ) : (
           <View className="gap-2">
             {sorted.map((notice) => {

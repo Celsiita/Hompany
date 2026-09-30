@@ -342,7 +342,7 @@ export function SettingsScreen() {
           <View className="flex-row items-center justify-between">
             <Text className="text-sm font-semibold text-teal-800">HOMPANY Plus</Text>
             <Text
-              className={`text-xs font-bold px-2 py-1 rounded-full ${
+              className={`text-xs font-bold px-2 py-1 rounded-md ${
                 isPlus ? 'bg-teal-600 text-white' : 'bg-white text-teal-700'
               }`}>
               {isPlus ? 'Activo' : 'Plan gratuito'}

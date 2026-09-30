@@ -16,7 +16,7 @@ const TABS: Array<{ id: HomeSection; label: string }> = [
 ];
 
 /**
- * Switches Home between feed, agenda calendar and flat practical info.
+ * Switches Home between Pulso, Agenda calendar and flat practical info.
  */
 export function HomeSectionBar({ section, onSectionChange }: HomeSectionBarProps) {
   return (
