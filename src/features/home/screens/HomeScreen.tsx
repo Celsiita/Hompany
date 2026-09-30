@@ -242,10 +242,10 @@ export function HomeScreen() {
             ) : null}
 
             <View className="flex-row items-center justify-between">
-              <FeedSectionHeader title="Clasificación" subtitle="Reputación del equipo" />
+              <FeedSectionHeader title="Clasificación" subtitle="Puntos de reputación esta semana" />
               <HelpTip
                 title="Clasificación"
-                message="Ranking por puntos de reputación. Cumplir tareas suma; fallar resta. Ideal para motivar sin drama."
+                message="Empiezas con 100 pts. Cumplir tareas suma; fallar resta. El chip «tú» te marca en el ranking."
               />
             </View>
             {leaderboardLoading ? (
