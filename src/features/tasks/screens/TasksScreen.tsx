@@ -428,6 +428,7 @@ export function TasksScreen() {
               <View className="mb-3">
                 <TaskCard
                   task={item}
+                  itemTypes={taskTypes}
                   showDate
                   currentUserId={user?.id}
                   highlighted={highlightedId === item.id}
@@ -453,6 +454,7 @@ export function TasksScreen() {
             <View className="mb-3">
               <TaskCard
                 task={item}
+                itemTypes={taskTypes}
                 currentUserId={user?.id}
                 highlighted={highlightedId === item.id}
                 busy={busyTaskId === item.id}

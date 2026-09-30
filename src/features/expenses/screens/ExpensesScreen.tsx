@@ -278,6 +278,7 @@ export function ExpensesScreen() {
           <View className="mb-3">
             <ExpenseCard
               expense={item}
+              itemTypes={expenseTypes}
               currentUserId={user?.id}
               highlighted={highlightedId === item.id}
               busy={busyId === item.id}

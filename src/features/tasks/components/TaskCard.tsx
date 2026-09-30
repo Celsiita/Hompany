@@ -2,21 +2,24 @@ import { Image, Pressable, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { categoryLabel } from '@/features/tasks/components/TaskFilterBar';
 import { awardedTaskPoints, canRequestTaskSwap, isTaskOpenOverdue } from '@/features/tasks/lib/board-filters';
 import { formatDueSummary } from '@/features/tasks/lib/countdown';
 import { isPausedRecurring, recurrenceLabel } from '@/features/tasks/lib/recurrence';
 import { taskOwnershipLabel } from '@/features/tasks/lib/task-ownership';
 import { glyphForTaskIcon } from '@/lib/icons/packs';
+import { resolveTaskTypeLabel } from '@/lib/item-type-labels';
 import { mascotReaction } from '@/lib/mascot';
 import { formatHistoryDateTime } from '@/lib/recurrence';
 import { taskStatusBadge } from '@/lib/status-badges';
 import { useIconPack } from '@/providers/IconPackProvider';
+import type { HomeItemType } from '@/schemas/item-type.schema';
 import type { TaskWithRelations } from '@/types/database.types';
 import { TASK_STATUS } from '@/types/task-status';
 
 type TaskCardProps = {
   task: TaskWithRelations;
+  /** Custom home item types so cards show "Cocina" instead of "Tarea rápida". */
+  itemTypes?: readonly HomeItemType[];
   busy?: boolean;
   showDate?: boolean;
   canEdit?: boolean;
@@ -36,6 +39,7 @@ type TaskCardProps = {
  */
 export function TaskCard({
   task,
+  itemTypes = [],
   busy = false,
   showDate = false,
   canEdit = true,
@@ -54,6 +58,12 @@ export function TaskCard({
     currentUserId,
   );
   const mine = ownershipLabel === 'Tuya';
+  const typeLabel = resolveTaskTypeLabel({
+    category: task.category,
+    itemTypeId: task.item_type_id,
+    itemTypes,
+  });
+  const periodLabel = recurrenceLabel(task.recurrence, task.recurrence_config);
   const dueSummary = formatDueSummary(task.due_at, task.due_mode ?? 'DEADLINE');
   const showSubmit =
     (task.status === TASK_STATUS.PENDING || task.status === TASK_STATUS.OVERDUE) &&
@@ -118,7 +128,7 @@ export function TaskCard({
                 </View>
               ) : null}
               <Text className="text-xs font-medium text-blue-700">
-                {categoryLabel(task.category)} · {recurrenceLabel(task.recurrence)}
+                {typeLabel} · {periodLabel}
               </Text>
             </View>
             <Text className="text-lg font-semibold text-stone-900">{task.title}</Text>

@@ -11,13 +11,17 @@ import { isShareSettled } from '@/features/expenses/lib/expense-settlement';
 import { formatDueSummary } from '@/features/tasks/lib/countdown';
 import { glyphForExpenseKind } from '@/lib/icons/packs';
 import { expenseStatusBadge } from '@/lib/status-badges';
-import { formatHistoryDateTime, recurrenceLabel } from '@/lib/recurrence';
+import { formatHistoryDateTime, parseRecurrenceConfig, recurrenceLabel } from '@/lib/recurrence';
+import { resolveExpenseTypeLabel } from '@/lib/item-type-labels';
 import { useIconPack } from '@/providers/IconPackProvider';
+import type { HomeItemType } from '@/schemas/item-type.schema';
 import type { ExpenseShareWithProfile, ExpenseWithRelations } from '@/types/database.types';
-import { EXPENSE_KIND_LABEL } from '@/types/expense';
+import type { ExpenseKind } from '@/types/expense';
 
 type ExpenseCardProps = {
   expense: ExpenseWithRelations;
+  /** Custom home item types so cards show the created type name. */
+  itemTypes?: readonly HomeItemType[];
   currentUserId?: string | null;
   busy?: boolean;
   /** Temporary visual focus from calendar / create redirect. */
@@ -42,6 +46,7 @@ type ExpenseCardProps = {
  */
 export function ExpenseCard({
   expense,
+  itemTypes = [],
   currentUserId,
   busy = false,
   highlighted = false,
@@ -59,6 +64,15 @@ export function ExpenseCard({
   const countdown = expense.due_at
     ? formatDueSummary(expense.due_at, expense.due_mode ?? 'DEADLINE')
     : null;
+  const typeLabel = resolveExpenseTypeLabel({
+    kind: expense.kind as ExpenseKind,
+    itemTypeId: expense.item_type_id,
+    itemTypes,
+  });
+  const periodLabel = recurrenceLabel(
+    expense.recurrence,
+    parseRecurrenceConfig(expense.recurrence_config),
+  );
   const badge = expenseStatusBadge({
     status: expense.status,
     paused: isExpensePaused(expense),
@@ -131,7 +145,7 @@ export function ExpenseCard({
                 </View>
               ) : null}
               <Text className="text-xs font-medium text-amber-800">
-                {EXPENSE_KIND_LABEL[expense.kind]} · {recurrenceLabel(expense.recurrence)}
+                {typeLabel} · {periodLabel}
               </Text>
             </View>
             <Text className="text-lg font-semibold text-stone-900">{expense.title}</Text>

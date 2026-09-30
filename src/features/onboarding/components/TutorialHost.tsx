@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 
 import type { HomeSection } from '@/components/ui/HomeSectionBar';
 import { Button } from '@/components/ui/Button';
+import { TutorialFocusFrame } from '@/features/onboarding/components/TutorialFocusFrame';
 import { TutorialPreview } from '@/features/onboarding/components/TutorialPreview';
 import { MASCOT_NAME } from '@/lib/mascot';
 import {
@@ -136,8 +137,9 @@ export function TutorialHost({
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => void finish()}>
-      <View className="flex-1 justify-end bg-black/55">
-        <View className="mx-3 mb-3 gap-3 rounded-3xl bg-white p-5">
+      <View className="flex-1 justify-end">
+        <TutorialFocusFrame highlight={step.highlight} />
+        <View className="mx-3 mb-3 gap-3 rounded-3xl bg-white p-5" style={{ elevation: 8, zIndex: 2 }}>
           <View className="flex-row items-center justify-between">
             <Text className="text-xs font-semibold uppercase tracking-wide text-teal-800">
               {MASCOT_NAME} · tour

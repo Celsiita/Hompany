@@ -310,11 +310,17 @@ export function recurrenceIntervalLabel(
     return RECURRENCE_KIND_LABEL.ONCE;
   }
   const n = recurrenceInterval(config);
-  const unit = RECURRENCE_FREQUENCY_UNIT_LABEL[recurrence];
+  const plural: Record<Exclude<RecurrenceKind, 'ONCE'>, [string, string]> = {
+    DAILY: ['día', 'días'],
+    WEEKLY: ['semana', 'semanas'],
+    MONTHLY: ['mes', 'meses'],
+    YEARLY: ['año', 'años'],
+  };
+  const [one, many] = plural[recurrence];
   if (n === 1) {
-    return `Cada ${unit.replace('(s)', '').toLowerCase()}`;
+    return `Cada ${one}`;
   }
-  return `Cada ${n} ${unit.toLowerCase()}`;
+  return `Cada ${n} ${many}`;
 }
 
 /**

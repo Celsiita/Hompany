@@ -112,10 +112,16 @@ export function countOpenInstancesForTemplate(
 }
 
 /**
- * Human-readable recurrence label for cards.
+ * Human-readable recurrence label for cards (honours interval, e.g. "Cada 2 semanas").
  */
-export function recurrenceLabel(recurrence: RecurrenceKind): string {
-  return sharedRecurrenceLabel(recurrence);
+export function recurrenceLabel(
+  recurrence: RecurrenceKind,
+  config?: RecurrenceConfig | null | unknown,
+): string {
+  return sharedRecurrenceLabel(
+    recurrence,
+    config && typeof config === 'object' ? parseRecurrenceConfig(config) : null,
+  );
 }
 
 /**

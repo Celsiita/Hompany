@@ -1,12 +1,14 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
-import { categoryLabel } from '@/features/tasks/components/TaskFilterBar';
 import { recurrenceLabel } from '@/features/tasks/lib/recurrence';
+import { resolveTaskTypeLabel } from '@/lib/item-type-labels';
+import type { HomeItemType } from '@/schemas/item-type.schema';
 import type { TaskTemplateWithRelations } from '@/types/database.types';
 
 type TemplateCardProps = {
   template: TaskTemplateWithRelations;
+  itemTypes?: readonly HomeItemType[];
   busy?: boolean;
   onUse?: (template: TaskTemplateWithRelations) => void;
   onEdit?: (template: TaskTemplateWithRelations) => void;
@@ -29,11 +31,19 @@ const ICON_GLYPH: Record<string, string> = {
  */
 export function TemplateCard({
   template,
+  itemTypes = [],
   busy = false,
   onUse,
   onEdit,
   onDelete,
 }: TemplateCardProps) {
+  const typeLabel = resolveTaskTypeLabel({
+    category: template.category,
+    itemTypeId: template.item_type_id,
+    itemTypes,
+  });
+  const periodLabel = recurrenceLabel(template.recurrence, template.recurrence_config);
+
   return (
     <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
       <View className="flex-row items-start justify-between gap-3">
@@ -44,7 +54,7 @@ export function TemplateCard({
           <View className="flex-1 gap-1">
             <Text className="text-lg font-semibold text-stone-900">{template.title}</Text>
             <Text className="text-xs font-medium text-blue-700">
-              {categoryLabel(template.category)} · {recurrenceLabel(template.recurrence)}
+              {typeLabel} · {periodLabel}
             </Text>
             {template.description ? (
               <Text className="text-sm text-stone-600">{template.description}</Text>
