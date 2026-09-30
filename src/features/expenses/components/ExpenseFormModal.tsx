@@ -343,11 +343,15 @@ export function ExpenseFormModal({
   return (
     <BottomSheetModal visible={visible} onClose={onClose}>
       <Text className="mb-3 text-xl font-bold text-stone-900">
-        {mode === 'edit' ? 'Editar gasto' : mode === 'repeat' ? 'Repetir gasto' : 'Nuevo gasto'}
+        {mode === 'edit'
+          ? t('expense.edit')
+          : mode === 'repeat'
+            ? t('expense.repeat')
+            : t('expense.new')}
       </Text>
 
       <View className="gap-3">
-              <TextField label="Título" value={title} onChangeText={setTitle} />
+              <TextField label={t('common.title')} value={title} onChangeText={setTitle} />
               <TextField
                 label={t('money.amountLabel')}
                 keyboardType="decimal-pad"
@@ -570,10 +574,10 @@ export function ExpenseFormModal({
 
               <View className="mb-4 flex-row gap-2">
                 <View className="flex-1">
-                  <Button label="Cancelar" variant="secondary" onPress={onClose} />
+                  <Button label={t('common.cancel')} variant="secondary" onPress={onClose} />
                 </View>
                 <View className="flex-1">
-                  <Button label="Guardar" loading={loading} onPress={() => void handleSubmit()} />
+                  <Button label={t('common.save')} loading={loading} onPress={() => void handleSubmit()} />
                 </View>
               </View>
               {mode === 'edit' && onDelete ? (

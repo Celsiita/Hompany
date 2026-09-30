@@ -9,6 +9,7 @@ import { palette } from '@/lib/interactive-styles';
 import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useHome } from '@/providers/HomeProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import {
   createHomeInputSchema,
   joinHomeInputSchema,
@@ -39,6 +40,7 @@ export function SetupHomeScreen() {
   const { signOut } = useAuth();
   const { createHome, joinHome, homes, setActiveHomeId } = useHome();
   const confirm = useConfirmDialog();
+  const { t } = useLocale();
   const [mode, setMode] = useState<Mode>('join');
   const [name, setName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
@@ -89,16 +91,13 @@ export function SetupHomeScreen() {
           style={{ color: palette.brand }}>
           HOMPANY
         </Text>
-        <Text className="text-xl font-semibold text-stone-900">Tu piso compartido</Text>
-        <Text className="text-base text-stone-600">
-          ¿Sois nuevos? Crea el piso y comparte el código. ¿Ya existe? Pega el código que te pasó un
-          compañero.
-        </Text>
+        <Text className="text-xl font-semibold text-stone-900">{t('setup.title')}</Text>
+        <Text className="text-base text-stone-600">{t('setup.body')}</Text>
       </Animated.View>
 
       {homes.length > 0 ? (
         <Animated.View entering={FadeInDown.delay(60).duration(420)} className="gap-2">
-          <Text className="text-sm font-semibold text-stone-700">Tus pisos</Text>
+          <Text className="text-sm font-semibold text-stone-700">{t('setup.yourHomes')}</Text>
           {homes.map((home) => (
             <Pressable
               key={home.id}
@@ -107,7 +106,9 @@ export function SetupHomeScreen() {
                 void setActiveHomeId(home.id);
               }}>
               <Text className="text-base font-semibold text-stone-900">{home.name}</Text>
-              <Text className="text-sm text-stone-500">Código: {home.invite_code}</Text>
+              <Text className="text-sm text-stone-500">
+                {t('settings.codeLabel', { code: home.invite_code })}
+              </Text>
             </Pressable>
           ))}
         </Animated.View>
@@ -117,14 +118,14 @@ export function SetupHomeScreen() {
         <View className="flex-row gap-2">
           <View className="flex-1">
             <Button
-              label="Crear piso"
+              label={t('setup.create')}
               variant={mode === 'create' ? 'primary' : 'secondary'}
               onPress={() => setMode('create')}
             />
           </View>
           <View className="flex-1">
             <Button
-              label="Tengo código"
+              label={t('setup.haveCode')}
               variant={mode === 'join' ? 'primary' : 'secondary'}
               onPress={() => setMode('join')}
             />
@@ -135,14 +136,14 @@ export function SetupHomeScreen() {
           {mode === 'create' ? (
             <>
               <TextField
-                label="Nombre del piso"
+                label={t('setup.homeName')}
                 value={name}
                 onChangeText={setName}
-                placeholder="Ej. Piso Erasmus / Calle Mayor 12"
+                placeholder={t('setup.homeName.ph')}
               />
               {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
               <Button
-                label="Crear piso"
+                label={t('setup.create')}
                 loading={loading}
                 onPress={() => void handleCreate()}
               />
@@ -150,18 +151,16 @@ export function SetupHomeScreen() {
           ) : (
             <>
               <TextField
-                label="Código de invitación"
+                label={t('setup.inviteCode')}
                 autoCapitalize="characters"
                 value={inviteCode}
                 onChangeText={setInviteCode}
-                placeholder="Ej. A1B2C3"
+                placeholder={t('setup.inviteCode.ph')}
               />
-              <Text className="text-xs text-stone-500">
-                Lo ves en Ajustes → Invitar (quien creó el piso).
-              </Text>
+              <Text className="text-xs text-stone-500">{t('setup.joinHint')}</Text>
               {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
               <Button
-                label="Unirme al piso"
+                label={t('setup.join')}
                 loading={loading}
                 onPress={() => void handleJoin()}
               />
@@ -171,13 +170,13 @@ export function SetupHomeScreen() {
       </Animated.View>
 
       <Button
-        label="Cerrar sesión"
+        label={t('settings.signOut')}
         variant="ghost"
         onPress={() => {
           void confirm({
-            title: 'Cerrar sesión',
-            message: '¿Seguro que quieres salir de HOMPANY en este dispositivo?',
-            confirmLabel: 'Cerrar sesión',
+            title: t('settings.signOut'),
+            message: t('settings.signOutBody'),
+            confirmLabel: t('settings.signOut'),
             tone: 'neutral',
           }).then((ok) => {
             if (ok) {

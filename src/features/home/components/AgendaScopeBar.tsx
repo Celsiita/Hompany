@@ -37,7 +37,7 @@ export function AgendaScopeBar({
   const scopeOptions = [
     { value: 'mine' as const, label: t('filters.mine') },
     { value: 'others' as const, label: t('filters.others') },
-  ];
+  ] as const;
   const categoryChips: { key: 'tasks' | 'expenses'; label: string; accent: 'blue' | 'amber' }[] = [
     { key: 'tasks', label: t('filters.tasks'), accent: 'blue' },
     { key: 'expenses', label: t('filters.expenses'), accent: 'amber' },

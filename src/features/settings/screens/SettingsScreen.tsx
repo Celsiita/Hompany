@@ -373,28 +373,30 @@ export function SettingsScreen() {
             <View className="gap-3">
               <View className="flex-row items-center gap-2">
                 <Text className="flex-1 text-sm text-stone-600">
-                  Código: {activeHome.invite_code}
+                  {t('settings.codeLabel', { code: activeHome.invite_code })}
                 </Text>
                 <Pressable onPress={() => void handleCopyCode()} className="rounded-lg bg-stone-100 px-3 py-2">
                   <Text className="text-xs font-semibold text-teal-700">
-                    {copied ? '¡Copiado!' : 'Copiar código'}
+                    {copied ? t('settings.copied') : t('settings.copyCode')}
                   </Text>
                 </Pressable>
               </View>
-              <Text className="text-sm font-medium text-stone-700">Invitar con enlace o QR</Text>
-              <Text className="text-xs text-stone-500">
-                Comparte el enlace o el QR: tu compañero entra con el código sin líos.
-              </Text>
+              <Text className="text-sm font-medium text-stone-700">{t('settings.inviteTitle')}</Text>
+              <Text className="text-xs text-stone-500">{t('settings.inviteBody')}</Text>
               <View className="flex-row gap-2">
                 <View className="flex-1">
                   <Button
-                    label="Copiar enlace"
+                    label={t('settings.copyLink')}
                     variant="secondary"
                     onPress={() => void handleCopyInviteLink()}
                   />
                 </View>
                 <View className="flex-1">
-                  <Button label="Mostrar QR" variant="secondary" onPress={() => setQrOpen(true)} />
+                  <Button
+                    label={t('settings.showQr')}
+                    variant="secondary"
+                    onPress={() => setQrOpen(true)}
+                  />
                 </View>
               </View>
             </View>
@@ -402,7 +404,7 @@ export function SettingsScreen() {
 
           {homes.length > 1 ? (
             <View className="gap-2">
-              <Text className="text-sm font-medium text-stone-700">Cambiar de piso</Text>
+              <Text className="text-sm font-medium text-stone-700">{t('settings.switchHome')}</Text>
               {homes.map((home) => {
                 const active = home.id === activeHome?.id;
                 return (
@@ -418,19 +420,17 @@ export function SettingsScreen() {
             </View>
           ) : null}
 
-          <Text className="text-sm font-medium text-stone-700 mt-1">Compañeros</Text>
+          <Text className="text-sm font-medium text-stone-700 mt-1">{t('settings.members')}</Text>
           {members.length === 0 ? (
-            <Text className="text-sm text-stone-500">
-              Solo tú por ahora. Invita compañeros con el código de arriba.
-            </Text>
+            <Text className="text-sm text-stone-500">{t('settings.membersEmpty')}</Text>
           ) : (
             members.map((member) => {
               const mine = member.user_id === user?.id;
               return (
                 <View key={member.id} className="flex-row items-center justify-between gap-2">
                   <Text className="text-sm text-stone-800 flex-1">
-                    {member.profiles?.display_name ?? 'Compañero'}
-                    {mine ? ' · tú' : ''} · {homeRoleLabel(member.role)}
+                    {member.profiles?.display_name ?? t('common.roommate')}
+                    {mine ? t('common.youSuffix') : ''} · {homeRoleLabel(member.role)}
                   </Text>
                   <OverflowMenuButton onPress={() => setMenuMember(member)} />
                 </View>
@@ -440,16 +440,14 @@ export function SettingsScreen() {
 
           {activeHome && canManage ? (
             <View className="gap-3 border-t border-stone-100 pt-3">
-              <Text className="text-sm font-medium text-stone-700">Prueba de tareas</Text>
-              <Text className="text-xs text-stone-500">
-                Cómo se entrega la foto al completar una tarea en este piso.
-              </Text>
+              <Text className="text-sm font-medium text-stone-700">{t('settings.proof')}</Text>
+              <Text className="text-xs text-stone-500">{t('settings.proof.sub')}</Text>
               <FilterTogglePair
                 value={activeHome.proof_mode ?? 'OPTIONAL'}
                 clearable={false}
                 options={[
-                  { value: 'OPTIONAL', label: 'Foto opcional' },
-                  { value: 'REQUIRED', label: 'Foto obligatoria' },
+                  { value: 'OPTIONAL', label: t('settings.proof.optional') },
+                  { value: 'REQUIRED', label: t('settings.proof.required') },
                 ]}
                 onChange={(value) => {
                   if (!proofBusy) {
@@ -461,8 +459,8 @@ export function SettingsScreen() {
                 value={activeHome.proof_capture ?? 'CAMERA_OR_GALLERY'}
                 clearable={false}
                 options={[
-                  { value: 'CAMERA_OR_GALLERY', label: 'Cámara o galería' },
-                  { value: 'CAMERA_ONLY', label: 'Solo cámara' },
+                  { value: 'CAMERA_OR_GALLERY', label: t('settings.proof.cameraOrGallery') },
+                  { value: 'CAMERA_ONLY', label: t('settings.proof.cameraOnly') },
                 ]}
                 onChange={(value) => {
                   if (!proofBusy) {
@@ -475,35 +473,35 @@ export function SettingsScreen() {
 
           {activeHome ? (
             <Button
-              label="Abandonar piso"
+              label={t('settings.leave')}
               variant="secondary"
               onPress={() => void handleLeaveHome()}
             />
           ) : null}
         </SettingsSection>
 
-        <SettingsSection title="Otro piso" subtitle="Crear uno nuevo o unirte con código">
+        <SettingsSection title={t('settings.otherHome')} subtitle={t('settings.otherHome.sub')}>
           <TextField
-            label="Crear piso"
+            label={t('settings.createHome')}
             value={newHomeName}
             onChangeText={setNewHomeName}
-            placeholder="Ej. Piso Erasmus"
+            placeholder={t('settings.createHome.ph')}
           />
           <Button
-            label="Crear"
+            label={t('common.create')}
             variant="secondary"
             loading={homeBusy}
             onPress={() => void handleCreateHome()}
           />
           <TextField
-            label="Unirse con código"
+            label={t('settings.joinCode')}
             value={inviteCode}
             onChangeText={setInviteCode}
             autoCapitalize="characters"
             placeholder="DEMO2026"
           />
           <Button
-            label="Unirme"
+            label={t('settings.join')}
             variant="secondary"
             loading={homeBusy}
             onPress={() => void handleJoinHome()}
@@ -514,10 +512,10 @@ export function SettingsScreen() {
 
         <SettingsSection
           title={t('settings.plus')}
-          subtitle="Matching piso ↔ gente en camino (Próximamente en Piso). El core del piso sigue gratis."
+          subtitle={t('settings.plus.subFull')}
           tone="plus">
           <View className="flex-row items-center justify-between">
-            <Text className="text-sm font-semibold text-teal-900">Estado</Text>
+            <Text className="text-sm font-semibold text-teal-900">{t('settings.plus.status')}</Text>
             <Text
               className={`text-xs font-bold px-2 py-1 rounded-md ${
                 isPlus ? 'bg-teal-600 text-white' : 'bg-white text-teal-700'
@@ -531,7 +529,7 @@ export function SettingsScreen() {
               onPress={() => {
                 void presentPaywall().then((ok) => {
                   if (ok) {
-                    showToast({ message: 'Bienvenido a HOMPANY Plus', tone: 'success' });
+                    showToast({ message: t('settings.plusWelcome'), tone: 'success' });
                   }
                 });
               }}
@@ -551,24 +549,18 @@ export function SettingsScreen() {
             onPress={() => {
               void restorePurchases().then((ok) => {
                 if (ok) {
-                  showToast({ message: 'Compras restauradas', tone: 'success' });
+                  showToast({ message: t('settings.purchasesRestored'), tone: 'success' });
                 }
               });
             }}
           />
           {!isConfigured ? (
-            <Text className="text-xs text-amber-700">
-              Falta la clave de compras en .env.local — el resto de la app funciona igual.
-            </Text>
+            <Text className="text-xs text-amber-700">{t('settings.rcMissing')}</Text>
           ) : null}
-          <Text className="text-xs leading-4 text-teal-800/80">
-            Teaser «Próximamente» en la cabecera de Piso.
-          </Text>
+          <Text className="text-xs leading-4 text-teal-800/80">{t('settings.plusTeaser')}</Text>
         </SettingsSection>
 
-        <SettingsSection
-          title="Iconos"
-          subtitle="Clásico, Hogar, Play e importados — todos gratis.">
+        <SettingsSection title={t('settings.icons')} subtitle={t('settings.icons.sub')}>
           {packs.map((pack) => {
             const active = packId === pack.id;
             const custom = !isBuiltinIconPackId(pack.id);
@@ -580,8 +572,8 @@ export function SettingsScreen() {
                   className={`rounded-xl border px-3 py-3 ${active ? 'border-teal-500 bg-teal-50' : 'border-stone-200'}`}>
                   <Text className="text-sm font-medium text-stone-900">
                     {pack.tasks.checklist} {pack.name}
-                    {active ? ' · activo' : ''}
-                    {custom ? ' · importado' : ''}
+                    {active ? t('common.activeSuffix') : ''}
+                    {custom ? ' · import' : ''}
                     {locked ? ' · Plus' : ''}
                   </Text>
                   <Text className="text-xs text-stone-500">{pack.description}</Text>
@@ -590,28 +582,28 @@ export function SettingsScreen() {
                   <Pressable
                     onPress={() => {
                       void confirm({
-                        title: 'Eliminar pack',
-                        message: `¿Borrar «${pack.name}» de este dispositivo?`,
-                        confirmLabel: 'Eliminar',
+                        title: t('settings.deletePack'),
+                        message: t('settings.deletePackBody', { name: pack.name }),
+                        confirmLabel: t('common.delete'),
                       }).then((ok) => {
                         if (ok) {
                           void removeCustomPack(pack.id);
                         }
                       });
                     }}>
-                    <Text className="text-xs font-semibold text-red-600 px-1">Eliminar pack</Text>
+                    <Text className="text-xs font-semibold text-red-600 px-1">
+                      {t('settings.deletePack')}
+                    </Text>
                   </Pressable>
                 ) : null}
               </View>
             );
           })}
 
-          <CollapsibleSection title="Importar pack JSON" accent="teal">
-            <Text className="text-xs text-stone-500">
-              Pega un JSON con nombre e iconos propios.
-            </Text>
+          <CollapsibleSection title={t('settings.importPack')} accent="teal">
+            <Text className="text-xs text-stone-500">{t('settings.importPack.sub')}</Text>
             <TextField
-              label="JSON del pack"
+              label={t('settings.packJson')}
               value={iconPackJson}
               onChangeText={setIconPackJson}
               multiline
@@ -621,7 +613,7 @@ export function SettingsScreen() {
               placeholder='{"name":"Fiesta","tasks":{"checklist":"🎉"}}'
             />
             <Button
-              label="Importar y activar"
+              label={t('settings.importActivate')}
               variant="secondary"
               loading={importingPack}
               onPress={() => void handleImportIconPack()}
@@ -629,32 +621,38 @@ export function SettingsScreen() {
           </CollapsibleSection>
         </SettingsSection>
 
-        <SettingsSection title="Ayuda" subtitle="Tour de 1 minuto por Feed, Agenda, Tareas y Gastos">
-          <Button label="Repetir tutorial con Mico" variant="secondary" onPress={openTutorial} />
+        <SettingsSection title={t('settings.helpSection')} subtitle={t('settings.helpSection.sub')}>
+          <Button
+            label={t('settings.replayTutorial')}
+            variant="secondary"
+            onPress={openTutorial}
+          />
         </SettingsSection>
 
         <Button
-          label="Cerrar sesión"
+          label={t('settings.signOut')}
           variant="secondary"
           loading={signingOut}
           onPress={() => void handleSignOut()}
         />
         <Pressable onPress={() => void handleDeleteAccount()} className="py-3">
-          <Text className="text-center text-sm font-semibold text-red-600">Eliminar cuenta</Text>
+          <Text className="text-center text-sm font-semibold text-red-600">
+            {t('settings.deleteAccount')}
+          </Text>
         </Pressable>
       </ScrollView>
       </Animated.View>
 
       <OverflowMenu
         visible={menuMember !== null}
-        title={menuMember?.profiles?.display_name ?? 'Compañero'}
+        title={menuMember?.profiles?.display_name ?? t('common.roommate')}
         onClose={() => setMenuMember(null)}
         actions={
           menuMember
             ? [
                 {
                   key: 'history',
-                  label: 'Historial de actividad',
+                  label: t('settings.memberHistory'),
                   onPress: () => {
                     void openMemberActivity(menuMember);
                   },
@@ -750,7 +748,7 @@ export function SettingsScreen() {
                 </Text>
               </>
             ) : null}
-            <Button label="Cerrar" variant="secondary" onPress={() => setQrOpen(false)} />
+            <Button label={t('common.close')} variant="secondary" onPress={() => setQrOpen(false)} />
           </Pressable>
         </Pressable>
       </Modal>

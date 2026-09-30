@@ -1,4 +1,5 @@
 import { ToggleChipRow } from '@/components/ui/ToggleChipRow';
+import { useLocale } from '@/providers/LocaleProvider';
 
 export type TaskBoardStatusFilter =
   | 'ALL'
@@ -19,31 +20,6 @@ export type ExpenseBoardStatusFilter =
   | 'SETTLED'
   | 'SKIPPED';
 
-const TASK_OPEN_CHIPS: { key: Exclude<TaskBoardStatusFilter, 'ALL'>; label: string }[] = [
-  { key: 'PENDING', label: 'Pendiente' },
-  { key: 'SUBMITTED', label: 'En revisión' },
-  { key: 'PAUSED', label: 'Pausado' },
-];
-
-const TASK_HISTORY_CHIPS: { key: Exclude<TaskBoardStatusFilter, 'ALL'>; label: string }[] = [
-  { key: 'COMPLETED', label: 'Completado' },
-  { key: 'RESOLVED_BY_PEER', label: 'Por compañero' },
-  { key: 'RESOLVED_LATE', label: 'Atrasado' },
-  { key: 'SKIPPED', label: 'Omitido' },
-];
-
-const EXPENSE_OPEN_CHIPS: { key: Exclude<ExpenseBoardStatusFilter, 'ALL'>; label: string }[] = [
-  { key: 'OPEN', label: 'Pendiente' },
-  { key: 'REQUESTED', label: 'Solicitado' },
-  { key: 'PAUSED', label: 'Pausado' },
-];
-
-const EXPENSE_HISTORY_CHIPS: { key: Exclude<ExpenseBoardStatusFilter, 'ALL'>; label: string }[] = [
-  { key: 'SETTLED', label: 'Saldado' },
-  { key: 'OVERDUE', label: 'Atrasado' },
-  { key: 'SKIPPED', label: 'Omitido' },
-];
-
 type TaskStatusFilterChipsProps = {
   value: TaskBoardStatusFilter;
   onChange: (value: TaskBoardStatusFilter) => void;
@@ -60,7 +36,19 @@ type ExpenseStatusFilterChipsProps = {
  * Task status pills: En curso (pendiente / revisión / pausado) o Historial.
  */
 export function TaskStatusFilterChips({ value, onChange, history = false }: TaskStatusFilterChipsProps) {
-  const chips = history ? TASK_HISTORY_CHIPS : TASK_OPEN_CHIPS;
+  const { t } = useLocale();
+  const chips = history
+    ? [
+        { key: 'COMPLETED' as const, label: t('status.completed') },
+        { key: 'RESOLVED_BY_PEER' as const, label: t('status.peer') },
+        { key: 'RESOLVED_LATE' as const, label: t('status.overdue') },
+        { key: 'SKIPPED' as const, label: t('status.skipped') },
+      ]
+    : [
+        { key: 'PENDING' as const, label: t('status.pending') },
+        { key: 'SUBMITTED' as const, label: t('status.review') },
+        { key: 'PAUSED' as const, label: t('status.paused') },
+      ];
   return <ToggleChipRow value={value} chips={chips} onChange={onChange} />;
 }
 
@@ -72,6 +60,17 @@ export function ExpenseStatusFilterChips({
   onChange,
   history = false,
 }: ExpenseStatusFilterChipsProps) {
-  const chips = history ? EXPENSE_HISTORY_CHIPS : EXPENSE_OPEN_CHIPS;
+  const { t } = useLocale();
+  const chips = history
+    ? [
+        { key: 'SETTLED' as const, label: t('status.settled') },
+        { key: 'OVERDUE' as const, label: t('status.overdue') },
+        { key: 'SKIPPED' as const, label: t('status.skipped') },
+      ]
+    : [
+        { key: 'OPEN' as const, label: t('status.pending') },
+        { key: 'REQUESTED' as const, label: t('status.requested') },
+        { key: 'PAUSED' as const, label: t('status.paused') },
+      ];
   return <ToggleChipRow value={value} chips={chips} onChange={onChange} />;
 }

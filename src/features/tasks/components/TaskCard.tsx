@@ -12,7 +12,9 @@ import { resolveTaskTypeLabel } from '@/lib/item-type-labels';
 import { mascotReaction } from '@/lib/mascot';
 import { formatHistoryDateTime } from '@/lib/recurrence';
 import { taskStatusBadge } from '@/lib/status-badges';
+import { displayTaskOwnership } from '@/lib/i18n/display';
 import { useIconPack } from '@/providers/IconPackProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import type { HomeItemType } from '@/schemas/item-type.schema';
 import type { TaskWithRelations } from '@/types/database.types';
 import { TASK_STATUS } from '@/types/task-status';
@@ -54,10 +56,12 @@ export function TaskCard({
   onRequestSwap,
 }: TaskCardProps) {
   const { pack } = useIconPack();
+  const { t } = useLocale();
   const ownershipLabel = taskOwnershipLabel(
     task.task_assignees.map((assignee) => assignee.user_id),
     currentUserId,
   );
+  const ownershipDisplay = displayTaskOwnership(ownershipLabel, t);
   const mine = ownershipLabel === 'Tuya';
   const typeLabel = resolveTaskTypeLabel({
     category: task.category,
@@ -100,7 +104,7 @@ export function TaskCard({
       disabled={!editable}
       onPress={() => onEdit?.(task)}
       accessibilityRole={editable ? 'button' : undefined}
-      accessibilityHint={editable ? 'Editar tarea' : undefined}
+      accessibilityHint={editable ? t('task.edit') : undefined}
       className={`rounded-2xl border bg-white p-4 gap-3 ${
         highlighted
           ? 'border-blue-400 bg-blue-50'
@@ -115,7 +119,7 @@ export function TaskCard({
           </View>
           <View className="flex-1 gap-1">
             <View className="flex-row flex-wrap items-center gap-1.5">
-              {ownershipLabel ? (
+              {ownershipDisplay ? (
                 <View
                   className={`rounded-md px-2 py-0.5 ${
                     mine ? 'bg-blue-200/80' : 'bg-sky-200/80'
@@ -124,7 +128,7 @@ export function TaskCard({
                     className={`text-[10px] font-bold ${
                       mine ? 'text-blue-950' : 'text-sky-950'
                     }`}>
-                    {ownershipLabel}
+                    {ownershipDisplay}
                   </Text>
                 </View>
               ) : null}
@@ -144,15 +148,15 @@ export function TaskCard({
       {disputeNote && !closed ? (
         <View className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 gap-0.5">
           <Text className="text-xs font-bold uppercase tracking-wide text-amber-900">
-            Requiere revisión
+            {t('task.needsReview')}
           </Text>
-          <Text className="text-sm text-amber-950">Motivo: {disputeNote}</Text>
+          <Text className="text-sm text-amber-950">{t('task.reason', { note: disputeNote })}</Text>
         </View>
       ) : null}
 
       {approveNote ? (
         <View className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2">
-          <Text className="text-xs font-semibold text-emerald-800">Sugerencia al validar</Text>
+          <Text className="text-xs font-semibold text-emerald-800">{t('task.approveTip')}</Text>
           <Text className="text-sm text-emerald-950">{approveNote}</Text>
         </View>
       ) : null}
@@ -164,7 +168,7 @@ export function TaskCard({
           ) : (
             task.task_assignees.slice(0, 4).map((assignee) => (
               <Text key={assignee.id} className="text-sm text-stone-800">
-                {assignee.profiles?.display_name ?? 'Compañero'}
+                {assignee.profiles?.display_name ?? t('common.roommate')}
               </Text>
             ))
           )}

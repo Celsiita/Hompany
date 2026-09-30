@@ -1,16 +1,10 @@
 import { ToggleChipRow } from '@/components/ui/ToggleChipRow';
 
-import { RECURRENCE_KIND_LABEL, type RecurrenceKind } from '@/lib/recurrence';
+import type { RecurrenceKind } from '@/lib/recurrence';
+import { displayRecurrenceKind } from '@/lib/i18n/display';
+import { useLocale } from '@/providers/LocaleProvider';
 
 export type RecurrenceFilter = 'ALL' | RecurrenceKind;
-
-const CHIPS: { key: RecurrenceKind; label: string }[] = [
-  { key: 'ONCE', label: RECURRENCE_KIND_LABEL.ONCE },
-  { key: 'DAILY', label: RECURRENCE_KIND_LABEL.DAILY },
-  { key: 'WEEKLY', label: RECURRENCE_KIND_LABEL.WEEKLY },
-  { key: 'MONTHLY', label: RECURRENCE_KIND_LABEL.MONTHLY },
-  { key: 'YEARLY', label: RECURRENCE_KIND_LABEL.YEARLY },
-];
 
 type RecurrenceFilterChipsProps = {
   value: RecurrenceFilter;
@@ -21,5 +15,13 @@ type RecurrenceFilterChipsProps = {
  * Recurrence pills without "Todas". Clearing the active chip shows every period.
  */
 export function RecurrenceFilterChips({ value, onChange }: RecurrenceFilterChipsProps) {
-  return <ToggleChipRow value={value} chips={CHIPS} onChange={onChange} />;
+  const { t } = useLocale();
+  const chips: { key: RecurrenceKind; label: string }[] = [
+    { key: 'ONCE', label: displayRecurrenceKind('ONCE', t) },
+    { key: 'DAILY', label: displayRecurrenceKind('DAILY', t) },
+    { key: 'WEEKLY', label: displayRecurrenceKind('WEEKLY', t) },
+    { key: 'MONTHLY', label: displayRecurrenceKind('MONTHLY', t) },
+    { key: 'YEARLY', label: displayRecurrenceKind('YEARLY', t) },
+  ];
+  return <ToggleChipRow value={value} chips={chips} onChange={onChange} />;
 }

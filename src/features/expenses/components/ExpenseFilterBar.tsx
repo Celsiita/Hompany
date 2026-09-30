@@ -5,14 +5,11 @@ import { FilterTogglePair } from '@/components/ui/FilterTogglePair';
 import { RecurrenceFilterChips, type RecurrenceFilter } from '@/components/ui/RecurrenceFilterChips';
 import { ExpenseStatusFilterChips, type ExpenseBoardStatusFilter } from '@/components/ui/StatusFilterChips';
 import { ToggleChipRow } from '@/components/ui/ToggleChipRow';
-import { EXPENSE_KIND, EXPENSE_KIND_LABEL } from '@/types/expense';
+import { displayExpenseKind } from '@/lib/i18n/display';
+import { useLocale } from '@/providers/LocaleProvider';
+import { EXPENSE_KIND } from '@/types/expense';
 import type { HomeItemType } from '@/schemas/item-type.schema';
 import type { ExpenseInvolvementFilter, ExpenseKindFilter } from '@/schemas/expense.schema';
-
-const INVOLVEMENT_OPTIONS = [
-  { value: 'I_OWE' as const, label: 'Mis deudas' },
-  { value: 'THEY_OWE_ME' as const, label: 'Mis cobros' },
-] as const;
 
 type ExpenseFilterBarProps = {
   involvement: ExpenseInvolvementFilter;
@@ -42,29 +39,34 @@ export function ExpenseFilterBar({
   onStatusChange,
   history = false,
 }: ExpenseFilterBarProps) {
+  const { t } = useLocale();
+  const involvementOptions = [
+    { value: 'I_OWE' as const, label: t('filters.myDebts') },
+    { value: 'THEY_OWE_ME' as const, label: t('filters.myCredits') },
+  ] as const;
   const kindChips = [
-    { key: EXPENSE_KIND.GROCERY, label: EXPENSE_KIND_LABEL.GROCERY },
-    { key: EXPENSE_KIND.HOUSE, label: EXPENSE_KIND_LABEL.HOUSE },
-    { key: EXPENSE_KIND.PEER, label: EXPENSE_KIND_LABEL.PEER },
+    { key: EXPENSE_KIND.GROCERY, label: displayExpenseKind(EXPENSE_KIND.GROCERY, t) },
+    { key: EXPENSE_KIND.HOUSE, label: displayExpenseKind(EXPENSE_KIND.HOUSE, t) },
+    { key: EXPENSE_KIND.PEER, label: displayExpenseKind(EXPENSE_KIND.PEER, t) },
     ...customTypes.map((type) => ({ key: type.id, label: type.name })),
   ];
 
   return (
     <View className="gap-3">
-      <FilterGroup label="Alcance">
+      <FilterGroup label={t('filters.scope')}>
         <FilterTogglePair
           value={involvement === 'I_OWE' || involvement === 'THEY_OWE_ME' ? involvement : 'ALL'}
-          options={INVOLVEMENT_OPTIONS}
+          options={involvementOptions}
           onChange={onInvolvementChange}
         />
       </FilterGroup>
-      <FilterGroup label="Tipo">
+      <FilterGroup label={t('filters.type')}>
         <ToggleChipRow value={kind} chips={kindChips} onChange={onKindChange} />
       </FilterGroup>
-      <FilterGroup label="Periodicidad">
+      <FilterGroup label={t('filters.recurrence')}>
         <RecurrenceFilterChips value={recurrence} onChange={onRecurrenceChange} />
       </FilterGroup>
-      <FilterGroup label="Estado">
+      <FilterGroup label={t('filters.status')}>
         <ExpenseStatusFilterChips value={status} onChange={onStatusChange} history={history} />
       </FilterGroup>
     </View>

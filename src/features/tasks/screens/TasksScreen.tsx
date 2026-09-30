@@ -306,7 +306,7 @@ export function TasksScreen() {
               title={t('tabs.tasks')}
               subtitle={t('screen.tasks')}
               helpTitle={t('tabs.tasks')}
-              helpMessage="Crea con +. Entrega con foto si el piso lo pide. Los compañeros aprueban o impugnan. En pendientes: «Proponer cambio». Lo cerrado no se reabre."
+              helpMessage={t('tasks.help')}
               createAccent="blue"
               onCreatePress={() => {
                 setFormTask(null);
@@ -349,7 +349,7 @@ export function TasksScreen() {
               <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
                 <Text className="text-sm font-semibold text-amber-950">No se pudo cargar el tablero</Text>
                 <Text className="text-sm leading-5 text-amber-900/80">{error}</Text>
-                <Button label="Reintentar" variant="secondary" onPress={() => void refresh()} />
+                <Button label={t('common.retry')} variant="secondary" onPress={() => void refresh()} />
               </View>
             ) : null}
 
@@ -371,7 +371,7 @@ export function TasksScreen() {
                     <View className="flex-row gap-2">
                       <View className="flex-1">
                         <Button
-                          label="Aceptar"
+                          label={t('common.accept')}
                           loading={busyTaskId === swap.id}
                           onPress={() =>
                             void runTaskAction(
@@ -384,7 +384,7 @@ export function TasksScreen() {
                       </View>
                       <View className="flex-1">
                         <Button
-                          label="Rechazar"
+                          label={t('common.reject')}
                           variant="secondary"
                           loading={busyTaskId === swap.id}
                           onPress={() =>

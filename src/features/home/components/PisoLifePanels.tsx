@@ -13,6 +13,7 @@ import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
 import type { CalendarNoticeKind, HomeNotice } from '@/schemas/home-notice.schema';
 import type { MemberSystemLeave, SystemLeaveKind } from '@/schemas/presence.schema';
 import type { TaskWithRelations } from '@/types/database.types';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type PisoLifePanelsProps = {
   members: HomeMemberWithProfile[];
@@ -146,6 +147,7 @@ export function PisoLifePanels({
   onAddCalendarNotice,
   onRemoveCalendarNotice,
 }: PisoLifePanelsProps) {
+  const { t } = useLocale();
   const [modal, setModal] = useState<LifeModalKind>(null);
 
   const absenceCount =
@@ -177,25 +179,25 @@ export function PisoLifePanels({
       <View className="flex-row gap-2">
         <SnapshotTile
           glyph="🧳"
-          label="Ausencias"
+          label={t('filters.absences')}
           count={absenceCount}
-          hint="Abrir"
+          hint={t('common.open')}
           tone="amber"
           onPress={() => setModal('absences')}
         />
         <SnapshotTile
           glyph="🔇"
-          label="Silencio"
+          label={t('filters.silence')}
           count={silenceCount}
-          hint="Abrir"
+          hint={t('common.open')}
           tone="violet"
           onPress={() => setModal('silence')}
         />
         <SnapshotTile
           glyph="🚪"
-          label="Visitas"
+          label={t('filters.visits')}
           count={visitCount}
-          hint="Abrir"
+          hint={t('common.open')}
           tone="teal"
           onPress={() => setModal('visits')}
         />

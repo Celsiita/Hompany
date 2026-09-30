@@ -5,7 +5,10 @@ import { FilterTogglePair } from '@/components/ui/FilterTogglePair';
 import { RecurrenceFilterChips, type RecurrenceFilter } from '@/components/ui/RecurrenceFilterChips';
 import { TaskStatusFilterChips, type TaskBoardStatusFilter } from '@/components/ui/StatusFilterChips';
 import { ToggleChipRow } from '@/components/ui/ToggleChipRow';
-import { TASK_CATEGORY_LABEL } from '@/types/task-category';
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { displayTaskCategory } from '@/lib/i18n/display';
+import { translate } from '@/lib/i18n/strings';
+import { useLocale } from '@/providers/LocaleProvider';
 import type { HomeItemType } from '@/schemas/item-type.schema';
 import type { TaskAssigneeScope, TaskBoardCategoryFilter } from '@/schemas/task.schema';
 
@@ -22,11 +25,6 @@ type TaskFilterBarProps = {
   history?: boolean;
 };
 
-const SCOPE_OPTIONS = [
-  { value: 'MINE' as const, label: 'Mis tareas' },
-  { value: 'OTHERS' as const, label: 'Compañeros' },
-] as const;
-
 /**
  * Task board filters: scope, type, recurrence and status (shared pill format).
  */
@@ -42,27 +40,32 @@ export function TaskFilterBar({
   onStatusChange,
   history = false,
 }: TaskFilterBarProps) {
+  const { t } = useLocale();
+  const scopeOptions = [
+    { value: 'MINE' as const, label: t('filters.myTasks') },
+    { value: 'OTHERS' as const, label: t('filters.peerTasks') },
+  ] as const;
   const typeChips = [
-    { key: 'QUICK' as const, label: TASK_CATEGORY_LABEL.QUICK },
+    { key: 'QUICK' as const, label: displayTaskCategory('QUICK', t) },
     ...customTypes.map((type) => ({ key: type.id, label: type.name })),
   ];
 
   return (
     <View className="gap-3">
-      <FilterGroup label="Alcance">
+      <FilterGroup label={t('filters.scope')}>
         <FilterTogglePair
           value={scope === 'MINE' || scope === 'OTHERS' ? scope : 'ALL'}
-          options={SCOPE_OPTIONS}
+          options={scopeOptions}
           onChange={(next) => onScopeChange(next === 'ALL' ? 'ALL' : next)}
         />
       </FilterGroup>
-      <FilterGroup label="Tipo">
+      <FilterGroup label={t('filters.type')}>
         <ToggleChipRow value={category} chips={typeChips} onChange={onCategoryChange} />
       </FilterGroup>
-      <FilterGroup label="Periodicidad">
+      <FilterGroup label={t('filters.recurrence')}>
         <RecurrenceFilterChips value={recurrence} onChange={onRecurrenceChange} />
       </FilterGroup>
-      <FilterGroup label="Estado">
+      <FilterGroup label={t('filters.status')}>
         <TaskStatusFilterChips value={status} onChange={onStatusChange} history={history} />
       </FilterGroup>
     </View>
@@ -70,5 +73,5 @@ export function TaskFilterBar({
 }
 
 export function categoryLabel(category: import('@/types/task-category').TaskCategory): string {
-  return TASK_CATEGORY_LABEL[category];
+  return displayTaskCategory(category, (key) => translate(getAppLocale(), key));
 }

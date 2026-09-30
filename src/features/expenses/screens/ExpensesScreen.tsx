@@ -225,7 +225,7 @@ export function ExpensesScreen() {
               title={t('tabs.expenses')}
               subtitle={t('screen.expenses')}
               helpTitle={t('tabs.expenses')}
-              helpMessage="Reparte a partes iguales, por % o cantidades fijas. Chips Debes / Tú pagaste. Mis deudas / Mis cobros. Saldar cierra la deuda."
+              helpMessage={t('expenses.help')}
               createAccent="amber"
               createAccessibilityLabel="Nuevo gasto"
               onCreatePress={() => {
@@ -262,7 +262,7 @@ export function ExpensesScreen() {
               <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
                 <Text className="text-sm font-semibold text-amber-950">No se pudo cargar el tablero</Text>
                 <Text className="text-sm leading-5 text-amber-900/80">{error}</Text>
-                <Button label="Reintentar" variant="secondary" onPress={() => void refresh()} />
+                <Button label={t('common.retry')} variant="secondary" onPress={() => void refresh()} />
               </View>
             ) : null}
 

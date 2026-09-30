@@ -5,6 +5,7 @@ import {
   type AgendaItem,
 } from '@/features/home/lib/agenda-items';
 import { formatHistoryDate, stripCycleSuffix } from '@/lib/recurrence';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type AgendaItemCardProps = {
   item: AgendaItem;
@@ -34,40 +35,36 @@ function cardClass(item: AgendaItem, availability: ReturnType<typeof agendaItemA
   return item.mine ? 'border-blue-400 bg-blue-50' : 'border-sky-300 bg-sky-50';
 }
 
-function kindChip(item: AgendaItem): { label: string; className: string } {
-  if (item.kind === 'expense') {
-    if (item.expenseRole === 'i_owe') {
-      return { label: 'Debes', className: 'bg-rose-200/80 text-rose-950' };
-    }
-    return { label: 'Te deben', className: 'bg-amber-200/80 text-amber-950' };
-  }
-  return {
-    label: item.mine ? 'Tarea · tuya' : 'Tarea · compañero',
-    className: item.mine ? 'bg-blue-200/80 text-blue-950' : 'bg-sky-200/80 text-sky-950',
-  };
-}
-
-function statusBadge(
-  item: AgendaItem,
-  availability: ReturnType<typeof agendaItemAvailability>,
-): string {
-  const startLabel = item.startsAt ? formatHistoryDate(item.startsAt.toISOString()) : '';
-  if (availability === 'overdue') {
-    return 'Atrasada · vencida';
-  }
-  if (availability === 'locked') {
-    return startLabel ? `Se desbloquea el ${startLabel}` : 'Programada';
-  }
-  return startLabel ? `Disponible (desde ${startLabel})` : 'Disponible';
-}
-
 /**
  * Compact agenda row: blue = your task, sky = roommate task, amber = expense.
  */
 export function AgendaItemCard({ item, onPress, now = new Date() }: AgendaItemCardProps) {
+  const { t } = useLocale();
   const availability = agendaItemAvailability(item, now);
   const locked = availability === 'locked';
-  const chip = kindChip(item);
+  const chip =
+    item.kind === 'expense'
+      ? {
+          label: item.expenseRole === 'i_owe' ? t('chip.youOwe') : t('chip.theyOwe'),
+          className:
+            item.expenseRole === 'i_owe'
+              ? 'bg-rose-200/80 text-rose-950'
+              : 'bg-amber-200/80 text-amber-950',
+        }
+      : {
+          label: item.mine ? t('agenda.taskYours') : t('agenda.taskPeer'),
+          className: item.mine ? 'bg-blue-200/80 text-blue-950' : 'bg-sky-200/80 text-sky-950',
+        };
+
+  const startLabel = item.startsAt ? formatHistoryDate(item.startsAt.toISOString()) : '';
+  let status = t('status.pending');
+  if (availability === 'overdue') {
+    status = t('status.overdue');
+  } else if (availability === 'locked') {
+    status = startLabel || t('agenda.scheduled');
+  } else if (startLabel) {
+    status = startLabel;
+  }
 
   return (
     <Pressable
@@ -83,7 +80,9 @@ export function AgendaItemCard({ item, onPress, now = new Date() }: AgendaItemCa
               <Text className="text-[10px] font-bold">{chip.label}</Text>
             </View>
             {item.lifecycle === 'scheduled' ? (
-              <Text className="text-[10px] font-semibold text-stone-500">Programada</Text>
+              <Text className="text-[10px] font-semibold text-stone-500">
+                {t('agenda.scheduled')}
+              </Text>
             ) : null}
           </View>
           <Text
@@ -101,7 +100,7 @@ export function AgendaItemCard({ item, onPress, now = new Date() }: AgendaItemCa
                   ? 'text-amber-800'
                   : 'text-teal-800'
             }`}>
-            {statusBadge(item, availability)}
+            {status}
           </Text>
         </View>
       </View>

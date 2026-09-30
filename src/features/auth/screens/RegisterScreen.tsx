@@ -8,6 +8,7 @@ import { Screen } from '@/components/ui/Screen';
 import { TextField } from '@/components/ui/TextField';
 import { palette } from '@/lib/interactive-styles';
 import { useAuth } from '@/providers/AuthProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import { registerSchema } from '@/schemas/auth.schema';
 
 /**
@@ -16,6 +17,7 @@ import { registerSchema } from '@/schemas/auth.schema';
 export function RegisterScreen() {
   const router = useRouter();
   const { signUp } = useAuth();
+  const { t } = useLocale();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +28,7 @@ export function RegisterScreen() {
     setError(null);
     const parsed = registerSchema.safeParse({ displayName, email, password });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Datos no válidos');
+      setError(parsed.error.issues[0]?.message ?? t('auth.tagline'));
       return;
     }
 
@@ -34,7 +36,7 @@ export function RegisterScreen() {
     try {
       await signUp(parsed.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo registrar');
+      setError(err instanceof Error ? err.message : t('auth.register'));
     } finally {
       setLoading(false);
     }
@@ -48,31 +50,29 @@ export function RegisterScreen() {
           style={{ color: palette.brand }}>
           HOMPANY
         </Text>
-        <Text className="text-2xl font-bold text-stone-900">Crear cuenta</Text>
-        <Text className="text-base text-stone-600">
-          Deja de discutir por fregar y por el súper. Tareas con foto, gastos claros, reputación.
-        </Text>
+        <Text className="text-2xl font-bold text-stone-900">{t('auth.register')}</Text>
+        <Text className="text-base text-stone-600">{t('auth.tagline')}</Text>
         <Pressable
           onPress={() => router.push('/(auth)/login')}
           accessibilityRole="button"
-          accessibilityLabel="Ir al login con demo"
+          accessibilityLabel={t('auth.demoFill')}
           className="mt-1 gap-0.5 rounded-xl border border-teal-200 bg-teal-50/80 px-3 py-2.5">
-          <Text className="text-xs font-semibold text-teal-900">¿Demo local?</Text>
+          <Text className="text-xs font-semibold text-teal-900">{t('auth.demoFill')}</Text>
           <Text className="text-xs leading-4 text-teal-800/80">
-            Entra con ana@hompany.local · password123
+            ana@hompany.local · password123
           </Text>
         </Pressable>
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(80).duration(420)} className="gap-3">
         <TextField
-          label="Nombre"
+          label={t('auth.displayName')}
           autoComplete="name"
           value={displayName}
           onChangeText={setDisplayName}
         />
         <TextField
-          label="Email"
+          label={t('auth.email')}
           autoCapitalize="none"
           keyboardType="email-address"
           autoComplete="email"
@@ -80,16 +80,20 @@ export function RegisterScreen() {
           onChangeText={setEmail}
         />
         <TextField
-          label="Contraseña"
+          label={t('auth.password')}
           secureTextEntry
           autoComplete="password-new"
           value={password}
           onChangeText={setPassword}
         />
         {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
-        <Button label="Registrarme" loading={loading} onPress={() => void handleSubmit()} />
         <Button
-          label="Ya tengo cuenta"
+          label={t('auth.registerSubmit')}
+          loading={loading}
+          onPress={() => void handleSubmit()}
+        />
+        <Button
+          label={t('auth.haveAccount')}
           variant="ghost"
           onPress={() => router.replace('/(auth)/login')}
         />

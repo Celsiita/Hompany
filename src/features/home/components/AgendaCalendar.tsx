@@ -30,6 +30,7 @@ import { hasExamPeriodsOnDate } from '@/lib/exam-periods';
 import { noticeEmojisOnDate } from '@/lib/home-notices';
 import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
 import { useIconPack } from '@/providers/IconPackProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import type { MemberAbsence } from '@/schemas/absence.schema';
 import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
 import type { HomeNotice } from '@/schemas/home-notice.schema';
@@ -84,6 +85,12 @@ export function AgendaCalendar({
   now = new Date(),
 }: AgendaCalendarProps) {
   const { pack } = useIconPack();
+  const { t, locale } = useLocale();
+  const weekdayLabels = locale === 'en' ? ['M', 'T', 'W', 'T', 'F', 'S', 'S'] : WEEKDAY_LABELS;
+  const weekdayShort =
+    locale === 'en'
+      ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      : WEEKDAY_SHORT;
 
   const horizon = useMemo(() => {
     if (expanded) {
@@ -165,7 +172,7 @@ export function AgendaCalendar({
         accessibilityState={{ selected: isSelected(day) }}>
         {compact ? (
           <Text style={styles.weekdayShort}>
-            {WEEKDAY_SHORT[day.getDay() === 0 ? 6 : day.getDay() - 1]}
+            {weekdayShort[day.getDay() === 0 ? 6 : day.getDay() - 1]}
           </Text>
         ) : null}
         <Text style={today ? styles.dayNumberToday : styles.dayNumber}>
@@ -189,8 +196,8 @@ export function AgendaCalendar({
             })}
           </Text>
           <HelpTip
-            title="Agenda"
-            message="Toca un día para ver su lista. Crear o editar ausencias, silencio y visitas: pestaña Piso."
+            title={t('home.agenda')}
+            message={t('agenda.help')}
             extra={<AgendaColorLegend />}
           />
         </View>
@@ -252,7 +259,7 @@ export function AgendaCalendar({
         {expanded ? (
           <>
             <View className="mb-1 flex-row">
-              {WEEKDAY_LABELS.map((label) => (
+              {weekdayLabels.map((label) => (
                 <View key={label} className="flex-1 items-center py-1">
                   <Text className="text-[10px] font-bold uppercase text-stone-400">{label}</Text>
                 </View>

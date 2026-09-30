@@ -4,6 +4,7 @@ import { BottomSheetModal } from '@/components/ui/BottomSheetModal';
 import { MascotEmpty } from '@/components/ui/MascotEmpty';
 import type { AgendaItem } from '@/features/home/lib/agenda-items';
 import { stripCycleSuffix } from '@/lib/recurrence';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type DayAgendaSheetProps = {
   visible: boolean;
@@ -45,8 +46,9 @@ export function DayAgendaSheet({
   onClose,
   onOpenItem,
 }: DayAgendaSheetProps) {
+  const { t, locale } = useLocale();
   const dayLabel = day
-    ? new Intl.DateTimeFormat('es-ES', {
+    ? new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'es-ES', {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
@@ -56,14 +58,12 @@ export function DayAgendaSheet({
   return (
     <BottomSheetModal visible={visible} onClose={onClose} maxHeightClassName="max-h-[70%]" animationType="fade">
       <Text className="mb-1 text-sm font-semibold capitalize text-stone-500">{dayLabel}</Text>
-      <Text className="mb-3 text-xs text-stone-500">
-        Tareas · gastos · programadas atenuadas. Toca un ítem para abrirlo.
-      </Text>
+      <Text className="mb-3 text-xs text-stone-500">{t('agenda.dayHint')}</Text>
       {examLabels.length > 0 ? (
         <View className="mb-3 gap-1">
           {examLabels.map((label) => (
             <Text key={label} className="text-xs font-medium text-sky-800">
-              📚 Exámenes: {label}
+              📚 {t('agenda.exams', { label })}
             </Text>
           ))}
         </View>
@@ -82,12 +82,12 @@ export function DayAgendaSheet({
             <Text className="mt-1 text-xs text-stone-600">
               {item.kind === 'task'
                 ? item.mine
-                  ? 'Tarea · tuya'
-                  : 'Tarea · compañero'
+                  ? t('agenda.taskYours')
+                  : t('agenda.taskPeer')
                 : item.expenseRole === 'i_owe'
-                  ? 'Debes'
-                  : 'Te deben'}
-              {item.lifecycle === 'scheduled' ? ' · Programada' : ' · Abierta'}
+                  ? t('chip.youOwe')
+                  : t('chip.theyOwe')}
+              {item.lifecycle === 'scheduled' ? ` · ${t('agenda.scheduled')}` : ` · ${t('agenda.open')}`}
               {' · '}
               {item.actorLabel}
             </Text>
@@ -95,7 +95,7 @@ export function DayAgendaSheet({
         ))
       )}
       <Pressable onPress={onClose} className="mt-3 rounded-xl bg-stone-100 px-3 py-3">
-        <Text className="text-center text-sm font-semibold text-stone-700">Cerrar</Text>
+        <Text className="text-center text-sm font-semibold text-stone-700">{t('common.close')}</Text>
       </Pressable>
     </BottomSheetModal>
   );

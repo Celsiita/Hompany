@@ -11,9 +11,11 @@ import { isShareSettled } from '@/features/expenses/lib/expense-settlement';
 import { formatDueSummary } from '@/features/tasks/lib/countdown';
 import { glyphForExpenseKind } from '@/lib/icons/packs';
 import { expenseStatusBadge } from '@/lib/status-badges';
+import { displayExpenseOwnership } from '@/lib/i18n/display';
 import { formatHistoryDateTime, parseRecurrenceConfig, recurrenceLabel } from '@/lib/recurrence';
 import { resolveExpenseTypeLabel } from '@/lib/item-type-labels';
 import { useIconPack } from '@/providers/IconPackProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import type { HomeItemType } from '@/schemas/item-type.schema';
 import type { ExpenseShareWithProfile, ExpenseWithRelations } from '@/types/database.types';
 import type { ExpenseKind } from '@/types/expense';
@@ -58,6 +60,7 @@ export function ExpenseCard({
   onSettleShare,
 }: ExpenseCardProps) {
   const { pack } = useIconPack();
+  const { t } = useLocale();
   const isOpen = expense.status === 'OPEN';
   const noAmount = expense.amount <= 0;
   const debtors = expense.expense_shares.filter((share) => share.user_id !== expense.paid_by);
@@ -89,6 +92,7 @@ export function ExpenseCard({
       : null);
   const isCreditor = Boolean(currentUserId && currentUserId === expense.paid_by);
   const ownershipLabel = expenseOwnershipLabel(expense, currentUserId);
+  const ownershipDisplay = displayExpenseOwnership(ownershipLabel, t);
   const iOwe = ownershipLabel === 'Debes';
   const editable = Boolean(canEdit && onEdit);
 
@@ -97,7 +101,7 @@ export function ExpenseCard({
       disabled={!editable}
       onPress={() => onEdit?.(expense)}
       accessibilityRole={editable ? 'button' : undefined}
-      accessibilityHint={editable ? 'Editar gasto' : undefined}
+      accessibilityHint={editable ? t('expense.edit') : undefined}
       contentStyle={mergeStyles(
         {
           gap: 12,
@@ -123,7 +127,7 @@ export function ExpenseCard({
           </View>
           <View className="flex-1 gap-1">
             <View className="flex-row flex-wrap items-center gap-1.5">
-              {ownershipLabel ? (
+              {ownershipDisplay ? (
                 <View
                   className={`rounded-md px-2 py-0.5 ${
                     isCreditor
@@ -140,7 +144,7 @@ export function ExpenseCard({
                           ? 'text-rose-950'
                           : 'text-emerald-950'
                     }`}>
-                    {ownershipLabel}
+                    {ownershipDisplay}
                   </Text>
                 </View>
               ) : null}
@@ -159,7 +163,9 @@ export function ExpenseCard({
 
       <View className="flex-row items-center justify-between">
         <Text className="text-sm text-stone-600">
-          Pagó {isCreditor ? 'tú' : (expense.payer?.display_name ?? 'alguien')}
+          {isCreditor
+            ? t('money.paidByYou')
+            : t('money.paidBy', { name: expense.payer?.display_name ?? t('common.roommate') })}
         </Text>
         <Text className="text-lg font-bold text-stone-900">
           {noAmount ? '—' : formatEuro(expense.amount)}
@@ -196,11 +202,11 @@ export function ExpenseCard({
       ) : null}
 
       {debtors.length === 0 ? (
-        <Text className="text-xs text-stone-500">Nadie más debe este gasto.</Text>
+        <Text className="text-xs text-stone-500">{t('money.nobodyOwes')}</Text>
       ) : (
         <View className="gap-2">
           {debtors.map((share) => {
-            const name = share.profiles?.display_name ?? 'Compañero';
+            const name = share.profiles?.display_name ?? t('common.roommate');
             const settled = isShareSettled(share);
             const isDebtor = Boolean(currentUserId && currentUserId === share.user_id);
             const showActions = isOpen && !noAmount && Boolean(currentUserId);
@@ -211,8 +217,8 @@ export function ExpenseCard({
                 className="flex-row items-center justify-between rounded-xl bg-stone-50 px-3 py-2 gap-2">
                 <Text className="flex-1 text-sm text-stone-800">
                   {name}
-                  {settled ? ' · pagado' : ` · ${formatEuro(share.share_amount)}`}
-                  {isDebtor && !settled ? ' · te toca' : ''}
+                  {settled ? t('money.paidSuffix') : ` · ${formatEuro(share.share_amount)}`}
+                  {isDebtor && !settled ? t('money.yourTurn') : ''}
                 </Text>
 
                 {showActions && isCreditor && onSettleShare ? (
@@ -221,7 +227,7 @@ export function ExpenseCard({
                     disabled={busy}
                     hitSlop={8}>
                     <Text className="text-sm font-semibold text-amber-800">
-                      {settled ? 'Deshacer' : 'Saldar'}
+                      {settled ? t('money.undo') : t('money.settle')}
                     </Text>
                   </Pressable>
                 ) : null}
@@ -233,14 +239,19 @@ export function ExpenseCard({
 
       {isOpen && onSettle && isCreditor ? (
         <Button
-          label={noAmount ? 'Completar importe' : 'Saldar todo'}
+          label={noAmount ? t('money.completeAmount') : t('money.settleAll')}
           loading={busy}
           onPress={() => (noAmount ? onEdit?.(expense) : onSettle(expense))}
         />
       ) : null}
 
       {onRepeat ? (
-        <Button label="↻ Repetir" variant="secondary" loading={busy} onPress={() => onRepeat(expense)} />
+        <Button
+          label={t('common.repeat')}
+          variant="secondary"
+          loading={busy}
+          onPress={() => onRepeat(expense)}
+        />
       ) : null}
     </SafePressable>
   );

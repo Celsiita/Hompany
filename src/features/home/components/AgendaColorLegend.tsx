@@ -1,5 +1,7 @@
 import { Text, View } from 'react-native';
 
+import { useLocale } from '@/providers/LocaleProvider';
+
 type LegendDotProps = {
   className: string;
   label: string;
@@ -21,17 +23,16 @@ function LegendDot({ className, label }: LegendDotProps) {
  * Visual color key for agenda markers (shown inside the calendar HelpTip sheet).
  */
 export function AgendaColorLegend() {
+  const { t } = useLocale();
   return (
     <View className="gap-2 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5">
       <View className="flex-row flex-wrap items-center gap-x-3 gap-y-1.5">
-        <LegendDot className="bg-blue-600" label="Tu tarea" />
-        <LegendDot className="border border-sky-600 bg-transparent" label="Compañero" />
-        <LegendDot className="bg-rose-500" label="Debes" />
-        <LegendDot className="bg-amber-500" label="Te deben" />
+        <LegendDot className="bg-blue-600" label={t('chip.yourTask')} />
+        <LegendDot className="border border-sky-600 bg-transparent" label={t('chip.peer')} />
+        <LegendDot className="bg-rose-500" label={t('chip.youOwe')} />
+        <LegendDot className="bg-amber-500" label={t('chip.theyOwe')} />
       </View>
-      <Text className="text-[11px] leading-4 text-stone-500">
-        🧳 ausencia · 🔇 silencio · 🚪 visita · 🔧 reparación · 📅 evento
-      </Text>
+      <Text className="text-[11px] leading-4 text-stone-500">{t('legend.life')}</Text>
     </View>
   );
 }
