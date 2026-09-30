@@ -328,7 +328,7 @@ export function SettingsScreen() {
           title="Ajustes"
           subtitle="Tu cuenta, tu piso y la sesión"
           helpTitle="Ajustes"
-          helpMessage="Perfil, invitación, compañeros, foto de prueba del piso y HOMPANY Plus (packs de iconos). Desde aquí puedes repetir el tutorial."
+          helpMessage="Perfil, invitación, compañeros, foto de prueba y Plus: packs de iconos opcionales. Desde aquí puedes repetir el tutorial."
         />
 
         <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
@@ -345,16 +345,16 @@ export function SettingsScreen() {
               className={`text-xs font-bold px-2 py-1 rounded-full ${
                 isPlus ? 'bg-teal-600 text-white' : 'bg-white text-teal-700'
               }`}>
-              {isPlus ? 'Activo' : 'Gratis'}
+              {isPlus ? 'Activo' : 'Plan gratuito'}
             </Text>
           </View>
           <Text className="text-xs text-teal-900/80">
-            Packs de iconos Hogar y Play + importar JSON. El núcleo (tareas, gastos, agenda) sigue
-            gratis. Monetización con RevenueCat.
+            Iconos Hogar y Play, e importar packs JSON. Opcional: el cuadrante y las tareas siguen
+            gratis.
           </Text>
           {!isPlus ? (
             <Button
-              label="Probar HOMPANY Plus"
+              label="Ver HOMPANY Plus"
               onPress={() => {
                 void presentPaywall().then((ok) => {
                   if (ok) {

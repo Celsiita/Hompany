@@ -70,7 +70,7 @@ export function ItemTypePicker({
         <SafePressable
           onPress={() => setAdding(true)}
           contentStyle={mergeStyles(interactive.ghostButton, { alignSelf: 'flex-start', paddingVertical: 4 })}>
-          <Text className="text-xs font-semibold text-blue-700">{addLabel}</Text>
+          <Text className="text-xs font-semibold text-teal-700">{addLabel}</Text>
         </SafePressable>
       ) : (
         <View className="gap-2">

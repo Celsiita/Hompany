@@ -32,6 +32,9 @@ export function OverflowMenu({ visible, title, actions, onClose }: OverflowMenuP
           accessibilityLabel="Cerrar menú"
         />
         <View className="rounded-t-3xl bg-white p-4 pb-8 gap-1">
+          <View className="items-center pb-1">
+            <View className="h-1 w-10 rounded-full bg-stone-300" />
+          </View>
           {title ? <Text className="text-sm font-semibold text-gray-500 mb-2">{title}</Text> : null}
           {actions.map((action) => (
             <SafePressable

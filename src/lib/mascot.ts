@@ -142,7 +142,7 @@ const EMPTY_COPY: Record<MascotEmptyKind, { title: string; body: string }> = {
   },
   alerts: {
     title: 'Bandeja limpia',
-    body: 'Cuando haya vencidas, revisiones o deudas urgentes, saldrán aquí.',
+    body: 'Aquí salen vencidas, revisiones y deudas. Si algo urge, la campanita se marca en rojo.',
   },
 };
 
@@ -166,7 +166,7 @@ const REACTIONS: Record<
     body: `${MASCOT_NAME} recoge la entrega y la pasa a los compañeros.`,
   },
   swap: {
-    button: '⇄ Cambiar',
+    button: '⇄ Proponer cambio',
     title: 'Cambio de cromos',
     body: `${MASCOT_NAME} propone un trueque limpio entre compañeros.`,
   },

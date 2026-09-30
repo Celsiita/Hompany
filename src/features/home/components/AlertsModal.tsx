@@ -31,13 +31,13 @@ export function AlertsModal({ visible, alerts, onClose }: AlertsModalProps) {
     <BottomSheetModal visible={visible} onClose={onClose} maxHeightClassName="max-h-[80%]">
       <View className="mb-3 gap-1">
         <Text className="text-lg font-bold text-stone-900">Avisos</Text>
-        <Text className="text-sm text-stone-500">
-          {alerts.length === 0
-            ? 'Cuando haya algo que requiera tu atención (vencidas, revisiones, deudas), aparecerá aquí.'
-            : urgentCount > 0
-              ? `${alerts.length} aviso${alerts.length === 1 ? '' : 's'} · ${urgentCount} urgente${urgentCount === 1 ? '' : 's'}`
-              : `${alerts.length} aviso${alerts.length === 1 ? '' : 's'} activos`}
-        </Text>
+        {alerts.length > 0 ? (
+          <Text className="text-sm text-stone-500">
+            {urgentCount > 0
+              ? `${alerts.length} aviso${alerts.length === 1 ? '' : 's'} · ${urgentCount} urgente${urgentCount === 1 ? '' : 's'}. Toca uno para ir a la tarjeta.`
+              : `${alerts.length} aviso${alerts.length === 1 ? '' : 's'}. Toca uno para ir a la tarjeta.`}
+          </Text>
+        ) : null}
       </View>
       <AlertsInbox alerts={alerts} onPressAlert={openAlert} />
       <Pressable onPress={onClose} className="mt-4 rounded-xl bg-stone-100 px-3 py-3">

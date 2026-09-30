@@ -85,8 +85,8 @@ export function SetupHomeScreen() {
         <Text className="text-3xl font-bold text-teal-900">HOMPANY</Text>
         <Text className="text-xl font-semibold text-gray-900">Tu piso compartido</Text>
         <Text className="text-base text-gray-600">
-          Crea el hogar de tu piso de estudiantes, únete con el código de un compañero, o entra a uno
-          que ya tengas.
+          ¿Sois nuevos? Crea el piso y comparte el código. ¿Ya existe? Pega el código que te pasó un
+          compañero.
         </Text>
       </View>
 
@@ -110,14 +110,14 @@ export function SetupHomeScreen() {
       <View className="flex-row gap-2">
         <View className="flex-1">
           <Button
-            label="Crear"
+            label="Crear piso"
             variant={mode === 'create' ? 'primary' : 'secondary'}
             onPress={() => setMode('create')}
           />
         </View>
         <View className="flex-1">
           <Button
-            label="Unirme"
+            label="Tengo código"
             variant={mode === 'join' ? 'primary' : 'secondary'}
             onPress={() => setMode('join')}
           />
@@ -147,8 +147,11 @@ export function SetupHomeScreen() {
               autoCapitalize="characters"
               value={inviteCode}
               onChangeText={setInviteCode}
-              placeholder="ABC123"
+              placeholder="Ej. A1B2C3"
             />
+            <Text className="text-xs text-gray-500">
+              Lo ves en Ajustes → Invitar (quien creó el piso).
+            </Text>
             {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
             <Button
               label="Unirme al piso"

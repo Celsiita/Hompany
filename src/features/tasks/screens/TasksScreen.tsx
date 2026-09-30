@@ -266,7 +266,7 @@ export function TasksScreen() {
               title="Tareas"
               subtitle={mascotScreenLine('tasks')}
               helpTitle="Tareas"
-              helpMessage="Crea con +. Entrega con foto si el piso lo pide. Los compañeros aprueban o impugnan. Intercambia pendientes. Lo cerrado no se reabre."
+              helpMessage="Crea con +. Entrega con foto si el piso lo pide. Los compañeros aprueban o impugnan. En pendientes: «Proponer cambio». Lo cerrado no se reabre."
               onCreatePress={() => {
                 setFormTask(null);
                 setFormMode('create');

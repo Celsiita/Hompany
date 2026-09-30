@@ -234,12 +234,17 @@ export function TaskCard({
       ) : null}
 
       {showSwap ? (
-        <Button
-          label={mascotReaction('swap').button}
-          variant="secondary"
-          loading={busy}
-          onPress={() => onRequestSwap?.(task)}
-        />
+        <View className="gap-1.5 rounded-xl border border-blue-200 bg-blue-50/50 p-2">
+          <Text className="text-xs text-blue-900">
+            ¿No puedes hoy? Propón un cambio a un compañero.
+          </Text>
+          <Button
+            label={mascotReaction('swap').button}
+            variant="secondary"
+            loading={busy}
+            onPress={() => onRequestSwap?.(task)}
+          />
+        </View>
       ) : null}
     </Pressable>
   );

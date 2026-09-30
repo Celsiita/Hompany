@@ -29,7 +29,7 @@ export function formatLeaderboardTaskInfo(row: Pick<
 >): string {
   const parts = [
     `${row.tasks_completed} hecha${row.tasks_completed === 1 ? '' : 's'}`,
-    `${row.tasks_pending} pend.`,
+    `${row.tasks_pending} pendiente${row.tasks_pending === 1 ? '' : 's'}`,
   ];
   if (row.tasks_submitted > 0) {
     parts.push(`${row.tasks_submitted} en revisión`);

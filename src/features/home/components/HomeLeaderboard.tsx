@@ -31,7 +31,6 @@ export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
   if (rows.length === 0) {
     return (
       <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-2">
-        <Text className="text-sm font-semibold text-gray-900">Clasificación</Text>
         <Text className="text-sm text-gray-500">Aún no hay compañeros en el piso.</Text>
       </View>
     );
@@ -39,10 +38,9 @@ export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
 
   return (
     <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
-      <View className="gap-0.5">
-        <Text className="text-sm font-semibold text-gray-900">Clasificación</Text>
-        <Text className="text-xs text-gray-500">Puntos de reputación y tareas del piso</Text>
-      </View>
+      <Text className="text-xs text-gray-500">
+        Puntos de reputación (100 al inicio de semana) y tareas cumplidas
+      </Text>
 
       <View className="gap-2">
         {rows.map((row) => {
@@ -77,7 +75,7 @@ export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
 
               <View className="items-end">
                 <Text className="text-lg font-bold text-gray-900">{row.reputation_points}</Text>
-                <Text className="text-[10px] uppercase tracking-wide text-gray-500">pts</Text>
+                <Text className="text-[10px] uppercase tracking-wide text-gray-500">puntos</Text>
               </View>
             </View>
           );
