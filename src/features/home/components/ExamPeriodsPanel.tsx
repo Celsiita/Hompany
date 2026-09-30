@@ -142,7 +142,7 @@ export function ExamPeriodsPanel({
             <View className="gap-2">
               {mineOnly ? (
                 <Text className="text-[11px] font-semibold uppercase tracking-wide text-violet-800/80">
-                  Tuyos
+                  Lo mío
                 </Text>
               ) : null}
               {mine.map((period) => (
@@ -161,7 +161,7 @@ export function ExamPeriodsPanel({
             <View className="gap-2">
               {mineOnly ? (
                 <Text className="text-[11px] font-semibold uppercase tracking-wide text-violet-800/80">
-                  Próximos del resto
+                  Compañeros
                 </Text>
               ) : null}
               {others.map((period) => (

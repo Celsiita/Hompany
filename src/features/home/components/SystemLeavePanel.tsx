@@ -179,7 +179,7 @@ export function SystemLeavePanel({
             <View className="gap-2">
               {mineOnly ? (
                 <Text className="text-[11px] font-semibold uppercase tracking-wide text-amber-800/80">
-                  Tuyas
+                  Lo mío
                 </Text>
               ) : null}
               {mine.map((leave) => (
@@ -198,7 +198,7 @@ export function SystemLeavePanel({
             <View className="gap-2">
               {mineOnly ? (
                 <Text className="text-[11px] font-semibold uppercase tracking-wide text-amber-800/80">
-                  Próximas del resto
+                  Compañeros
                 </Text>
               ) : null}
               {others.map((leave) => (

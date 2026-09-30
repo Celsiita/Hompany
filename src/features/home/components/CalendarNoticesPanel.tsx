@@ -190,7 +190,7 @@ export function CalendarNoticesPanel({
           <View className="gap-3">
             {mineOnly && mineNotices.length > 0 ? (
               <Text className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">
-                Tuyas
+                Lo mío
               </Text>
             ) : null}
             {(mineOnly ? mineNotices : notices).map((notice) => {
@@ -232,7 +232,7 @@ export function CalendarNoticesPanel({
             {mineOnly && peerUpcomingNotices.length > 0 ? (
               <View className="gap-2">
                 <Text className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">
-                  Próximas del resto
+                  Compañeros
                 </Text>
                 {peerUpcomingNotices.map((notice) => {
                   const glyph =

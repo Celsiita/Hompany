@@ -237,13 +237,10 @@ export function HomeAgenda({
           ) : undefined
         }>
         <View className="gap-3 pb-8">
-          <View className="flex-row items-center justify-between gap-2">
-            <Text className="flex-1 text-xs leading-4 text-stone-500">
-              Semana primero. Gestionar ausencias y silencio: pestaña Piso
-            </Text>
+          <View className="flex-row items-center justify-end">
             <HelpTip
               title="Agenda"
-              message="Toca un día para ver su lista. Azul = tuyas, cielo = compañeros, rosa = debes, ámbar = te deben. Filtra ausencias, silencio y visitas. Crear o editar: pestaña Piso."
+              message="Toca un día para ver su lista. Azul = tuyas, cielo = compañeros, rosa = debes, ámbar = te deben. 🧳 ausencia, 🔇 silencio, 🚪 visita, 🔧 reparación, 📅 evento. Crear o editar: pestaña Piso."
             />
           </View>
 
