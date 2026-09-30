@@ -35,7 +35,7 @@ export function TemplateCard({
   onDelete,
 }: TemplateCardProps) {
   return (
-    <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
+    <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-row items-start gap-3 flex-1">
           <View className="h-11 w-11 items-center justify-center rounded-xl bg-blue-50">

@@ -203,8 +203,8 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
       </View>
 
       <BottomSheetModal visible={editorOpen} onClose={() => setEditorOpen(false)}>
-        <Text className="mb-1 text-lg font-bold text-gray-900">Info del piso</Text>
-        <Text className="mb-3 text-sm text-gray-500">
+        <Text className="mb-1 text-lg font-bold text-stone-900">Info del piso</Text>
+        <Text className="mb-3 text-sm text-stone-500">
           Visible para todos los compañeros del piso.
         </Text>
         <View className="gap-3">

@@ -32,13 +32,13 @@ export function ConfirmModal({
         <Pressable
           className="rounded-2xl bg-white p-5 gap-3"
           onPress={(event) => event.stopPropagation()}>
-          <Text className="text-lg font-bold text-gray-900">{title}</Text>
-          <Text className="text-sm leading-5 text-gray-600">{message}</Text>
+          <Text className="text-lg font-bold text-stone-900">{title}</Text>
+          <Text className="text-sm leading-5 text-stone-600">{message}</Text>
           <View className="flex-row gap-2 mt-2">
             <Pressable
               onPress={onCancel}
-              className="flex-1 rounded-xl bg-gray-100 py-3">
-              <Text className="text-center text-sm font-semibold text-gray-800">{cancelLabel}</Text>
+              className="flex-1 rounded-xl bg-stone-100 py-3">
+              <Text className="text-center text-sm font-semibold text-stone-800">{cancelLabel}</Text>
             </Pressable>
             <Pressable
               onPress={onConfirm}

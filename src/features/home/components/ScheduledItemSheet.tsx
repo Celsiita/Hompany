@@ -92,7 +92,7 @@ export function ScheduledItemSheet({
                     onReassign(member.user_id);
                   }}
                   className={`rounded-xl border px-3 py-3 ${
-                    selected ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'
+                    selected ? 'border-blue-400 bg-blue-50' : 'border-stone-200 bg-white'
                   }`}>
                   <Text className="text-sm font-medium text-stone-900">{name}</Text>
                   <Text className="text-sm text-teal-700">{selected ? '✓' : ''}</Text>

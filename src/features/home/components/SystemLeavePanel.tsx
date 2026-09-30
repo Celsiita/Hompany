@@ -183,7 +183,7 @@ export function SystemLeavePanel({
         <SafePressable
           onPress={() => setFormOpen(true)}
           contentStyle={mergeStyles(interactive.secondaryButton, { marginTop: 4 })}>
-          <Text className="text-sm font-semibold text-gray-800">+ Registrar</Text>
+          <Text className="text-sm font-semibold text-stone-800">+ Registrar</Text>
         </SafePressable>
       ) : (
         <View className="gap-3">

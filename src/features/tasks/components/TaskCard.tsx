@@ -149,33 +149,33 @@ export function TaskCard({
       <View className="flex-row items-center justify-between gap-2">
         <View className="flex-1 gap-1">
           {task.task_assignees.length === 0 ? (
-            <Text className="text-xs text-gray-500">Sin asignar</Text>
+            <Text className="text-xs text-stone-500">Sin asignar</Text>
           ) : (
             task.task_assignees.slice(0, 4).map((assignee) => (
-              <Text key={assignee.id} className="text-sm text-gray-800">
+              <Text key={assignee.id} className="text-sm text-stone-800">
                 {assignee.profiles?.display_name ?? 'Compañero'}
               </Text>
             ))
           )}
         </View>
-        <Text className="text-sm text-gray-500">
+        <Text className="text-sm text-stone-500">
           {pointsPenalized ? `${pointsShown} pts (mitad)` : `${pointsShown} pts`}
         </Text>
       </View>
 
       {showDate ? (
         <View className="gap-0.5">
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-stone-600">
             Programada: {formatHistoryDateTime(task.due_at)}
           </Text>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-stone-600">
             Realización:{' '}
             {completedAt ? formatHistoryDateTime(completedAt) : '—'}
           </Text>
         </View>
       ) : (
         <Text
-          className={`text-sm font-medium ${dueSummary.isOverdue ? 'text-red-600' : 'text-gray-700'}`}>
+          className={`text-sm font-medium ${dueSummary.isOverdue ? 'text-red-600' : 'text-stone-700'}`}>
           {dueSummary.label}
         </Text>
       )}
@@ -183,7 +183,7 @@ export function TaskCard({
       {task.proof_image_url && task.status === TASK_STATUS.SUBMITTED ? (
         <Image
           source={{ uri: task.proof_image_url }}
-          className="h-40 w-full rounded-xl bg-gray-100"
+          className="h-40 w-full rounded-xl bg-stone-100"
           resizeMode="cover"
         />
       ) : null}

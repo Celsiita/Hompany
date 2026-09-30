@@ -69,8 +69,8 @@ export function WeekAgenda({
 
   return (
     <View className="gap-2">
-      <Text className="text-sm font-semibold text-gray-500">Agenda de 7 días</Text>
-      <Text className="text-xs text-gray-500">
+      <Text className="text-sm font-semibold text-stone-500">Agenda de 7 días</Text>
+      <Text className="text-xs text-stone-500">
         Tareas en azul · gastos en ámbar · programadas atenuadas.
       </Text>
       {days.map((day) => {
@@ -82,8 +82,8 @@ export function WeekAgenda({
           month: 'short',
         }).format(day);
         return (
-          <View key={day.toISOString()} className="gap-1 rounded-xl border border-gray-200 bg-white p-3">
-            <Text className="text-xs font-bold uppercase text-gray-500">{label}</Text>
+          <View key={day.toISOString()} className="gap-1 rounded-xl border border-stone-200 bg-white p-3">
+            <Text className="text-xs font-bold uppercase text-stone-500">{label}</Text>
             {dayExams.length > 0 ? (
               <View className="mb-1 gap-0.5 rounded-lg bg-sky-50 px-2 py-1">
                 {dayExams.map((period) => (
@@ -94,7 +94,7 @@ export function WeekAgenda({
               </View>
             ) : null}
             {dayItems.length === 0 ? (
-              <Text className="text-sm text-gray-400">Libre</Text>
+              <Text className="text-sm text-stone-400">Libre</Text>
             ) : (
               dayItems.map((item) => (
                 <Pressable key={item.id} onPress={() => onOpenItem(item)} hitSlop={4}>

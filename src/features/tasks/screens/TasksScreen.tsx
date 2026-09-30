@@ -335,8 +335,8 @@ export function TasksScreen() {
 
             {!isHistory && incomingSwaps.length > 0 ? (
               <View className="gap-2">
-                <Text className="text-lg font-semibold text-gray-900">Intercambios pendientes</Text>
-                <Text className="text-xs text-gray-500">
+                <Text className="text-lg font-semibold text-stone-900">Intercambios pendientes</Text>
+                <Text className="text-xs text-stone-500">
                   Un compañero quiere que asumas su tarea. Acéptala o recházala.
                 </Text>
                 {incomingSwaps.map((swap) => {
@@ -344,8 +344,8 @@ export function TasksScreen() {
                     tasks.find((task) => task.id === swap.task_id)?.title ?? 'una tarea';
                   return (
                   <View key={swap.id} className="rounded-xl border border-blue-200 bg-blue-50 p-3 gap-2">
-                    <Text className="text-sm font-semibold text-gray-900">⇄ {taskTitle}</Text>
-                    <Text className="text-sm text-gray-700">
+                    <Text className="text-sm font-semibold text-stone-900">⇄ {taskTitle}</Text>
+                    <Text className="text-sm text-stone-700">
                       {swap.from_profile?.display_name ?? 'Un compañero'} te propone el cambio.
                     </Text>
                     <View className="flex-row gap-2">
@@ -373,9 +373,9 @@ export function TasksScreen() {
 
             {isHistory && activityEvents.length > 0 ? (
               <View className="gap-2">
-                <Text className="text-sm font-semibold text-gray-500">Movimientos</Text>
+                <Text className="text-sm font-semibold text-stone-500">Movimientos</Text>
                 {activityEvents.slice(0, 8).map((event) => (
-                  <Text key={event.id} className="text-xs text-gray-600">
+                  <Text key={event.id} className="text-xs text-stone-600">
                     {formatHistoryDate(event.created_at)} · {event.summary}
                   </Text>
                 ))}

@@ -88,7 +88,7 @@ export function ItemTypePicker({
                 setError(null);
               }}
               contentStyle={interactive.secondaryButton}>
-              <Text className="text-xs font-semibold text-gray-800">Cancelar</Text>
+              <Text className="text-xs font-semibold text-stone-800">Cancelar</Text>
             </SafePressable>
             <SafePressable
               disabled={saving}

@@ -22,7 +22,7 @@ function rankTone(rank: number): { badge: string; text: string } {
   if (rank === 3) {
     return { badge: 'bg-orange-300', text: 'text-orange-950' };
   }
-  return { badge: 'bg-gray-200', text: 'text-gray-700' };
+  return { badge: 'bg-gray-200', text: 'text-stone-700' };
 }
 
 /**
@@ -56,23 +56,23 @@ export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
                 <Text className={`text-xs font-bold ${tone.text}`}>{row.rank}</Text>
               </View>
 
-              <View className="h-10 w-10 items-center justify-center rounded-full bg-white border border-gray-200">
-                <Text className="text-sm font-bold text-gray-800">{initial}</Text>
+              <View className="h-10 w-10 items-center justify-center rounded-full bg-white border border-stone-200">
+                <Text className="text-sm font-bold text-stone-800">{initial}</Text>
               </View>
 
               <View className="flex-1 gap-0.5">
-                <Text className="text-sm font-semibold text-gray-900" numberOfLines={1}>
+                <Text className="text-sm font-semibold text-stone-900" numberOfLines={1}>
                   {row.display_name}
                   {isMe ? ' · tú' : ''}
                 </Text>
-                <Text className="text-[11px] text-gray-500" numberOfLines={2}>
+                <Text className="text-[11px] text-stone-500" numberOfLines={2}>
                   {formatLeaderboardTaskInfo(row)}
                 </Text>
               </View>
 
               <View className="items-end">
-                <Text className="text-lg font-bold text-gray-900">{row.reputation_points}</Text>
-                <Text className="text-[10px] uppercase tracking-wide text-gray-500">puntos</Text>
+                <Text className="text-lg font-bold text-stone-900">{row.reputation_points}</Text>
+                <Text className="text-[10px] uppercase tracking-wide text-stone-500">puntos</Text>
               </View>
             </View>
           );

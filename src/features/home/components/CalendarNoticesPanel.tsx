@@ -141,7 +141,7 @@ export function CalendarNoticesPanel({
         />
       </View>
       <View className="gap-3">
-        <Text className="text-xs text-gray-500">
+        <Text className="text-xs text-stone-500">
           Visitas, reparaciones o eventos del piso en el calendario.
         </Text>
 
@@ -169,11 +169,11 @@ export function CalendarNoticesPanel({
               return (
                 <View
                   key={notice.id}
-                  className="flex-row items-center gap-2 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2">
+                  className="flex-row items-center gap-2 rounded-xl border border-stone-100 bg-stone-50 px-3 py-2">
                   <Text className="text-base">{glyph}</Text>
                   <View className="flex-1 gap-0.5">
-                    <Text className="text-sm font-semibold text-gray-900">{notice.title}</Text>
-                    <Text className="text-xs text-gray-500">
+                    <Text className="text-sm font-semibold text-stone-900">{notice.title}</Text>
+                    <Text className="text-xs text-stone-500">
                       {label}
                       {notice.starts_on && notice.ends_on
                         ? ` · ${formatDateKey(notice.starts_on)} – ${formatDateKey(notice.ends_on)}`
@@ -221,7 +221,7 @@ export function CalendarNoticesPanel({
                         ? { borderColor: '#60a5fa', backgroundColor: '#eff6ff' }
                         : { borderColor: '#e5e7eb', backgroundColor: '#f9fafb' },
                     )}>
-                    <Text className="text-center text-xs font-semibold text-gray-800">
+                    <Text className="text-center text-xs font-semibold text-stone-800">
                       {CALENDAR_NOTICE_GLYPH[option]} {CALENDAR_NOTICE_LABEL[option]}
                     </Text>
                   </SafePressable>

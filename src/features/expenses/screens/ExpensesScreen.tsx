@@ -290,9 +290,9 @@ export function ExpensesScreen() {
 
             {isHistory && activityEvents.length > 0 ? (
               <View className="gap-1">
-                <Text className="text-sm font-semibold text-gray-500">Movimientos</Text>
+                <Text className="text-sm font-semibold text-stone-500">Movimientos</Text>
                 {activityEvents.slice(0, 8).map((event) => (
-                  <Text key={event.id} className="text-xs text-gray-600">
+                  <Text key={event.id} className="text-xs text-stone-600">
                     {formatHistoryDate(event.created_at)} · {event.summary}
                   </Text>
                 ))}

@@ -85,28 +85,28 @@ export function PeriodRangeCalendar({
   return (
     <View className="gap-2">
       <View className="flex-row items-center justify-between">
-        <Text className="text-sm font-semibold text-gray-900">{formatMonthTitle(visibleMonth)}</Text>
+        <Text className="text-sm font-semibold text-stone-900">{formatMonthTitle(visibleMonth)}</Text>
         <View className="flex-row gap-2">
           <Pressable
             cssInterop={false}
             onPress={() => onMonthChange(shiftMonth(visibleMonth, -1))}
             style={styles.navButton}>
-            <Text className="text-base font-bold text-gray-700">‹</Text>
+            <Text className="text-base font-bold text-stone-700">‹</Text>
           </Pressable>
           <Pressable
             cssInterop={false}
             onPress={() => onMonthChange(shiftMonth(visibleMonth, 1))}
             style={styles.navButton}>
-            <Text className="text-base font-bold text-gray-700">›</Text>
+            <Text className="text-base font-bold text-stone-700">›</Text>
           </Pressable>
         </View>
       </View>
 
-      <View className="rounded-xl border border-gray-200 bg-white p-2">
+      <View className="rounded-xl border border-stone-200 bg-white p-2">
         <View className="mb-1 flex-row">
           {WEEKDAY_LABELS.map((label) => (
             <View key={label} className="flex-1 items-center py-1">
-              <Text className="text-[10px] font-bold uppercase text-gray-400">{label}</Text>
+              <Text className="text-[10px] font-bold uppercase text-stone-400">{label}</Text>
             </View>
           ))}
         </View>

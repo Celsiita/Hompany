@@ -134,9 +134,9 @@ export function ExpenseCard({
                 {EXPENSE_KIND_LABEL[expense.kind]} · {recurrenceLabel(expense.recurrence)}
               </Text>
             </View>
-            <Text className="text-lg font-semibold text-gray-900">{expense.title}</Text>
+            <Text className="text-lg font-semibold text-stone-900">{expense.title}</Text>
             {expense.description ? (
-              <Text className="text-sm text-gray-600">{expense.description}</Text>
+              <Text className="text-sm text-stone-600">{expense.description}</Text>
             ) : null}
           </View>
         </View>
@@ -144,21 +144,21 @@ export function ExpenseCard({
       </View>
 
       <View className="flex-row items-center justify-between">
-        <Text className="text-sm text-gray-600">
+        <Text className="text-sm text-stone-600">
           Pagó {isCreditor ? 'tú' : (expense.payer?.display_name ?? 'alguien')}
         </Text>
-        <Text className="text-lg font-bold text-gray-900">
+        <Text className="text-lg font-bold text-stone-900">
           {noAmount ? '—' : formatEuro(expense.amount)}
         </Text>
       </View>
 
       {showDate ? (
         <View className="gap-0.5">
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-stone-600">
             Programada:{' '}
             {expense.due_at ? formatHistoryDateTime(expense.due_at) : 'Sin fecha'}
           </Text>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-stone-600">
             Realización:{' '}
             {completedAt ? formatHistoryDateTime(completedAt) : '—'}
           </Text>
@@ -166,7 +166,7 @@ export function ExpenseCard({
       ) : (
         <Text
           className={`text-sm font-medium ${
-            countdown?.isOverdue ? 'text-red-600' : 'text-gray-700'
+            countdown?.isOverdue ? 'text-red-600' : 'text-stone-700'
           }`}>
           {countdown?.label ??
             (expense.due_at ? formatHistoryDateTime(expense.due_at) : 'Fecha obligatoria')}
@@ -176,13 +176,13 @@ export function ExpenseCard({
       {expense.receipt_image_url ? (
         <Image
           source={{ uri: expense.receipt_image_url }}
-          className="h-36 w-full rounded-xl bg-gray-100"
+          className="h-36 w-full rounded-xl bg-stone-100"
           resizeMode="cover"
         />
       ) : null}
 
       {debtors.length === 0 ? (
-        <Text className="text-xs text-gray-500">Nadie más debe este gasto.</Text>
+        <Text className="text-xs text-stone-500">Nadie más debe este gasto.</Text>
       ) : (
         <View className="gap-2">
           {debtors.map((share) => {
@@ -194,8 +194,8 @@ export function ExpenseCard({
             return (
               <View
                 key={share.id}
-                className="flex-row items-center justify-between rounded-xl bg-gray-50 px-3 py-2 gap-2">
-                <Text className="flex-1 text-sm text-gray-800">
+                className="flex-row items-center justify-between rounded-xl bg-stone-50 px-3 py-2 gap-2">
+                <Text className="flex-1 text-sm text-stone-800">
                   {name}
                   {settled ? ' · pagado' : ` · ${formatEuro(share.share_amount)}`}
                   {isDebtor && !settled ? ' · te toca' : ''}

@@ -108,17 +108,17 @@ export function HomeNoticesPanel({
 
   return (
     <>
-      <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
+      <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
         <View className="flex-row items-start justify-between gap-2">
           <View className="flex-1 gap-0.5">
             <View className="flex-row items-center gap-1.5">
-              <Text className="text-sm font-semibold text-gray-900">Reglas y quejas</Text>
+              <Text className="text-sm font-semibold text-stone-900">Reglas y quejas</Text>
               <HelpTip
                 title="Reglas y quejas"
                 message="Las reglas son acuerdos permanentes del piso. Las quejas son avisos puntuales; puedes publicarlas de forma anónima."
               />
             </View>
-            <Text className="text-xs text-gray-500">
+            <Text className="text-xs text-stone-500">
               Acuerdos del piso y avisos puntuales
             </Text>
           </View>
@@ -153,9 +153,9 @@ export function HomeNoticesPanel({
               return (
                 <View
                   key={notice.id}
-                  className="gap-1 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5">
+                  className="gap-1 rounded-xl border border-stone-100 bg-stone-50 px-3 py-2.5">
                   <View className="flex-row items-center justify-between gap-2">
-                    <Text className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                    <Text className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">
                       {KIND_LABEL[notice.kind as FeedNoticeKind] ?? notice.kind}
                     </Text>
                     {isAdmin || notice.author_id === currentUserId ? (
@@ -164,11 +164,11 @@ export function HomeNoticesPanel({
                       </Pressable>
                     ) : null}
                   </View>
-                  <Text className="text-sm font-semibold text-gray-900">{notice.title}</Text>
+                  <Text className="text-sm font-semibold text-stone-900">{notice.title}</Text>
                   {notice.body ? (
-                    <Text className="text-sm text-gray-600">{notice.body}</Text>
+                    <Text className="text-sm text-stone-600">{notice.body}</Text>
                   ) : null}
-                  <Text className="text-xs text-gray-500">{authorLabel}</Text>
+                  <Text className="text-xs text-stone-500">{authorLabel}</Text>
                 </View>
               );
             })}
@@ -177,8 +177,8 @@ export function HomeNoticesPanel({
       </View>
 
       <BottomSheetModal visible={editorOpen} onClose={() => setEditorOpen(false)}>
-        <Text className="mb-1 text-lg font-bold text-gray-900">Nuevo aviso</Text>
-        <Text className="mb-3 text-sm text-gray-500">
+        <Text className="mb-1 text-lg font-bold text-stone-900">Nuevo aviso</Text>
+        <Text className="mb-3 text-sm text-stone-500">
           Regla del piso o queja puntual (puedes publicar sin nombre).
         </Text>
         <View className="gap-3">
@@ -200,7 +200,7 @@ export function HomeNoticesPanel({
                       ? { borderColor: '#60a5fa', backgroundColor: '#eff6ff' }
                       : { borderColor: '#e5e7eb', backgroundColor: '#f9fafb' },
                   )}>
-                  <Text className="text-center text-sm font-semibold text-gray-800">
+                  <Text className="text-center text-sm font-semibold text-stone-800">
                     {KIND_LABEL[option]}
                   </Text>
                 </SafePressable>
@@ -216,8 +216,8 @@ export function HomeNoticesPanel({
             className="min-h-[72px]"
           />
           {kind === 'COMPLAINT' ? (
-            <View className="flex-row items-center justify-between gap-3 rounded-xl bg-gray-50 px-3 py-2">
-              <Text className="flex-1 text-sm text-gray-700">Publicar de forma anónima</Text>
+            <View className="flex-row items-center justify-between gap-3 rounded-xl bg-stone-50 px-3 py-2">
+              <Text className="flex-1 text-sm text-stone-700">Publicar de forma anónima</Text>
               <Switch value={isAnonymous} onValueChange={setIsAnonymous} />
             </View>
           ) : null}

@@ -96,13 +96,13 @@ export function MonthCalendar({
           <Pressable
             onPress={() => setVisibleMonth((month) => shiftMonth(month, -1))}
             accessibilityLabel="Mes anterior"
-            className="h-9 w-9 items-center justify-center rounded-full bg-gray-100">
+            className="h-9 w-9 items-center justify-center rounded-full bg-stone-100">
             <Text className="text-base font-bold text-stone-700">‹</Text>
           </Pressable>
           <Pressable
             onPress={() => setVisibleMonth((month) => shiftMonth(month, 1))}
             accessibilityLabel="Mes siguiente"
-            className="h-9 w-9 items-center justify-center rounded-full bg-gray-100">
+            className="h-9 w-9 items-center justify-center rounded-full bg-stone-100">
             <Text className="text-base font-bold text-stone-700">›</Text>
           </Pressable>
         </View>

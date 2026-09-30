@@ -17,19 +17,19 @@ type ActivityListModalProps = {
 export function ActivityListModal({ visible, title, events, onClose }: ActivityListModalProps) {
   return (
     <BottomSheetModal visible={visible} onClose={onClose} maxHeightClassName="max-h-[70%]" animationType="fade">
-      <Text className="mb-3 text-sm font-semibold text-gray-500">{title}</Text>
+      <Text className="mb-3 text-sm font-semibold text-stone-500">{title}</Text>
       {events.length === 0 ? (
-        <Text className="py-4 text-sm text-gray-500">Sin movimientos todavía.</Text>
+        <Text className="py-4 text-sm text-stone-500">Sin movimientos todavía.</Text>
       ) : (
         events.slice(0, 30).map((event) => (
-          <View key={event.id} className="border-b border-gray-100 py-3">
-            <Text className="text-sm text-gray-900">{event.summary}</Text>
-            <Text className="mt-1 text-xs text-gray-500">{formatHistoryDate(event.created_at)}</Text>
+          <View key={event.id} className="border-b border-stone-100 py-3">
+            <Text className="text-sm text-stone-900">{event.summary}</Text>
+            <Text className="mt-1 text-xs text-stone-500">{formatHistoryDate(event.created_at)}</Text>
           </View>
         ))
       )}
-      <Pressable onPress={onClose} className="mt-3 rounded-xl bg-gray-100 px-3 py-3">
-        <Text className="text-center text-sm font-semibold text-gray-700">Cerrar</Text>
+      <Pressable onPress={onClose} className="mt-3 rounded-xl bg-stone-100 px-3 py-3">
+        <Text className="text-center text-sm font-semibold text-stone-700">Cerrar</Text>
       </Pressable>
     </BottomSheetModal>
   );

@@ -242,7 +242,7 @@ export function AbsencesPanel({
                 rangeEnd={rangeEnd}
                 onSelectDate={handleSelectDate}
               />
-              <Text className="text-xs text-gray-500">
+              <Text className="text-xs text-stone-500">
                 Los días ámbar oscuros ya están registrados. Toca inicio y fin en días libres.
               </Text>
               {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
