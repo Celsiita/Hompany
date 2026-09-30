@@ -151,7 +151,7 @@ const REACTIONS: Record<
   { button: string; title?: string; body: string }
 > = {
   approve: {
-    button: '🍌 Vale, aprobado',
+    button: '🍌 Aprobar',
     title: '¡Plátano ganado!',
     body: `${MASCOT_NAME} aplaude: prueba aceptada.`,
   },
@@ -161,12 +161,12 @@ const REACTIONS: Record<
     body: `${MASCOT_NAME} levanta ceja: hay que repetir la prueba.`,
   },
   complete: {
-    button: 'Completar',
+    button: '✓ Completar',
     title: 'A revisión',
     body: `${MASCOT_NAME} recoge la entrega y la pasa a los compañeros.`,
   },
   swap: {
-    button: '⇄ Cambiar con alguien',
+    button: '⇄ Cambiar',
     title: 'Cambio de cromos',
     body: `${MASCOT_NAME} propone un trueque limpio entre compañeros.`,
   },

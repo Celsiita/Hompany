@@ -30,8 +30,8 @@ describe('mascot', () => {
     expect(mascotEmptyCopy('expenses_i_owe').body).not.toContain(MASCOT_NAME);
     expect(mascotScreenLine('feed')).not.toContain(MASCOT_NAME);
     expect(mascotQuip('thriving')).toContain(MASCOT_NAME);
-    expect(mascotReaction('approve').button).toMatch(/aprobado/i);
-    expect(mascotReaction('complete').button).toBe('Completar');
+    expect(mascotReaction('approve').button).toMatch(/aprobar/i);
+    expect(mascotReaction('complete').button).toMatch(/completar/i);
   });
 });
 

@@ -204,7 +204,7 @@ export function ExpenseCard({
                     onPress={() => onSettleShare(expense, share, !settled)}
                     disabled={busy}
                     hitSlop={8}>
-                    <Text className="text-sm font-semibold text-blue-700">
+                    <Text className="text-sm font-semibold text-amber-800">
                       {settled ? 'Deshacer' : 'Saldar'}
                     </Text>
                   </Pressable>
