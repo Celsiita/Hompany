@@ -2,7 +2,7 @@
 
 HOMPANY usa [RevenueCat](https://www.revenuecat.com/) para **HOMPANY Plus**: **insights de reputación** en el Feed (puesto, distancia al primero, pts por tareas). El core (tareas, gastos, agenda, piso) y los packs de iconos siguen gratis.
 
-**Roadmap (post-Shipaton):** Plus también desbloqueará descubrir piso/gente (matching). Hay un teaser visual en la tab **Piso**.
+**Roadmap (post-Shipaton):** Plus también desbloqueará descubrir piso/gente (matching). Teaser: botón **Emparejar** en Inicio y Piso.
 
 ## Entitlement
 

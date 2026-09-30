@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { HeaderAlertsButton } from '@/components/ui/HeaderAlertsButton';
@@ -21,6 +22,8 @@ type ScreenHeaderProps = {
   createAccessibilityLabel?: string;
   /** Semantic + button: tasks blue, expenses amber, brand teal. */
   createAccent?: CreateAccent;
+  /** Extra controls before alerts / create (e.g. matching teaser). */
+  headerEnd?: ReactNode;
 };
 
 const CREATE_ACCENT_CLASS: Record<CreateAccent, string> = {
@@ -44,6 +47,7 @@ export function ScreenHeader({
   onCreatePress,
   createAccessibilityLabel = 'Crear',
   createAccent = 'teal',
+  headerEnd,
 }: ScreenHeaderProps) {
   return (
     <View className="flex-row items-start justify-between gap-3">
@@ -57,6 +61,7 @@ export function ScreenHeader({
         {subtitle ? <Text className="text-sm leading-5 text-stone-600">{subtitle}</Text> : null}
       </View>
       <View className="flex-row items-center gap-2">
+        {headerEnd}
         {onAlertsPress ? (
           <HeaderAlertsButton
             count={alertsCount}

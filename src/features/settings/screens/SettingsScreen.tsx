@@ -526,7 +526,7 @@ export function SettingsScreen() {
             </Text>
           ) : null}
           <Text className="text-xs leading-4 text-teal-800/80">
-            Próximamente con Plus: emparejar piso ↔ gente (ver teaser en la tab Piso).
+            Próximamente con Plus: emparejar piso ↔ gente (botón Emparejar en Inicio y Piso).
           </Text>
         </SettingsSection>
 

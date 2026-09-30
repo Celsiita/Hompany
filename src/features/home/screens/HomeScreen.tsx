@@ -13,6 +13,7 @@ import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { AlertsModal } from '@/features/home/components/AlertsModal';
 import { HomeAgenda } from '@/features/home/components/HomeAgenda';
 import { HomeLeaderboard } from '@/features/home/components/HomeLeaderboard';
+import { MatchingHeaderButton } from '@/features/home/components/MatchingPreviewCard';
 import { ReputationInsightsCard } from '@/features/home/components/ReputationInsightsCard';
 import { useHomeAbsences } from '@/features/home/hooks/useHomeAbsences';
 import { useHomeExamPeriods } from '@/features/home/hooks/useHomeExamPeriods';
@@ -192,6 +193,7 @@ export function HomeScreen() {
           onAlertsPress={() => setAlertsOpen(true)}
           alertsCount={alerts.length}
           urgentAlertsCount={urgentAlertsCount}
+          headerEnd={<MatchingHeaderButton />}
         />
 
         <HomeSectionBar section={section} onSectionChange={setSection} />
