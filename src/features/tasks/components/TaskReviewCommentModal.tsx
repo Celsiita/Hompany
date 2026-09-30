@@ -51,12 +51,12 @@ export function TaskReviewCommentModal({
           className="w-full gap-3 rounded-2xl bg-white p-4"
           onPress={(event) => event.stopPropagation()}>
           <Text className="text-lg font-bold text-gray-900">
-            {isDispute ? 'Impugnar prueba' : 'Aprobar con comentario'}
+            {isDispute ? 'Impugnar prueba' : 'Aprobar entrega'}
           </Text>
           <Text className="text-sm text-gray-600">
             {isDispute
               ? 'Explica qué falla para que el compañero pueda corregirlo.'
-              : 'Opcional: deja una sugerencia amable al validar.'}
+              : 'Opcional: deja una sugerencia amable al validar la foto.'}
           </Text>
           <TextField
             label={isDispute ? 'Motivo' : 'Sugerencia (opcional)'}

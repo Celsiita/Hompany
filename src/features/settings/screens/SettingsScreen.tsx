@@ -568,7 +568,7 @@ export function SettingsScreen() {
             label="Crear piso"
             value={newHomeName}
             onChangeText={setNewHomeName}
-            placeholder="Nombre del piso"
+            placeholder="Ej. Piso Erasmus"
           />
           <Button
             label="Crear"
