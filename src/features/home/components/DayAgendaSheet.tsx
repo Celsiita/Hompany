@@ -22,13 +22,13 @@ function rowClass(item: AgendaItem): string {
     }
     return item.mine
       ? 'border-blue-100 bg-blue-50/60 opacity-70'
-      : 'border-teal-100 bg-teal-50/60 opacity-70';
+      : 'border-sky-100 bg-sky-50/60 opacity-70';
   }
   return item.kind === 'expense'
     ? 'border-amber-200 bg-amber-50'
     : item.mine
       ? 'border-blue-200 bg-blue-50'
-      : 'border-teal-200 bg-teal-50';
+      : 'border-sky-200 bg-sky-50';
 }
 
 /**
@@ -54,7 +54,7 @@ export function DayAgendaSheet({
     <BottomSheetModal visible={visible} onClose={onClose} maxHeightClassName="max-h-[70%]" animationType="fade">
       <Text className="mb-1 text-sm font-semibold capitalize text-gray-500">{dayLabel}</Text>
       <Text className="mb-3 text-xs text-gray-500">
-        Tareas · gastos · programadas atenuadas. Pulsa un ítem.
+        Tareas · gastos · programadas atenuadas. Toca un ítem para abrirlo.
       </Text>
       {examLabels.length > 0 ? (
         <View className="mb-3 gap-1">

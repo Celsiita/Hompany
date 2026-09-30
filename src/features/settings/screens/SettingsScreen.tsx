@@ -500,7 +500,9 @@ export function SettingsScreen() {
 
           <Text className="text-sm font-medium text-gray-700 mt-1">Compañeros</Text>
           {members.length === 0 ? (
-            <Text className="text-sm text-gray-500">Nadie más en el piso.</Text>
+            <Text className="text-sm text-gray-500">
+              Solo tú por ahora. Invita compañeros con el código de arriba.
+            </Text>
           ) : (
             members.map((member) => {
               const mine = member.user_id === user?.id;
