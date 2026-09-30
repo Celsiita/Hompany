@@ -9,6 +9,7 @@ import {
 import { ScrollView, Text, View } from 'react-native';
 
 import { AgendaItemCard } from '@/features/home/components/AgendaItemCard';
+import { MascotEmpty } from '@/components/ui/MascotEmpty';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
 import {
   agendaItemsForDay,
@@ -143,6 +144,20 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
     offsetsRef.current[key] = listRootY.current + relativeY;
   }, []);
 
+  const hasLifeMarkers = useMemo(() => {
+    return days.some((day) => {
+      return (
+        examPeriodsOnDate(examPeriods, day).length > 0 ||
+        absencesOnDate(absences, day).length > 0 ||
+        noticesOnDate(calendarNotices, day).length > 0
+      );
+    });
+  }, [days, examPeriods, absences, calendarNotices]);
+
+  if (items.length === 0 && !hasLifeMarkers) {
+    return <MascotEmpty kind="agenda_list" />;
+  }
+
   return (
     <View
       className="gap-3 pb-4"
@@ -176,7 +191,7 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
               isSelected
                 ? 'border-teal-300 bg-teal-50/50'
                 : isToday
-                  ? 'border-gray-200 bg-white'
+                  ? 'border-teal-200 bg-teal-50/30'
                   : 'border-gray-100 bg-white'
             }`}>
             <Text

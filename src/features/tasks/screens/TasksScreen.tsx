@@ -6,6 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { BoardSectionBar, type BoardSection } from '@/components/ui/BoardSectionBar';
@@ -245,6 +246,7 @@ export function TasksScreen() {
 
   return (
     <Screen>
+      <Animated.View entering={FadeIn.duration(240)} className="flex-1">
       <FlatList
         ref={listRef}
         data={listData}
@@ -446,6 +448,7 @@ export function TasksScreen() {
         }}
         contentContainerClassName="pb-8"
       />
+      </Animated.View>
 
       <OverflowMenu
         visible={swapTask !== null}

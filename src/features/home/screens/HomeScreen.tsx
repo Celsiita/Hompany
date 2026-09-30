@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { FeedSectionHeader } from '@/components/ui/FeedSectionHeader';
@@ -8,6 +8,7 @@ import { HelpTip } from '@/components/ui/HelpTip';
 import { HomeSectionBar, type HomeSection } from '@/components/ui/HomeSectionBar';
 import { MascotLoading } from '@/components/ui/MascotLoading';
 import { OverflowMenu } from '@/components/ui/OverflowMenu';
+import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { AlertsModal } from '@/features/home/components/AlertsModal';
@@ -57,6 +58,7 @@ export function HomeScreen() {
     isLoading,
     isAdmin,
     members: taskMembers,
+    refresh: refreshTasks,
     cancelOccurrence: cancelTaskOccurrence,
     reassignOccurrence: reassignTaskOccurrence,
     requestSwap,
@@ -66,6 +68,7 @@ export function HomeScreen() {
     members,
     expenses,
     isLoading: expensesLoading,
+    refresh: refreshExpenses,
     cancelOccurrence: cancelExpenseOccurrence,
     reassignOccurrence: reassignExpenseOccurrence,
   } = useHomeExpenses();
@@ -98,6 +101,7 @@ export function HomeScreen() {
     rows: leaderboard,
     isLoading: leaderboardLoading,
     error: leaderboardError,
+    refresh: refreshLeaderboard,
   } = useHomeLeaderboard();
   const { packId, setPackId, packs, isPackLocked } = useIconPack();
   const { isPlus } = usePurchases();
@@ -106,10 +110,20 @@ export function HomeScreen() {
   const [packOpen, setPackOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [lifeSheet, setLifeSheet] = useState<HomeLifeSheetKind | null>(null);
+  const [pulsoRefreshing, setPulsoRefreshing] = useState(false);
 
   useEffect(() => {
     registerHomeSectionSetter(setSection);
   }, [registerHomeSectionSetter]);
+
+  async function refreshPulso() {
+    setPulsoRefreshing(true);
+    try {
+      await Promise.all([refreshTasks(), refreshExpenses(), refreshLeaderboard()]);
+    } finally {
+      setPulsoRefreshing(false);
+    }
+  }
 
   const visibleExpenses = useMemo(
     () => filterExpensesForViewer(expenses, user?.id),
@@ -223,9 +237,17 @@ export function HomeScreen() {
           <Animated.View key="pulso" entering={FadeIn.duration(240)} className="flex-1">
           <ScrollView
             showsVerticalScrollIndicator={false}
-            bounces={false}
-            overScrollMode="never"
+            bounces
+            overScrollMode="auto"
             contentInsetAdjustmentBehavior="never"
+            refreshControl={
+              <RefreshControl
+                refreshing={pulsoRefreshing}
+                onRefresh={() => void refreshPulso()}
+                tintColor="#0f766e"
+                colors={['#0f766e']}
+              />
+            }
             contentContainerClassName="gap-4 pb-8">
             <View className="flex-row items-center justify-between">
               <FeedSectionHeader title="Estado" subtitle="Cumplimiento de esta semana" />
@@ -253,7 +275,17 @@ export function HomeScreen() {
             {leaderboardLoading ? (
               <MascotLoading label="Ordenando el ranking…" />
             ) : leaderboardError ? (
-              <Text className="text-sm text-red-600">{leaderboardError}</Text>
+              <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
+                <Text className="text-sm font-semibold text-amber-950">
+                  No se pudo cargar la clasificación
+                </Text>
+                <Text className="text-sm leading-5 text-amber-900/80">{leaderboardError}</Text>
+                <Button
+                  label="Reintentar"
+                  variant="secondary"
+                  onPress={() => void refreshLeaderboard()}
+                />
+              </View>
             ) : (
               <HomeLeaderboard rows={leaderboard} currentUserId={user?.id} />
             )}

@@ -6,6 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { BoardSectionBar, type BoardSection } from '@/components/ui/BoardSectionBar';
@@ -18,7 +19,9 @@ import { useHomeItemTypes } from '@/features/home/hooks/useHomeItemTypes';
 import { ExpenseCard } from '@/features/expenses/components/ExpenseCard';
 import { ExpenseFilterBar } from '@/features/expenses/components/ExpenseFilterBar';
 import { ExpenseFormModal } from '@/features/expenses/components/ExpenseFormModal';
+import { ShoppingListsPanel } from '@/features/expenses/components/ShoppingListsPanel';
 import { useHomeExpenses } from '@/features/expenses/hooks/useHomeExpenses';
+import { useHomeShoppingLists } from '@/features/expenses/hooks/useHomeShoppingLists';
 import { useBoardItemFocus } from '@/hooks/useBoardItemFocus';
 import { mascotScreenLine } from '@/lib/mascot';
 import { parseFocusId } from '@/lib/navigation/board-focus';
@@ -63,6 +66,18 @@ export function ExpensesScreen() {
     activityEvents,
   } = useHomeExpenses();
   const { types: expenseTypes, addType: addExpenseType } = useHomeItemTypes('expense');
+  const {
+    lists: shoppingLists,
+    isLoading: shoppingLoading,
+    refresh: refreshShopping,
+    addList,
+    addItem,
+    toggleNeeded,
+    removeItem,
+    setRotation,
+    setMembers: setShoppingMembers,
+    ensureExpense,
+  } = useHomeShoppingLists();
 
   const [section, setSection] = useState<BoardSection>('ACTIVE');
   const [formVisible, setFormVisible] = useState(false);
@@ -169,6 +184,7 @@ export function ExpensesScreen() {
 
   return (
     <Screen>
+      <Animated.View entering={FadeIn.duration(240)} className="flex-1">
       <FlatList
         ref={listRef}
         data={listData}
@@ -183,7 +199,13 @@ export function ExpensesScreen() {
           }, 250);
         }}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={() => void refresh()} />
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={() => {
+              void refresh();
+              void refreshShopping();
+            }}
+          />
         }
         ListHeaderComponent={
           <View className="gap-4 mb-4 pt-2">
@@ -199,6 +221,27 @@ export function ExpensesScreen() {
                 setFormVisible(true);
               }}
             />
+
+            {!isHistory ? (
+              <ShoppingListsPanel
+                lists={shoppingLists}
+                members={members}
+                expenses={expenses}
+                currentUserId={user?.id}
+                isLoading={shoppingLoading}
+                onAddList={addList}
+                onAddItem={addItem}
+                onToggleNeeded={toggleNeeded}
+                onRemoveItem={removeItem}
+                onSetRotation={setRotation}
+                onSetMembers={setShoppingMembers}
+                onEnsureExpense={ensureExpense}
+                onOpenExpense={async (expenseId) => {
+                  await refresh();
+                  requestFocus(expenseId);
+                }}
+              />
+            ) : null}
 
             <BoardSectionBar
               section={section}
@@ -291,6 +334,7 @@ export function ExpensesScreen() {
         )}
         contentContainerClassName="pb-8"
       />
+      </Animated.View>
 
       <ExpenseFormModal
         visible={formVisible}

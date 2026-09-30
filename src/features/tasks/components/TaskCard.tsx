@@ -95,7 +95,7 @@ export function TaskCard({
           ? 'border-blue-400 bg-blue-50'
           : mine
             ? 'border-blue-200'
-            : 'border-stone-200'
+            : 'border-sky-200'
       }`}>
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-row items-start gap-3 flex-1">

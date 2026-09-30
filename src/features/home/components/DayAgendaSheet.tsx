@@ -1,8 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { BottomSheetModal } from '@/components/ui/BottomSheetModal';
+import { MascotEmpty } from '@/components/ui/MascotEmpty';
 import type { AgendaItem } from '@/features/home/lib/agenda-items';
-import { mascotEmptyCopy } from '@/lib/mascot';
 import { stripCycleSuffix } from '@/lib/recurrence';
 
 type DayAgendaSheetProps = {
@@ -66,12 +66,7 @@ export function DayAgendaSheet({
         </View>
       ) : null}
       {items.length === 0 ? (
-        <View className="gap-1 py-4">
-          <Text className="text-sm font-medium text-gray-700">
-            {mascotEmptyCopy('agenda_day').title}
-          </Text>
-          <Text className="text-sm text-gray-500">{mascotEmptyCopy('agenda_day').body}</Text>
-        </View>
+        <MascotEmpty kind="agenda_day" />
       ) : (
         items.map((item) => (
           <Pressable
