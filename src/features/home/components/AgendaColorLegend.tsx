@@ -26,7 +26,7 @@ export function AgendaColorLegend() {
       </View>
       <HelpTip
         title="Colores de la agenda"
-        message="Azul = tus tareas. Círculo hueco cielo = tareas de compañeros. Rosa = gastos que debes. Ámbar = gastos que te deben."
+        message="Azul = tus tareas. Círculo hueco cielo = tareas de compañeros. Rosa = gastos que debes. Ámbar = gastos que te deben. 🔇 = modo silencio. 🧳 = ausencia."
       />
     </View>
   );

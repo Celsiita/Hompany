@@ -148,9 +148,6 @@ export function computeAgendaDayEmojis(
   for (const notice of options.noticeEmojis ?? []) {
     emojis.push(notice);
   }
-  if (dayItems.some((item) => item.kind === 'expense')) {
-    emojis.push({ key: 'expense', glyph: '◇' });
-  }
   return emojis;
 }
 

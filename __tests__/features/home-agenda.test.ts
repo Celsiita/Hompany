@@ -281,7 +281,7 @@ describe('agenda-items', () => {
     const dayItems = agendaItemsForDay(items, day);
     const dots = computeAgendaDayDots(dayItems);
     const emojis = computeAgendaDayEmojis(dayItems, { silence: true, absence: true });
-    expect(emojis.map((emoji) => emoji.key)).toEqual(['silence', 'absence', 'expense']);
+    expect(emojis.map((emoji) => emoji.key)).toEqual(['silence', 'absence']);
   });
 
   it('projects scheduled monthly expenses like tasks', () => {
