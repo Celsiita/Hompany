@@ -11,7 +11,7 @@ describe('tutorial', () => {
       'feed',
       'bell',
       'agenda',
-      'piso',
+      'convivencia',
       'tasks',
       'expenses',
       'settings',

@@ -13,7 +13,7 @@ alwaysApply: true
 
 ## Home
 - Feed: Estado → Datos del piso (o sección propia) → Clasificación → Cuentas. **Sin lista de avisos en Feed** (solo campanita).
-- Agenda: calendario + lista primero. Ausencias / silencio / visitas solo en ⋮.
+- Agenda: calendario + lista primero. Ausencias / silencio / visitas se gestionan en **Convivencia**.
 - Colores agenda: azul tareas, ámbar gastos, puntos míos vs compañeros claros.
 
 ## Ayuda

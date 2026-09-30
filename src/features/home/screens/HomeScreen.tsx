@@ -7,19 +7,16 @@ import { HealthMeter } from '@/components/ui/HealthMeter';
 import { HelpTip } from '@/components/ui/HelpTip';
 import { HomeSectionBar, type HomeSection } from '@/components/ui/HomeSectionBar';
 import { MascotLoading } from '@/components/ui/MascotLoading';
-import { OverflowMenu } from '@/components/ui/OverflowMenu';
 import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { AlertsModal } from '@/features/home/components/AlertsModal';
+import { ConvivenciaLifePanels } from '@/features/home/components/ConvivenciaLifePanels';
 import { HomeAgenda } from '@/features/home/components/HomeAgenda';
 import { HomeInfoCard } from '@/features/home/components/HomeInfoCard';
 import { HomeLeaderboard } from '@/features/home/components/HomeLeaderboard';
-import {
-  HomeLifeSheet,
-  type HomeLifeSheetKind,
-} from '@/features/home/components/HomeLifeSheet';
 import { HomeNoticesPanel } from '@/features/home/components/HomeNoticesPanel';
+import { QuietNowCard } from '@/features/home/components/QuietNowCard';
 import { useHomeAbsences } from '@/features/home/hooks/useHomeAbsences';
 import { useHomeExamPeriods } from '@/features/home/hooks/useHomeExamPeriods';
 import { useHomeNotices } from '@/features/home/hooks/useHomeNotices';
@@ -46,8 +43,9 @@ import { useToast } from '@/providers/ToastProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
 
 /**
- * Home — Feed (estado → ranking → cuentas), Agenda, Piso (info práctica).
- * Avisos solo en campanita. Packs de iconos en Ajustes. Ausencias / silencio / visitas en ⋮.
+ * Home — Feed (estado → ranking → cuentas), Agenda, Convivencia (vida + info).
+ * Avisos solo en campanita. Packs de iconos en Ajustes.
+ * Ausencias / modo silencio / visitas se gestionan en Convivencia.
  */
 export function HomeScreen() {
   const { user } = useAuth();
@@ -106,10 +104,9 @@ export function HomeScreen() {
   } = useHomeLeaderboard();
   const { isPlus } = usePurchases();
   const [section, setSection] = useState<HomeSection>('FEED');
-  const [menuOpen, setMenuOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
-  const [lifeSheet, setLifeSheet] = useState<HomeLifeSheetKind | null>(null);
   const [feedRefreshing, setFeedRefreshing] = useState(false);
+  const [quietBusy, setQuietBusy] = useState(false);
 
   useEffect(() => {
     registerHomeSectionSetter(setSection);
@@ -184,7 +181,7 @@ export function HomeScreen() {
       ? `${mascotScreenLine('feed')}${isPlus ? ' · Plus' : ''}`
       : section === 'AGENDA'
         ? mascotScreenLine('agenda')
-        : mascotScreenLine('piso');
+        : mascotScreenLine('convivencia');
 
   async function handleCancelOccurrence(item: AgendaItem) {
     if (item.kind === 'task') {
@@ -223,11 +220,10 @@ export function HomeScreen() {
           title={activeHome?.name ?? 'El piso'}
           subtitle={subtitle}
           helpTitle="Inicio"
-          helpMessage="Feed = estado del piso. Agenda = calendario. Piso = Wi‑Fi y reglas. La campanita concentra avisos urgentes."
+          helpMessage="Feed = estado del piso. Agenda = calendario. Convivencia = ausencias, silencio, visitas, Wi‑Fi y reglas. La campanita concentra avisos urgentes."
           onAlertsPress={() => setAlertsOpen(true)}
           alertsCount={alerts.length}
           urgentAlertsCount={urgentAlertsCount}
-          onMenuPress={() => setMenuOpen(true)}
         />
 
         <HomeSectionBar section={section} onSectionChange={setSection} />
@@ -350,14 +346,79 @@ export function HomeScreen() {
           </Animated.View>
         ) : null}
 
-        {section === 'PISO' ? (
-          <Animated.View key="piso" entering={FadeIn.duration(240)} className="flex-1">
+        {section === 'CONVIVENCIA' ? (
+          <Animated.View key="convivencia" entering={FadeIn.duration(240)} className="flex-1">
           <ScrollView
             showsVerticalScrollIndicator={false}
             bounces
             overScrollMode="auto"
             contentInsetAdjustmentBehavior="never"
             contentContainerClassName="gap-4 pb-8">
+            <View className="flex-row items-center justify-between">
+              <FeedSectionHeader
+                title="Vida del hogar"
+                subtitle="Activas, próximas y crear nuevas"
+              />
+              <HelpTip
+                title="Vida del hogar"
+                message="Aquí creas y ves ausencias, modo silencio de exámenes y visitas. En Agenda solo aparecen como marcas. «Silencio ahora» es un aviso puntual, distinto del modo exámenes."
+              />
+            </View>
+
+            <QuietNowCard
+              authorName={
+                agendaMembers.find((member) => member.user_id === user?.id)?.profiles
+                  ?.display_name ?? 'Yo'
+              }
+              busy={quietBusy}
+              onRequest={async (input) => {
+                setQuietBusy(true);
+                try {
+                  await addNotice(input);
+                } finally {
+                  setQuietBusy(false);
+                }
+              }}
+            />
+
+            <ConvivenciaLifePanels
+              members={agendaMembers}
+              currentUserId={user?.id}
+              isAdmin={isAdmin}
+              tasks={tasks}
+              absences={absences}
+              absencesLoading={absencesLoading}
+              systemLeaves={systemLeaves}
+              systemLeavesLoading={presenceLoading}
+              examPeriods={examPeriods}
+              examPeriodsLoading={examPeriodsLoading}
+              calendarNotices={calendarNotices}
+              calendarNoticesLoading={noticesLoading}
+              onAddAbsence={async (input) => {
+                await addAbsence(input);
+                if (user?.id && activeHome?.id) {
+                  await reassignRotatingTasksForPunctualAbsence({
+                    homeId: activeHome.id,
+                    actorId: user.id,
+                    absentUserId: user.id,
+                    startDate: input.start_date,
+                    endDate: input.end_date,
+                  });
+                }
+              }}
+              onRemoveAbsence={removeAbsence}
+              onAddSystemLeave={addSystemLeave}
+              onRemoveSystemLeave={removeSystemLeave}
+              onAddExamPeriod={async (input) => {
+                await addExamPeriod(input);
+              }}
+              onRemoveExamPeriod={removeExamPeriod}
+              onAddCalendarNotice={async (input) => {
+                await addNotice(input);
+              }}
+              onRemoveCalendarNotice={removeNotice}
+            />
+
             <View className="flex-row items-center justify-between">
               <FeedSectionHeader
                 title="Info práctica"
@@ -376,7 +437,7 @@ export function HomeScreen() {
             />
 
             <View className="flex-row items-center justify-between">
-              <FeedSectionHeader title="Convivencia" subtitle="Reglas y quejas del piso" />
+              <FeedSectionHeader title="Reglas y quejas" subtitle="Acuerdos del hogar" />
               <HelpTip
                 title="Reglas y quejas"
                 message="Acuerdos visibles para todos. Las quejas pueden ser anónimas — sin chat de WhatsApp interminable."
@@ -398,70 +459,7 @@ export function HomeScreen() {
         ) : null}
       </View>
 
-      <OverflowMenu
-        visible={menuOpen}
-        title="Más opciones"
-        onClose={() => setMenuOpen(false)}
-        actions={[
-          {
-            key: 'absences',
-            label: 'Ausencias del calendario',
-            onPress: () => setLifeSheet('absences'),
-          },
-          {
-            key: 'exams',
-            label: 'Modo silencio / exámenes',
-            onPress: () => setLifeSheet('exams'),
-          },
-          {
-            key: 'visits',
-            label: 'Visitas y eventos del piso',
-            onPress: () => setLifeSheet('visits'),
-          },
-        ]}
-      />
-
       <AlertsModal visible={alertsOpen} alerts={alerts} onClose={() => setAlertsOpen(false)} />
-
-      <HomeLifeSheet
-        kind={lifeSheet}
-        onClose={() => setLifeSheet(null)}
-        members={agendaMembers}
-        currentUserId={user?.id}
-        isAdmin={isAdmin}
-        tasks={tasks}
-        absences={absences}
-        absencesLoading={absencesLoading}
-        systemLeaves={systemLeaves}
-        systemLeavesLoading={presenceLoading}
-        examPeriods={examPeriods}
-        examPeriodsLoading={examPeriodsLoading}
-        calendarNotices={calendarNotices}
-        calendarNoticesLoading={noticesLoading}
-        onAddAbsence={async (input) => {
-          await addAbsence(input);
-          if (user?.id && activeHome?.id) {
-            await reassignRotatingTasksForPunctualAbsence({
-              homeId: activeHome.id,
-              actorId: user.id,
-              absentUserId: user.id,
-              startDate: input.start_date,
-              endDate: input.end_date,
-            });
-          }
-        }}
-        onRemoveAbsence={removeAbsence}
-        onAddSystemLeave={addSystemLeave}
-        onRemoveSystemLeave={removeSystemLeave}
-        onAddExamPeriod={async (input) => {
-          await addExamPeriod(input);
-        }}
-        onRemoveExamPeriod={removeExamPeriod}
-        onAddCalendarNotice={async (input) => {
-          await addNotice(input);
-        }}
-        onRemoveCalendarNotice={removeNotice}
-      />
     </Screen>
   );
 }

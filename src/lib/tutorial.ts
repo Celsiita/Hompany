@@ -9,7 +9,7 @@ export type TutorialHighlight =
   | 'welcome'
   | 'feed'
   | 'agenda'
-  | 'piso'
+  | 'convivencia'
   | 'bell'
   | 'tasks'
   | 'expenses'
@@ -26,7 +26,7 @@ export type TutorialStep = {
   /** Optional secondary tip under the CTA */
   tip?: string;
   /** Switch Home section when this step shows (if on Home). */
-  homeSection?: 'FEED' | 'AGENDA' | 'PISO';
+  homeSection?: 'FEED' | 'AGENDA' | 'CONVIVENCIA';
   /** Navigate to a tab route when pressing CTA (before advancing). */
   goTab?: '/(tabs)' | '/(tabs)/tasks' | '/(tabs)/expenses' | '/(tabs)/settings';
 };
@@ -47,7 +47,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 'feed',
     title: 'Feed = el estado del piso',
-    body: 'Aquí ves si el piso va bien, el ranking y quién debe a quién. Nada de Wi‑Fi aquí: eso vive en Piso.',
+    body: 'Aquí ves si el piso va bien, el ranking y quién debe a quién. Wi‑Fi y ausencias viven en Convivencia.',
     emoji: '🏠',
     highlight: 'feed',
     homeSection: 'FEED',
@@ -72,16 +72,16 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     highlight: 'agenda',
     homeSection: 'AGENDA',
     cta: 'Abrir Agenda',
-    tip: 'Ausencias y exámenes están en el menú ⋮, no estorban aquí.',
+    tip: 'Ausencias y silencio se gestionan en Convivencia.',
   },
   {
-    id: 'piso',
-    title: 'Piso = datos del hogar',
-    body: 'Wi‑Fi, portal, basura, reglas y quejas. Lo que siempre buscas en el grupo de WhatsApp… pero ordenado.',
-    emoji: '🔑',
-    highlight: 'piso',
-    homeSection: 'PISO',
-    cta: 'Ver Piso',
+    id: 'convivencia',
+    title: 'Convivencia = vida del hogar',
+    body: 'Ausencias, modo silencio de exámenes, visitas, Wi‑Fi y reglas. También puedes pedir silencio ahora si necesitas tranquilidad ya.',
+    emoji: '🤝',
+    highlight: 'convivencia',
+    homeSection: 'CONVIVENCIA',
+    cta: 'Ver Convivencia',
   },
   {
     id: 'tasks',
