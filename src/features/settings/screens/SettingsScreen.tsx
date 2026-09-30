@@ -334,9 +334,9 @@ export function SettingsScreen() {
           helpMessage="Perfil, invitación, compañeros, foto de prueba y Plus: packs de iconos opcionales. Desde aquí puedes repetir el tutorial."
         />
 
-        <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
-          <Text className="text-sm font-semibold text-gray-500">Perfil</Text>
-          <Text className="text-sm text-gray-600">{user?.email ?? '—'}</Text>
+        <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
+          <Text className="text-sm font-semibold text-stone-500">Perfil</Text>
+          <Text className="text-sm text-stone-600">{user?.email ?? '—'}</Text>
           <TextField label="Nombre visible" value={displayName} onChangeText={setDisplayName} />
           <Button label="Guardar nombre" loading={savingName} onPress={() => void handleSaveName()} />
         </View>
@@ -385,9 +385,9 @@ export function SettingsScreen() {
           ) : null}
         </View>
 
-        <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
-          <Text className="text-sm font-semibold text-gray-500">Iconos</Text>
-          <Text className="text-xs text-gray-500">
+        <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
+          <Text className="text-sm font-semibold text-stone-500">Iconos</Text>
+          <Text className="text-xs text-stone-500">
             Clásico es gratis. Hogar, Play e importados requieren HOMPANY Plus. Se aplican a
             tarjetas y a la agenda.
           </Text>
@@ -399,14 +399,14 @@ export function SettingsScreen() {
               <View key={pack.id} className="gap-2">
                 <Pressable
                   onPress={() => void setPackId(pack.id)}
-                  className={`rounded-xl border px-3 py-3 ${active ? 'border-teal-500 bg-teal-50' : 'border-gray-200'}`}>
-                  <Text className="text-sm font-medium text-gray-900">
+                  className={`rounded-xl border px-3 py-3 ${active ? 'border-teal-500 bg-teal-50' : 'border-stone-200'}`}>
+                  <Text className="text-sm font-medium text-stone-900">
                     {pack.tasks.checklist} {pack.name}
                     {active ? ' · activo' : ''}
                     {custom ? ' · importado' : ''}
                     {locked ? ' · Plus' : ''}
                   </Text>
-                  <Text className="text-xs text-gray-500">{pack.description}</Text>
+                  <Text className="text-xs text-stone-500">{pack.description}</Text>
                 </Pressable>
                 {custom ? (
                   <Pressable
@@ -428,8 +428,8 @@ export function SettingsScreen() {
             );
           })}
 
-          <Text className="text-sm font-medium text-gray-700 mt-1">Importar pack (Plus)</Text>
-          <Text className="text-xs text-gray-500">
+          <Text className="text-sm font-medium text-stone-700 mt-1">Importar pack (Plus)</Text>
+          <Text className="text-xs text-stone-500">
             Pega un JSON con nombre e iconos propios. Requiere HOMPANY Plus.
           </Text>
           <TextField
@@ -450,13 +450,13 @@ export function SettingsScreen() {
           />
         </View>
 
-        <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
-          <Text className="text-sm font-semibold text-gray-500">Piso activo</Text>
-          <Text className="text-lg font-semibold text-gray-900">{activeHome?.name ?? 'Sin piso'}</Text>
+        <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
+          <Text className="text-sm font-semibold text-stone-500">Piso activo</Text>
+          <Text className="text-lg font-semibold text-stone-900">{activeHome?.name ?? 'Sin piso'}</Text>
           {activeHome ? (
             <View className="gap-3">
               <View className="flex-row items-center gap-2">
-                <Text className="flex-1 text-sm text-gray-600">
+                <Text className="flex-1 text-sm text-stone-600">
                   Código: {activeHome.invite_code}
                 </Text>
                 <Pressable onPress={() => void handleCopyCode()} className="rounded-lg bg-gray-100 px-3 py-2">
@@ -465,8 +465,8 @@ export function SettingsScreen() {
                   </Text>
                 </Pressable>
               </View>
-              <Text className="text-sm font-medium text-gray-700">Invitar con enlace o QR</Text>
-              <Text className="text-xs text-gray-500">
+              <Text className="text-sm font-medium text-stone-700">Invitar con enlace o QR</Text>
+              <Text className="text-xs text-stone-500">
                 Comparte el enlace o el QR: tu compañero entra con el código sin líos.
               </Text>
               <View className="flex-row gap-2">
@@ -486,25 +486,25 @@ export function SettingsScreen() {
 
           {homes.length > 1 ? (
             <View className="gap-2">
-              <Text className="text-sm font-medium text-gray-700">Cambiar de piso</Text>
+              <Text className="text-sm font-medium text-stone-700">Cambiar de piso</Text>
               {homes.map((home) => {
                 const active = home.id === activeHome?.id;
                 return (
                   <Pressable
                     key={home.id}
                     onPress={() => void setActiveHomeId(home.id)}
-                    className={`rounded-xl border px-3 py-3 ${active ? 'border-teal-500 bg-teal-50' : 'border-gray-200 bg-white'}`}>
-                    <Text className="text-sm font-medium text-gray-900">{home.name}</Text>
-                    <Text className="text-xs text-gray-500">{home.invite_code}</Text>
+                    className={`rounded-xl border px-3 py-3 ${active ? 'border-teal-500 bg-teal-50' : 'border-stone-200 bg-white'}`}>
+                    <Text className="text-sm font-medium text-stone-900">{home.name}</Text>
+                    <Text className="text-xs text-stone-500">{home.invite_code}</Text>
                   </Pressable>
                 );
               })}
             </View>
           ) : null}
 
-          <Text className="text-sm font-medium text-gray-700 mt-1">Compañeros</Text>
+          <Text className="text-sm font-medium text-stone-700 mt-1">Compañeros</Text>
           {members.length === 0 ? (
-            <Text className="text-sm text-gray-500">
+            <Text className="text-sm text-stone-500">
               Solo tú por ahora. Invita compañeros con el código de arriba.
             </Text>
           ) : (
@@ -524,8 +524,8 @@ export function SettingsScreen() {
 
           {activeHome && canManage ? (
             <View className="gap-3 border-t border-gray-100 pt-3">
-              <Text className="text-sm font-medium text-gray-700">Prueba de tareas</Text>
-              <Text className="text-xs text-gray-500">
+              <Text className="text-sm font-medium text-stone-700">Prueba de tareas</Text>
+              <Text className="text-xs text-stone-500">
                 Cómo se entrega la foto al completar una tarea en este piso.
               </Text>
               <FilterTogglePair
@@ -566,8 +566,8 @@ export function SettingsScreen() {
           ) : null}
         </View>
 
-        <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
-          <Text className="text-sm font-semibold text-gray-500">Otro piso</Text>
+        <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
+          <Text className="text-sm font-semibold text-stone-500">Otro piso</Text>
           <TextField
             label="Crear piso"
             value={newHomeName}
@@ -598,9 +598,9 @@ export function SettingsScreen() {
         {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
         {status ? <Text className="text-sm text-emerald-700">{status}</Text> : null}
 
-        <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
-          <Text className="text-sm font-semibold text-gray-500">Ayuda</Text>
-          <Text className="text-sm text-gray-600">
+        <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
+          <Text className="text-sm font-semibold text-stone-500">Ayuda</Text>
+          <Text className="text-sm text-stone-600">
             Tour guiado de 1 minuto: Pulso, Agenda, Piso, Tareas, Gastos y Plus.
           </Text>
           <Button label="Repetir tutorial con Mico" variant="secondary" onPress={openTutorial} />
@@ -710,7 +710,7 @@ export function SettingsScreen() {
           <Pressable
             className="w-full max-w-sm items-center gap-3 rounded-3xl bg-white p-5"
             onPress={(event) => event.stopPropagation()}>
-            <Text className="text-base font-semibold text-gray-900">QR de invitación</Text>
+            <Text className="text-base font-semibold text-stone-900">QR de invitación</Text>
             {activeHome ? (
               <>
                 <Image
@@ -718,7 +718,7 @@ export function SettingsScreen() {
                   style={{ width: 220, height: 220 }}
                   accessibilityLabel="Código QR de invitación"
                 />
-                <Text className="text-center text-xs text-gray-500" selectable>
+                <Text className="text-center text-xs text-stone-500" selectable>
                   {homeInviteUrl(activeHome.invite_code)}
                 </Text>
               </>
