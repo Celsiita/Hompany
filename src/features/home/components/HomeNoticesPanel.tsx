@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, Switch, Text, View } from 'react-native';
+import { Pressable, Switch, Text, View } from 'react-native';
 
 import { BottomSheetModal } from '@/components/ui/BottomSheetModal';
 import { Button } from '@/components/ui/Button';
 import { HelpTip } from '@/components/ui/HelpTip';
+import { MascotLoading } from '@/components/ui/MascotLoading';
 import { SafePressable } from '@/components/ui/SafePressable';
 import { TextField } from '@/components/ui/TextField';
 import { interactive, mergeStyles } from '@/lib/interactive-styles';
@@ -132,7 +133,7 @@ export function HomeNoticesPanel({
         </View>
 
         {isLoading ? (
-          <ActivityIndicator color="#0f766e" />
+          <MascotLoading />
         ) : sorted.length === 0 ? (
           <Text className="text-sm text-gray-500">
             Aún no hay reglas ni quejas. Publica la primera desde Añadir.

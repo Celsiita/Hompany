@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { CollapsibleSection } from '@/components/ui/CollapsibleFilterPanel';
 import { FilterTogglePair } from '@/components/ui/FilterTogglePair';
 import { InfoTip } from '@/components/ui/InfoTip';
+import { MascotLoading } from '@/components/ui/MascotLoading';
 import { SafePressable } from '@/components/ui/SafePressable';
 import { TextField } from '@/components/ui/TextField';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
@@ -152,7 +153,7 @@ export function SystemLeavePanel({
   const body = (
     <View className="gap-3">
       {isLoading ? (
-        <ActivityIndicator color="#d97706" />
+        <MascotLoading />
       ) : systemLeaves.length === 0 ? (
         <Text className="text-sm text-amber-900/70">
           Nadie está de baja larga. Úsalo si te vas semanas o dejas el piso.

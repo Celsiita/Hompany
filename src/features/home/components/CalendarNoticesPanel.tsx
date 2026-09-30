@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { InfoTip } from '@/components/ui/InfoTip';
+import { MascotLoading } from '@/components/ui/MascotLoading';
 import { SafePressable } from '@/components/ui/SafePressable';
 import { TextField } from '@/components/ui/TextField';
 import {
@@ -145,7 +146,7 @@ export function CalendarNoticesPanel({
         </Text>
 
         {isLoading ? (
-          <ActivityIndicator color="#0f766e" />
+          <MascotLoading />
         ) : notices.length === 0 ? (
           <Text className="text-sm text-gray-500">
             Sin visitas ni eventos. Añade una reparación o visita para que salga en el calendario.

@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { FilterTogglePair } from '@/components/ui/FilterTogglePair';
 import { InfoTip } from '@/components/ui/InfoTip';
+import { MascotLoading } from '@/components/ui/MascotLoading';
 import { SafePressable } from '@/components/ui/SafePressable';
 import { TextField } from '@/components/ui/TextField';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
@@ -174,7 +175,7 @@ export function AbsencesPanel({
           onRemove={onRemoveSystemLeave!}
         />
       ) : isLoading ? (
-        <ActivityIndicator color="#d97706" />
+        <MascotLoading />
       ) : (
         <View className="gap-3">
           {absences.length === 0 ? (

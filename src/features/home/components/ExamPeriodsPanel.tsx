@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { InfoTip } from '@/components/ui/InfoTip';
+import { MascotLoading } from '@/components/ui/MascotLoading';
 import { SafePressable } from '@/components/ui/SafePressable';
 import { TextField } from '@/components/ui/TextField';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
@@ -118,7 +119,7 @@ export function ExamPeriodsPanel({
         <InfoTip title="Modo silencio" message={INFO_MESSAGE} tone="violet" />
       </View>
       {isLoading ? (
-        <ActivityIndicator color="#7c3aed" />
+        <MascotLoading />
       ) : examPeriods.length === 0 ? (
         <Text className="text-sm text-violet-800/70">
           Sin modo silencio. Actívalo en época de exámenes para bajar el ruido del piso.
