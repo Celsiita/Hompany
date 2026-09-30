@@ -97,8 +97,17 @@ export function TasksScreen() {
   } | null>(null);
   const [busyTaskId, setBusyTaskId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [swapTask, setSwapTask] = useState<TaskWithRelations | null>(null);
   const [boardRefreshing, setBoardRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (!actionSuccess) {
+      return;
+    }
+    const timer = setTimeout(() => setActionSuccess(null), 3200);
+    return () => clearTimeout(timer);
+  }, [actionSuccess]);
 
   const findTask = useCallback((id: string) => tasks.find((task) => task.id === id), [tasks]);
 
@@ -164,6 +173,7 @@ export function TasksScreen() {
 
   async function runTaskAction(taskId: string, action: () => Promise<void>) {
     setActionError(null);
+    setActionSuccess(null);
     setBusyTaskId(taskId);
     try {
       await action();
@@ -333,6 +343,12 @@ export function TasksScreen() {
               </View>
             ) : null}
 
+            {actionSuccess ? (
+              <View className="rounded-2xl border border-teal-200 bg-teal-50 px-3 py-3">
+                <Text className="text-sm font-semibold text-teal-950">{actionSuccess}</Text>
+              </View>
+            ) : null}
+
             {!isHistory && incomingSwaps.length > 0 ? (
               <View className="gap-2">
                 <Text className="text-lg font-semibold text-stone-900">Intercambios pendientes</Text>
@@ -486,7 +502,13 @@ export function TasksScreen() {
               if (!swapTask) {
                 return;
               }
-              void runTaskAction(swapTask.id, () => requestSwap(swapTask, member.user_id));
+              const task = swapTask;
+              const name = member.profiles?.display_name ?? 'compañero';
+              setSwapTask(null);
+              void runTaskAction(task.id, async () => {
+                await requestSwap(task, member.user_id);
+                setActionSuccess(`Cambio propuesto a ${name}. Esperando su respuesta.`);
+              });
             },
           }))}
       />

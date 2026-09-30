@@ -17,12 +17,16 @@ export function AgendaColorLegend() {
         <Text className="text-[11px] text-stone-700">Compañero</Text>
       </View>
       <View className="flex-row items-center gap-1.5">
+        <View className="h-2.5 w-2.5 rounded-full bg-rose-500" />
+        <Text className="text-[11px] text-stone-700">Debes</Text>
+      </View>
+      <View className="flex-row items-center gap-1.5">
         <View className="h-2.5 w-2.5 rounded-full bg-amber-500" />
-        <Text className="text-[11px] text-stone-700">Gasto</Text>
+        <Text className="text-[11px] text-stone-700">Te deben</Text>
       </View>
       <HelpTip
         title="Colores de la agenda"
-        message="Azul = tus tareas. Círculo hueco cielo = tareas de compañeros. Ámbar = gastos. Rojo en las tarjetas = vencido."
+        message="Azul = tus tareas. Círculo hueco cielo = tareas de compañeros. Rosa = gastos que debes. Ámbar = gastos que te deben."
       />
     </View>
   );

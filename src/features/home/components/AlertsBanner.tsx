@@ -9,7 +9,7 @@ import {
 
 type AlertsBannerProps = {
   alerts: HomeAlert[];
-  /** Max rows in a compact Pulso preview. */
+  /** Max rows in a compact Feed preview. */
   previewLimit?: number;
   onPressAlert?: (alert: HomeAlert) => void;
   onPressSeeAll?: () => void;
@@ -50,7 +50,7 @@ function AlertRow({
 }
 
 /**
- * Compact alert rows for inbox sheets (not shown inline on Pulso).
+ * Compact alert rows for inbox sheets (not shown inline on Feed).
  */
 export function AlertsBanner({
   alerts,

@@ -18,26 +18,28 @@ function cardClass(item: AgendaItem, availability: ReturnType<typeof agendaItemA
   }
   if (availability === 'locked' || item.lifecycle === 'scheduled') {
     if (item.kind === 'expense') {
-      return 'border-amber-100 bg-amber-50/40 opacity-70';
+      return item.expenseRole === 'i_owe'
+        ? 'border-rose-100 bg-rose-50/40 opacity-70'
+        : 'border-amber-100 bg-amber-50/40 opacity-70';
     }
     return item.mine
       ? 'border-blue-100 bg-blue-50/40 opacity-70'
       : 'border-sky-100 bg-sky-50/40 opacity-70';
   }
   if (item.kind === 'expense') {
-    return item.mine
-      ? 'border-amber-400 bg-amber-50'
-      : 'border-amber-200 bg-amber-50/80';
+    return item.expenseRole === 'i_owe'
+      ? 'border-rose-400 bg-rose-50'
+      : 'border-amber-400 bg-amber-50';
   }
   return item.mine ? 'border-blue-400 bg-blue-50' : 'border-sky-300 bg-sky-50';
 }
 
 function kindChip(item: AgendaItem): { label: string; className: string } {
   if (item.kind === 'expense') {
-    return {
-      label: item.mine ? 'Gasto · tuyo' : 'Gasto · piso',
-      className: 'bg-amber-200/80 text-amber-950',
-    };
+    if (item.expenseRole === 'i_owe') {
+      return { label: 'Debes', className: 'bg-rose-200/80 text-rose-950' };
+    }
+    return { label: 'Te deben', className: 'bg-amber-200/80 text-amber-950' };
   }
   return {
     label: item.mine ? 'Tarea · tuya' : 'Tarea · compañero',

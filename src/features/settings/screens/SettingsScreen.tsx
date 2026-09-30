@@ -601,7 +601,7 @@ export function SettingsScreen() {
         <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
           <Text className="text-sm font-semibold text-stone-500">Ayuda</Text>
           <Text className="text-sm text-stone-600">
-            Tour guiado de 1 minuto: Pulso, Agenda, Piso, Tareas, Gastos y Plus.
+            Tour guiado de 1 minuto: Feed, Agenda, Piso, Tareas, Gastos y Plus.
           </Text>
           <Button label="Repetir tutorial con Mico" variant="secondary" onPress={openTutorial} />
         </View>

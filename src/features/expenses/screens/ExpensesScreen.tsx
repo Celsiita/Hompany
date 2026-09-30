@@ -20,9 +20,7 @@ import { useHomeItemTypes } from '@/features/home/hooks/useHomeItemTypes';
 import { ExpenseCard } from '@/features/expenses/components/ExpenseCard';
 import { ExpenseFilterBar } from '@/features/expenses/components/ExpenseFilterBar';
 import { ExpenseFormModal } from '@/features/expenses/components/ExpenseFormModal';
-import { ShoppingListsPanel } from '@/features/expenses/components/ShoppingListsPanel';
 import { useHomeExpenses } from '@/features/expenses/hooks/useHomeExpenses';
-import { useHomeShoppingLists } from '@/features/expenses/hooks/useHomeShoppingLists';
 import { useBoardItemFocus } from '@/hooks/useBoardItemFocus';
 import { mascotScreenLine } from '@/lib/mascot';
 import { parseFocusId } from '@/lib/navigation/board-focus';
@@ -67,18 +65,6 @@ export function ExpensesScreen() {
     activityEvents,
   } = useHomeExpenses();
   const { types: expenseTypes, addType: addExpenseType } = useHomeItemTypes('expense');
-  const {
-    lists: shoppingLists,
-    isLoading: shoppingLoading,
-    refresh: refreshShopping,
-    addList,
-    addItem,
-    toggleNeeded,
-    removeItem,
-    setRotation,
-    setMembers: setShoppingMembers,
-    ensureExpense,
-  } = useHomeShoppingLists();
 
   const [section, setSection] = useState<BoardSection>('ACTIVE');
   const [formVisible, setFormVisible] = useState(false);
@@ -209,7 +195,7 @@ export function ExpensesScreen() {
               void (async () => {
                 setBoardRefreshing(true);
                 try {
-                  await Promise.all([refresh(), refreshShopping()]);
+                  await refresh();
                 } finally {
                   setBoardRefreshing(false);
                 }
@@ -231,27 +217,6 @@ export function ExpensesScreen() {
                 setFormVisible(true);
               }}
             />
-
-            {!isHistory ? (
-              <ShoppingListsPanel
-                lists={shoppingLists}
-                members={members}
-                expenses={expenses}
-                currentUserId={user?.id}
-                isLoading={shoppingLoading}
-                onAddList={addList}
-                onAddItem={addItem}
-                onToggleNeeded={toggleNeeded}
-                onRemoveItem={removeItem}
-                onSetRotation={setRotation}
-                onSetMembers={setShoppingMembers}
-                onEnsureExpense={ensureExpense}
-                onOpenExpense={async (expenseId) => {
-                  await refresh();
-                  requestFocus(expenseId);
-                }}
-              />
-            ) : null}
 
             <BoardSectionBar
               section={section}

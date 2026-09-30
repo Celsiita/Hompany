@@ -102,7 +102,7 @@ Si ves `AuthRetryableFetchError: Failed to fetch` / `Host unreachable`: Supabase
 - `AuthProvider`: sesión Supabase persistida con AsyncStorage
 - `HomeProvider`: `activeHomeId` en AsyncStorage (`hompany.activeHomeId`)
 - Gate de navegación: sin sesión → login; sin hogar → setup; con ambos → tabs
-- Home: secciones Pulso | Agenda | Piso; avisos en campanita; ausencias/silencio/visitas en ⋮
+- Home: secciones Feed | Agenda | Piso; avisos en campanita; ausencias/silencio/visitas en ⋮
 - Tutorial interactivo v2 (`TutorialProvider`)
 - RPCs: `create_home`, `get_home_by_invite_code`, `join_home_by_invite_code`, `leave_home`, `kick_home_member`, `delete_own_account`, `get_home_leaderboard`.
 
@@ -112,8 +112,8 @@ Documentación de producto: [`PRODUCT.md`](./PRODUCT.md), periodicidad: [`recurr
 
 - Listado/creación siempre filtrados por `activeHomeId`
 - Cards con countdown y acciones `PENDING → SUBMITTED → COMPLETED`
-- Home Pulso con salud del piso (`summarizeTasks`), clasificación (`get_home_leaderboard`), agenda con calendario colapsable (`AgendaCalendar`) y lista sincronizada (`AgendaList`); filtros Mis cosas / Compañeros (`toAgendaScopeFilter`); leave de sistema en menú ⋮; secciones Pulso / Agenda / Piso
-- Gastos: tablero + **listas compartidas** (`ShoppingListsPanel` / `useHomeShoppingLists`) en En curso
+- Home Feed con salud del piso (`summarizeTasks`), clasificación (`get_home_leaderboard`), agenda con calendario colapsable (`AgendaCalendar`) y lista sincronizada (`AgendaList`); filtros Mis cosas / Compañeros (`toAgendaScopeFilter`); leave de sistema en menú ⋮; secciones Feed / Agenda / Piso
+- Gastos: tablero con chips Debes / Tú pagaste y liquidación; sin listas compartidas en la UI
 - Tipos personalizados de tareas/gastos (`home_item_types` + `item_type_id`); tablero de tareas sin Zonas (solo QUICK + custom)
 - Gastos visibles solo para involucrados (RLS vía `is_expense_participant`); omitir fecha (`SKIPPED` / `skipped_dates`) sin romper la serie
 - **Ausencias** (`member_absences`): registro en Agenda; la rotación automática excluye ausentes; si todos están ausentes en una fecha, se omite la ocurrencia (`skipped_dates`)

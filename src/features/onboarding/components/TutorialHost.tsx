@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 
 import type { HomeSection } from '@/components/ui/HomeSectionBar';
 import { Button } from '@/components/ui/Button';
+import { TutorialPreview } from '@/features/onboarding/components/TutorialPreview';
 import { MASCOT_NAME } from '@/lib/mascot';
 import {
   isTutorialCompleted,
@@ -23,7 +24,7 @@ type TutorialHostProps = {
 
 const HIGHLIGHT_COPY: Record<TutorialHighlight, string> = {
   welcome: 'Tour guiado',
-  feed: 'Sección Pulso',
+  feed: 'Sección Feed',
   agenda: 'Sección Agenda',
   piso: 'Sección Piso',
   bell: 'Campanita de avisos',
@@ -33,7 +34,8 @@ const HIGHLIGHT_COPY: Record<TutorialHighlight, string> = {
 };
 
 /**
- * Interactive first-run tutorial: switches Home sections and can jump to tabs.
+ * First-run tour after login + active home. Never shows on auth screens.
+ * Each step includes a visual mini-preview of the target screen.
  */
 export function TutorialHost({
   forceOpen = false,
@@ -46,13 +48,15 @@ export function TutorialHost({
   const [visible, setVisible] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
 
+  const canShow = Boolean(user && activeHomeId && !authLoading && !homeLoading);
   const step = TUTORIAL_STEPS[stepIndex] ?? TUTORIAL_STEPS[0];
   const isLast = stepIndex >= TUTORIAL_STEPS.length - 1;
 
   useEffect(() => {
     let cancelled = false;
     async function boot() {
-      if (authLoading || homeLoading || !user || !activeHomeId) {
+      if (!canShow) {
+        setVisible(false);
         return;
       }
       const done = await isTutorialCompleted();
@@ -69,35 +73,44 @@ export function TutorialHost({
     return () => {
       cancelled = true;
     };
-  }, [authLoading, homeLoading, user, activeHomeId]);
+  }, [canShow]);
 
   useEffect(() => {
     if (!forceOpen) {
       return;
     }
+    if (!canShow) {
+      onForceOpenHandled?.();
+      return;
+    }
     setStepIndex(0);
     setVisible(true);
     onForceOpenHandled?.();
-  }, [forceOpen, onForceOpenHandled]);
+  }, [forceOpen, canShow, onForceOpenHandled]);
 
   useEffect(() => {
-    if (!visible) {
+    if (!visible || !canShow) {
       return;
     }
     if (step.homeSection) {
       setHomeSection(step.homeSection);
       router.push('/(tabs)');
     }
-  }, [visible, step.homeSection, step.id, setHomeSection]);
+  }, [visible, canShow, step.homeSection, step.id, setHomeSection]);
 
   const finish = useCallback(async () => {
     await markTutorialCompleted();
     setVisible(false);
     setStepIndex(0);
-    router.push('/(tabs)');
-  }, []);
+    if (canShow) {
+      router.push('/(tabs)');
+    }
+  }, [canShow]);
 
   const runCta = useCallback(() => {
+    if (!canShow) {
+      return;
+    }
     if (step.goTab) {
       router.push(step.goTab);
     } else if (step.homeSection) {
@@ -110,19 +123,19 @@ export function TutorialHost({
       return;
     }
     setStepIndex((index) => index + 1);
-  }, [finish, isLast, setHomeSection, step.goTab, step.homeSection]);
+  }, [canShow, finish, isLast, setHomeSection, step.goTab, step.homeSection]);
 
   const progressLabel = useMemo(
     () => `${stepIndex + 1} / ${TUTORIAL_STEPS.length}`,
     [stepIndex],
   );
 
-  if (!ready && !forceOpen) {
+  if ((!ready && !forceOpen) || !canShow || !visible) {
     return null;
   }
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={() => void finish()}>
+    <Modal visible transparent animationType="fade" onRequestClose={() => void finish()}>
       <View className="flex-1 justify-end bg-black/55">
         <View className="mx-3 mb-3 gap-3 rounded-3xl bg-white p-5">
           <View className="flex-row items-center justify-between">
@@ -149,8 +162,9 @@ export function TutorialHost({
             </Text>
           </View>
 
-          <View className="items-center gap-2 py-1">
-            <Text className="text-5xl">{step.emoji}</Text>
+          <TutorialPreview highlight={step.highlight} />
+
+          <View className="items-center gap-1.5">
             <Text className="text-center text-xl font-bold text-stone-900">{step.title}</Text>
             <Text className="text-center text-sm leading-5 text-stone-600">{step.body}</Text>
             {step.tip ? (

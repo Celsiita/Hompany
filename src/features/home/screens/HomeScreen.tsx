@@ -46,7 +46,7 @@ import { usePurchases } from '@/providers/PurchasesProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
 
 /**
- * Home — Pulso (estado → ranking → cuentas), Agenda, Piso (info práctica).
+ * Home — Feed (estado → ranking → cuentas), Agenda, Piso (info práctica).
  * Avisos solo en campanita. Ausencias / silencio / visitas en ⋮.
  */
 export function HomeScreen() {
@@ -110,18 +110,18 @@ export function HomeScreen() {
   const [packOpen, setPackOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [lifeSheet, setLifeSheet] = useState<HomeLifeSheetKind | null>(null);
-  const [pulsoRefreshing, setPulsoRefreshing] = useState(false);
+  const [feedRefreshing, setFeedRefreshing] = useState(false);
 
   useEffect(() => {
     registerHomeSectionSetter(setSection);
   }, [registerHomeSectionSetter]);
 
-  async function refreshPulso() {
-    setPulsoRefreshing(true);
+  async function refreshFeed() {
+    setFeedRefreshing(true);
     try {
       await Promise.all([refreshTasks(), refreshExpenses(), refreshLeaderboard()]);
     } finally {
-      setPulsoRefreshing(false);
+      setFeedRefreshing(false);
     }
   }
 
@@ -224,7 +224,7 @@ export function HomeScreen() {
           title={activeHome?.name ?? 'El piso'}
           subtitle={subtitle}
           helpTitle="Inicio"
-          helpMessage="Pulso = estado del piso. Agenda = calendario. Piso = Wi‑Fi y reglas. La campanita concentra avisos urgentes."
+          helpMessage="Feed = estado del piso. Agenda = calendario. Piso = Wi‑Fi y reglas. La campanita concentra avisos urgentes."
           onAlertsPress={() => setAlertsOpen(true)}
           alertsCount={alerts.length}
           urgentAlertsCount={urgentAlertsCount}
@@ -234,7 +234,7 @@ export function HomeScreen() {
         <HomeSectionBar section={section} onSectionChange={setSection} />
 
         {section === 'FEED' ? (
-          <Animated.View key="pulso" entering={FadeIn.duration(240)} className="flex-1">
+          <Animated.View key="feed" entering={FadeIn.duration(240)} className="flex-1">
           <ScrollView
             showsVerticalScrollIndicator={false}
             bounces
@@ -242,8 +242,8 @@ export function HomeScreen() {
             contentInsetAdjustmentBehavior="never"
             refreshControl={
               <RefreshControl
-                refreshing={pulsoRefreshing}
-                onRefresh={() => void refreshPulso()}
+                refreshing={feedRefreshing}
+                onRefresh={() => void refreshFeed()}
                 tintColor="#0f766e"
                 colors={['#0f766e']}
               />

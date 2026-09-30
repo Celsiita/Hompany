@@ -46,12 +46,12 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     id: 'feed',
-    title: 'Pulso = el estado del piso',
+    title: 'Feed = el estado del piso',
     body: 'Aquí ves si el piso va bien, el ranking y quién debe a quién. Nada de Wi‑Fi aquí: eso vive en Piso.',
     emoji: '🏠',
     highlight: 'feed',
     homeSection: 'FEED',
-    cta: 'Ver el Pulso',
+    cta: 'Ver el Feed',
     tip: 'Mira la barra de cumplimiento y la clasificación.',
   },
   {
@@ -101,7 +101,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     highlight: 'expenses',
     goTab: '/(tabs)/expenses',
     cta: 'Ir a Gastos',
-    tip: 'Arriba: listas compartidas del súper. Abajo: el tablero de gastos.',
+    tip: 'Chips Debes / Te deben y Mis deudas / Mis cobros dejan el dinero claro.',
   },
   {
     id: 'settings',

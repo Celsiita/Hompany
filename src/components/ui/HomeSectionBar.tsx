@@ -10,13 +10,13 @@ type HomeSectionBarProps = {
 };
 
 const TABS: Array<{ id: HomeSection; label: string }> = [
-  { id: 'FEED', label: 'Pulso' },
+  { id: 'FEED', label: 'Feed' },
   { id: 'AGENDA', label: 'Agenda' },
   { id: 'PISO', label: 'Piso' },
 ];
 
 /**
- * Switches Home between Pulso, Agenda calendar and flat practical info.
+ * Switches Home between Feed, Agenda calendar and flat practical info.
  */
 export function HomeSectionBar({ section, onSectionChange }: HomeSectionBarProps) {
   return (
@@ -27,7 +27,7 @@ export function HomeSectionBar({ section, onSectionChange }: HomeSectionBarProps
         </Text>
         <HelpTip
           title="Inicio"
-          message="Pulso = estado y ranking. Agenda = calendario del día. Piso = Wi‑Fi, portal, reglas y quejas. Los avisos urgentes están en la campanita."
+          message="Feed = estado y ranking. Agenda = calendario del día. Piso = Wi‑Fi, portal, reglas y quejas. Los avisos urgentes están en la campanita."
         />
       </View>
       <View className="flex-row gap-2">

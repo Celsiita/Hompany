@@ -18,17 +18,20 @@ type DayAgendaSheetProps = {
 function rowClass(item: AgendaItem): string {
   if (item.lifecycle === 'scheduled') {
     if (item.kind === 'expense') {
-      return 'border-amber-100 bg-amber-50/60 opacity-70';
+      return item.expenseRole === 'i_owe'
+        ? 'border-rose-100 bg-rose-50/60 opacity-70'
+        : 'border-amber-100 bg-amber-50/60 opacity-70';
     }
     return item.mine
       ? 'border-blue-100 bg-blue-50/60 opacity-70'
       : 'border-sky-100 bg-sky-50/60 opacity-70';
   }
-  return item.kind === 'expense'
-    ? 'border-amber-200 bg-amber-50'
-    : item.mine
-      ? 'border-blue-200 bg-blue-50'
-      : 'border-sky-200 bg-sky-50';
+  if (item.kind === 'expense') {
+    return item.expenseRole === 'i_owe'
+      ? 'border-rose-200 bg-rose-50'
+      : 'border-amber-200 bg-amber-50';
+  }
+  return item.mine ? 'border-blue-200 bg-blue-50' : 'border-sky-200 bg-sky-50';
 }
 
 /**
@@ -77,7 +80,13 @@ export function DayAgendaSheet({
               {item.glyph} {stripCycleSuffix(item.title)}
             </Text>
             <Text className="mt-1 text-xs text-stone-600">
-              {item.kind === 'task' ? 'Tarea' : 'Gasto'}
+              {item.kind === 'task'
+                ? item.mine
+                  ? 'Tarea · tuya'
+                  : 'Tarea · compañero'
+                : item.expenseRole === 'i_owe'
+                  ? 'Debes'
+                  : 'Te deben'}
               {item.lifecycle === 'scheduled' ? ' · Programada' : ' · Abierta'}
               {' · '}
               {item.actorLabel}

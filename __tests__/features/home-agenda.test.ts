@@ -209,7 +209,7 @@ describe('agenda-items', () => {
     });
   });
 
-  it('shows only debts in Mis cosas expense filter', () => {
+  it('shows debts and credits differentiated in Mis cosas expense filter', () => {
     const creditorExpense = makeExpense({
       id: 'creditor-expense',
       paid_by: ANA,
@@ -256,7 +256,16 @@ describe('agenda-items', () => {
       now: new Date(2026, 7, 18),
       scope: toAgendaScopeFilter('mine', { tasks: false, expenses: true }),
     });
-    expect(items.map((item) => item.entityId)).toEqual(['debtor-expense']);
+    expect(items.map((item) => item.entityId).sort()).toEqual([
+      'creditor-expense',
+      'debtor-expense',
+    ]);
+    expect(items.find((item) => item.entityId === 'debtor-expense')?.expenseRole).toBe('i_owe');
+    expect(items.find((item) => item.entityId === 'creditor-expense')?.expenseRole).toBe(
+      'they_owe_me',
+    );
+    expect(items.find((item) => item.entityId === 'debtor-expense')?.mine).toBe(true);
+    expect(items.find((item) => item.entityId === 'creditor-expense')?.mine).toBe(true);
   });
 
   it('builds calendar dots and emojis separately', () => {

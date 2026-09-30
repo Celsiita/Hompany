@@ -14,7 +14,10 @@ type AgendaDayMarkersProps = {
 };
 
 function dotClassName(dot: AgendaDayDot): string {
-  if (dot.kind === 'expense') {
+  if (dot.kind === 'expense-owe') {
+    return dot.open ? 'bg-rose-500' : 'bg-rose-300';
+  }
+  if (dot.kind === 'expense-credit') {
     return dot.open ? 'bg-amber-500' : 'bg-amber-300';
   }
   if (dot.kind === 'mine-task') {
@@ -27,7 +30,7 @@ function dotClassName(dot: AgendaDayDot): string {
 }
 
 /**
- * Task/expense dots under the day number (blue / sky / amber).
+ * Task/expense dots under the day number (blue / sky / rose / amber).
  */
 export function AgendaDayMarkers({ dots, emojis, showOthers = true }: AgendaDayMarkersProps) {
   const visibleDots = dots.filter(

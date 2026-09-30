@@ -15,7 +15,7 @@ function memberName(members: HomeMemberWithProfile[], userId: string): string {
 }
 
 /**
- * Compact "quién debe a quién" card for Pulso (amber = money).
+ * Compact "quién debe a quién" card for Feed (amber = money).
  */
 export function BalanceSummary({ balances, members, currentUserId }: BalanceSummaryProps) {
   const relevantDebts = currentUserId

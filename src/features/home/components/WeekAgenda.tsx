@@ -25,12 +25,14 @@ type WeekAgendaProps = {
 function itemTone(item: AgendaItem): string {
   if (item.lifecycle === 'scheduled') {
     if (item.kind === 'expense') {
-      return 'text-amber-700/55';
+      return item.expenseRole === 'i_owe' ? 'text-rose-700/55' : 'text-amber-700/55';
     }
     return item.mine ? 'text-blue-800/50' : 'text-sky-700/50';
   }
   if (item.kind === 'expense') {
-    return item.mine ? 'font-semibold text-amber-800' : 'text-amber-700';
+    return item.expenseRole === 'i_owe'
+      ? 'font-semibold text-rose-800'
+      : 'font-semibold text-amber-800';
   }
   return item.mine ? 'font-semibold text-blue-800' : 'text-sky-800';
 }

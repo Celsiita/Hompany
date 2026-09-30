@@ -164,7 +164,12 @@ export function MonthCalendar({
                   {(() => {
                     const mineTasks = dayItems.filter((item) => item.kind === 'task' && item.mine);
                     const othersTasks = dayItems.filter((item) => item.kind === 'task' && !item.mine);
-                    const dayExpenses = dayItems.filter((item) => item.kind === 'expense');
+                    const debtExpenses = dayItems.filter(
+                      (item) => item.kind === 'expense' && item.expenseRole === 'i_owe',
+                    );
+                    const creditExpenses = dayItems.filter(
+                      (item) => item.kind === 'expense' && item.expenseRole !== 'i_owe',
+                    );
                     const dots: { key: string; className: string }[] = [];
                     if (mineTasks.length > 0) {
                       const open = mineTasks.some((item) => item.lifecycle === 'open');
@@ -177,13 +182,20 @@ export function MonthCalendar({
                       const open = othersTasks.some((item) => item.lifecycle === 'open');
                       dots.push({
                         key: 'others-task',
-                        className: open ? 'bg-teal-600' : 'bg-teal-300',
+                        className: open ? 'bg-sky-600' : 'bg-sky-300',
                       });
                     }
-                    if (dayExpenses.length > 0) {
-                      const open = dayExpenses.some((item) => item.lifecycle === 'open');
+                    if (debtExpenses.length > 0) {
+                      const open = debtExpenses.some((item) => item.lifecycle === 'open');
                       dots.push({
-                        key: 'expense',
+                        key: 'expense-owe',
+                        className: open ? 'bg-rose-500' : 'bg-rose-300',
+                      });
+                    }
+                    if (creditExpenses.length > 0) {
+                      const open = creditExpenses.some((item) => item.lifecycle === 'open');
+                      dots.push({
+                        key: 'expense-credit',
                         className: open ? 'bg-amber-500' : 'bg-amber-300',
                       });
                     }

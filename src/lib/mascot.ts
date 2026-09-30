@@ -151,9 +151,9 @@ const REACTIONS: Record<
   { button: string; title?: string; body: string }
 > = {
   approve: {
-    button: '🍌 Aprobar',
-    title: '¡Plátano ganado!',
-    body: `${MASCOT_NAME} aplaude: prueba aceptada.`,
+    button: 'Aprobar',
+    title: 'Prueba aceptada',
+    body: `${MASCOT_NAME} aplaude: entrega validada.`,
   },
   dispute: {
     button: '🤨 Impugnar',

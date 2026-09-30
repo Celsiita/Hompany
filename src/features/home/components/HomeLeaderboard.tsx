@@ -26,7 +26,7 @@ function rankTone(rank: number): { badge: string; text: string } {
 }
 
 /**
- * Pulso card: ranked roommates with reputation score and task stats.
+ * Feed card: ranked roommates with reputation score and task stats.
  */
 export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
   if (rows.length === 0) {

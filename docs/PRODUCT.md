@@ -6,9 +6,9 @@ Guía de producto para quien use o revise la app. La periodicidad está detallad
 
 | Tab | Para qué sirve |
 |-----|----------------|
-| **Inicio** | Tres secciones: **Pulso** (estado, ranking, cuentas), **Agenda** (calendario + lista), **Piso** (Wi‑Fi/reglas). Campanita de avisos. Menú ⋮: ausencias, modo silencio, visitas, iconos. |
+| **Inicio** | Tres secciones: **Feed** (estado, ranking, cuentas), **Agenda** (calendario + lista), **Piso** (Wi‑Fi/reglas). Campanita de avisos. Menú ⋮: ausencias, modo silencio, visitas, iconos. |
 | **Tareas** | En curso / Historial. Chips **Tuya** / **Compañero**. Botón **+** para crear. Filtros, tipos, intercambios, foto. Ayuda `?`. |
-| **Gastos** | Listas compartidas + súper/casa/ocio. Chips **Debes** / **Tú pagaste**. Botón **+** para crear. Ayuda `?`. |
+| **Gastos** | Súper/casa/ocio. Chips **Debes** / **Tú pagaste**. Botón **+** para crear. Ayuda `?`. |
 | **Ajustes** | Perfil, Plus, iconos, invitación, compañeros, tutorial, foto de prueba (admin), cuenta. |
 
 No hay cabecera nativa duplicada: el título vive solo en la pantalla.
@@ -50,7 +50,6 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 
 - Tipos: Supermercado, Casa, **Ocio**, más personalizados del hogar.
 - **Reparto:** Igualitario | Porcentajes (suman 100) | Cantidades fijas (suman el total). «Dividir entre todos» incluye o excluye al pagador del pool.
-- **Listas compartidas:** participantes elegibles, gasto vinculado obligatorio, aviso de lo que falta y rotación opcional del comprador.
 - **Una vez**: mismo selector de fecha y hora que en tareas. Recurrentes usan el motor compartido y el título de periodo (p. ej. `Alquiler - Agosto 2026`).
 - Ticket/recibo sin etiqueta «opcional».
 - Countdown si hay fecha límite («Quedan Xd para saldar»).
@@ -60,16 +59,16 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 
 ## Salud y agenda
 
-- **Mico**: voz del tutorial de onboarding (1ª apertura + Ajustes → Ver tutorial). El Pulso no muestra cara ni bocadillos «Mico dice».
+- **Mico**: voz del tutorial de onboarding (1ª apertura + Ajustes → Ver tutorial). El Feed no muestra cara ni bocadillos «Mico dice».
 - **Info del piso** en Piso: Wi‑Fi, portal, basura, notas.
 - **Reglas y quejas** en Piso (quejas pueden ser anónimas).
 - **Agenda — avisos del piso**: visitas, reparaciones, eventos (rango de fechas, marcadores en calendario).
 - Barra de salud: **Excelente** / **Regular** / **Crítico**.
 - Una sola franja: Pendientes | Entregadas | Completadas.
 - **Clasificación** del piso: ranking por `reputation_points`, con nombre e info de tareas (hechas, pendientes, en revisión, vencidas). Calculado en Postgres (`get_home_leaderboard`).
-- Home se divide en **Pulso** / **Agenda** / **Piso**.
-- **Agenda:** filtros, calendario, leyenda de colores (azul / cielo / ámbar) y lista. Ausencias / modo silencio / visitas → menú ⋮.
-- **Avisos in-app:** solo campanita + inbox (no lista en el Pulso). Ver [`notifications.md`](./notifications.md).
+- Home se divide en **Feed** / **Agenda** / **Piso**.
+- **Agenda:** filtros, calendario, leyenda (azul tarea / cielo compañero / rosa Debes / ámbar Te deben) y lista. Ausencias / modo silencio / visitas → menú ⋮.
+- **Avisos in-app:** solo campanita + inbox (no lista en el Feed). Ver [`notifications.md`](./notifications.md).
 - **Ayuda:** iconos `?` en cabeceras y secciones clave.
 - **Tutorial:** tour interactivo v2 (cambia secciones / pestañas) desde 1ª apertura o Ajustes.
 - **Filtros Agenda:** botón Filtros (▲/▼) con `Mis cosas` | `Compañeros` (sin selección = Todo el piso) + chips `Tareas` / `Gastos`.
@@ -85,12 +84,12 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 - Tocar una tarjeta abierta en Tareas/Gastos abre **Editar** (sin menú ⋮).
 - Tocar un ítem abierto en Agenda abre su tarjeta en Tareas/Gastos (resaltada). Programadas abren sheet de acciones.
 - Al **crear** una tarea o gasto, la app salta a su tarjeta en el tablero (feedback visual breve).
-- Avisos: ya no van en el Pulso; se abren desde la campanita (también en el menú ⋮).
+- Avisos: ya no van en el Feed; se abren desde la campanita (también en el menú ⋮).
 
 ## Layout
 
 - Un solo título por pantalla (`ScreenHeader`). La cabecera nativa de tabs está oculta.
-- Pull-to-refresh en Pulso, Agenda, Tareas y Gastos (tint teal). El bounce del scroll solo sirve para eso.
+- Pull-to-refresh en Feed, Agenda, Tareas y Gastos (tint teal). El bounce del scroll solo sirve para eso.
 
 ## Iconos
 

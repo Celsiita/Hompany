@@ -72,7 +72,7 @@ export function toAgendaScopeFilter(
 
 export type AgendaDayDot = {
   key: string;
-  kind: 'mine-task' | 'others-task' | 'expense' | 'absence';
+  kind: 'mine-task' | 'others-task' | 'expense-owe' | 'expense-credit' | 'absence';
   /** Open items use solid dots; scheduled use lighter / hollow styling. */
   open: boolean;
 };
@@ -84,7 +84,12 @@ export function computeAgendaDayDots(dayItems: AgendaItem[]): AgendaDayDot[] {
   const dots: AgendaDayDot[] = [];
   const mineTasks = dayItems.filter((item) => item.kind === 'task' && item.mine);
   const othersTasks = dayItems.filter((item) => item.kind === 'task' && !item.mine);
-  const dayExpenses = dayItems.filter((item) => item.kind === 'expense');
+  const debtExpenses = dayItems.filter(
+    (item) => item.kind === 'expense' && item.expenseRole === 'i_owe',
+  );
+  const creditExpenses = dayItems.filter(
+    (item) => item.kind === 'expense' && item.expenseRole !== 'i_owe',
+  );
 
   if (mineTasks.length > 0) {
     dots.push({
@@ -100,11 +105,18 @@ export function computeAgendaDayDots(dayItems: AgendaItem[]): AgendaDayDot[] {
       open: othersTasks.some((item) => item.lifecycle === 'open'),
     });
   }
-  if (dayExpenses.length > 0) {
+  if (debtExpenses.length > 0) {
     dots.push({
-      key: 'expense',
-      kind: 'expense',
-      open: dayExpenses.some((item) => item.lifecycle === 'open'),
+      key: 'expense-owe',
+      kind: 'expense-owe',
+      open: debtExpenses.some((item) => item.lifecycle === 'open'),
+    });
+  }
+  if (creditExpenses.length > 0) {
+    dots.push({
+      key: 'expense-credit',
+      kind: 'expense-credit',
+      open: creditExpenses.some((item) => item.lifecycle === 'open'),
     });
   }
   return dots;
@@ -142,6 +154,8 @@ export function computeAgendaDayEmojis(
   return emojis;
 }
 
+export type AgendaExpenseRole = 'i_owe' | 'they_owe_me';
+
 export type AgendaItem = {
   /** Composite key for list rendering. */
   id: string;
@@ -155,6 +169,8 @@ export type AgendaItem = {
   title: string;
   mine: boolean;
   kind: AgendaItemKind;
+  /** For expenses: debt vs credit from the current user's view. */
+  expenseRole?: AgendaExpenseRole;
   glyph: string;
   dueMode: 'DEADLINE' | 'EXECUTION';
   lifecycle: AgendaLifecycle;
@@ -370,15 +386,19 @@ export function buildAgendaItems(params: {
       const involved = isMineExpense(expense, params.currentUserId);
       const owes = isUserOwesExpense(expense, params.currentUserId);
       const show =
-        (scope.myExpenses && owes) ||
-        (scope.othersExpenses && involved && !owes);
+        (scope.myExpenses && (owes || creditor)) ||
+        (scope.othersExpenses && involved && !owes && !creditor);
       if (!show) {
         continue;
       }
 
       const when = new Date(expense.due_at as string);
       const startsAt = expense.starts_at ? new Date(expense.starts_at) : startOfLocalDay(when);
-      const mineForColor = creditor;
+      const expenseRole: AgendaExpenseRole = owes ? 'i_owe' : 'they_owe_me';
+      const payerName = expense.payer?.display_name ?? 'Alguien';
+      const actorLabel =
+        expenseRole === 'i_owe' ? `Debes a ${payerName}` : `${payerName} te debe`;
+      const mineExpense = owes || creditor;
       items.push({
         id: `e-open-${expense.id}`,
         entityId: expense.id,
@@ -386,12 +406,13 @@ export function buildAgendaItems(params: {
         when,
         startsAt,
         title: expense.title?.trim() || 'Sin título',
-        mine: mineForColor,
+        mine: mineExpense,
+        expenseRole,
         kind: 'expense',
         glyph: glyphForExpenseKind(params.pack, expense.kind),
         dueMode: (expense.due_mode ?? 'DEADLINE') as 'DEADLINE' | 'EXECUTION',
         lifecycle: 'open',
-        actorLabel: expense.payer?.display_name ?? 'Alguien',
+        actorLabel,
         assignedUserId: expense.paid_by,
       });
 
@@ -421,12 +442,13 @@ export function buildAgendaItems(params: {
             nextDueAt: due,
           }),
           title: expense.title?.trim() || 'Sin título',
-          mine: mineForColor,
+          mine: mineExpense,
+          expenseRole,
           kind: 'expense',
           glyph: glyphForExpenseKind(params.pack, expense.kind),
           dueMode: (expense.due_mode ?? 'DEADLINE') as 'DEADLINE' | 'EXECUTION',
           lifecycle: 'scheduled',
-          actorLabel: expense.payer?.display_name ?? 'Alguien',
+          actorLabel,
           assignedUserId: expense.paid_by,
         });
       }
