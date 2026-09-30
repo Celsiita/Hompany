@@ -10,7 +10,7 @@ Repite el tutorial una vez (Ajustes → Ver tutorial) o úsalo al inicio para en
 | 30–45 s | Agenda: leyenda azul/cielo/ámbar + lista | “El calendario diferencia tus tareas, las de compañeros y los gastos.” |
 | 45–55 s | Piso: Wi‑Fi / reglas | “Datos del hogar aparte, sin ensuciar el Pulso.” |
 | 55–75 s | Tareas: chip Tuya/Compañero + Mico (aprobar/cambio) / campanita | “Prueba con foto; ves al instante qué es tuyo.” |
-| 75–95 s | Gastos: chip Debes/Tú pagaste + saldar | “Quién debe a quién, sin drama.” |
+| 75–95 s | Gastos: listas compartidas + chip Debes/Tú pagaste + saldar | “Quién debe a quién, y la lista del súper.” |
 | 95–115 s | Ajustes → Ver HOMPANY Plus → pack | “Plus opcional (packs). RevenueCat en el código.” |
 | 115–120 s | Invite code / QR | “Invita al piso y listo.” |
 

@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     width: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 9999,
+    borderRadius: 12,
     backgroundColor: palette.gray100,
   },
 });
