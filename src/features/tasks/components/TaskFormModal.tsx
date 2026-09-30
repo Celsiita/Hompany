@@ -228,7 +228,7 @@ export function TaskFormModal({
 
   return (
     <BottomSheetModal visible={visible} onClose={onClose}>
-      <Text className="mb-3 text-xl font-bold text-gray-900">
+      <Text className="mb-3 text-xl font-bold text-stone-900">
         {mode === 'edit' ? 'Editar tarea' : mode === 'repeat' ? 'Repetir tarea' : 'Nueva tarea'}
       </Text>
 
@@ -240,7 +240,7 @@ export function TaskFormModal({
                 onChangeText={setDescription}
               />
 
-              <Text className="text-sm font-medium text-gray-700">Tipo</Text>
+              <Text className="text-sm font-medium text-stone-700">Tipo</Text>
               <ItemTypePicker
                 builtin={[{ key: 'QUICK', label: TASK_CATEGORY_LABEL.QUICK }]}
                 customTypes={customTypes}
@@ -254,7 +254,7 @@ export function TaskFormModal({
                 }}
               />
 
-              <Text className="text-sm font-medium text-gray-700">Icono</Text>
+              <Text className="text-sm font-medium text-stone-700">Icono</Text>
               <View className="flex-row flex-wrap gap-2">
                 {TASK_ICON_OPTIONS.map((option) => {
                   const active = icon === option;
@@ -265,7 +265,7 @@ export function TaskFormModal({
                       accessibilityRole="button"
                       accessibilityLabel={option}
                       accessibilityState={{ selected: active }}
-                      className={`h-11 w-11 items-center justify-center rounded-xl ${active ? 'border border-blue-400 bg-blue-100' : 'border border-gray-200 bg-gray-50'}`}>
+                      className={`h-11 w-11 items-center justify-center rounded-xl ${active ? 'border border-blue-400 bg-blue-100' : 'border border-stone-200 bg-stone-50'}`}>
                       <Text className="text-xl">{glyphForTaskIcon(pack, option)}</Text>
                     </Pressable>
                   );
@@ -292,7 +292,7 @@ export function TaskFormModal({
                 onChangeText={setPoints}
               />
 
-              <Text className="text-sm font-medium text-gray-700">Quién la hace</Text>
+              <Text className="text-sm font-medium text-stone-700">Quién la hace</Text>
               <View className="gap-2">
                 {members.map((member) => {
                   const selected = assigneeIds.includes(member.user_id);
@@ -307,9 +307,9 @@ export function TaskFormModal({
                       className={`rounded-xl border px-3 py-3 ${
                         selected
                           ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 bg-white'
+                          : 'border-stone-200 bg-white'
                       }`}>
-                      <Text className="text-sm font-medium text-gray-900">{name}</Text>
+                      <Text className="text-sm font-medium text-stone-900">{name}</Text>
                       {showAbsentWarning ? (
                         <Text className="mt-1 text-xs text-amber-700">
                           {absentMemberWarning(name)}
@@ -324,11 +324,11 @@ export function TaskFormModal({
 
               <Pressable
                 onPress={() => setAutoAssign((value) => !value)}
-                className={`rounded-xl border px-3 py-3 ${autoAssign ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
-                <Text className="text-sm font-medium text-gray-900">
+                className={`rounded-xl border px-3 py-3 ${autoAssign ? 'border-blue-500 bg-blue-50' : 'border-stone-200 bg-white'}`}>
+                <Text className="text-sm font-medium text-stone-900">
                   {autoAssign ? '✓ ' : ''}Rotación automática
                 </Text>
-                <Text className="text-xs text-gray-500 mt-1">
+                <Text className="text-xs text-stone-500 mt-1">
                   Cada ciclo toca al siguiente compañero de la lista.
                 </Text>
               </Pressable>

@@ -50,10 +50,10 @@ export function TaskReviewCommentModal({
         <Pressable
           className="w-full gap-3 rounded-2xl bg-white p-4"
           onPress={(event) => event.stopPropagation()}>
-          <Text className="text-lg font-bold text-gray-900">
+          <Text className="text-lg font-bold text-stone-900">
             {isDispute ? 'Impugnar prueba' : 'Aprobar entrega'}
           </Text>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-stone-600">
             {isDispute
               ? 'Explica qué falla para que el compañero pueda corregirlo.'
               : 'Opcional: deja una sugerencia amable al validar la foto.'}

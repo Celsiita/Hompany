@@ -58,7 +58,7 @@ export function FilterTogglePair<T extends string>({
             contentStyle={optionStyle(active)}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}>
-            <Text className="text-center text-sm font-semibold text-gray-800">{option.label}</Text>
+            <Text className="text-center text-sm font-semibold text-stone-800">{option.label}</Text>
           </SafePressable>
         );
       })}

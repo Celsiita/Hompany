@@ -340,7 +340,7 @@ export function ExpenseFormModal({
 
   return (
     <BottomSheetModal visible={visible} onClose={onClose}>
-      <Text className="mb-3 text-xl font-bold text-gray-900">
+      <Text className="mb-3 text-xl font-bold text-stone-900">
         {mode === 'edit' ? 'Editar gasto' : mode === 'repeat' ? 'Repetir gasto' : 'Nuevo gasto'}
       </Text>
 
@@ -354,7 +354,7 @@ export function ExpenseFormModal({
                 placeholder="0 = recordatorio, sin deuda"
               />
 
-              <Text className="text-sm font-medium text-gray-700">Tipo</Text>
+              <Text className="text-sm font-medium text-stone-700">Tipo</Text>
               <ItemTypePicker
                 builtin={[
                   { key: EXPENSE_KIND.GROCERY, label: EXPENSE_KIND_LABEL.GROCERY },
@@ -384,7 +384,7 @@ export function ExpenseFormModal({
                 }}
               />
 
-              <Text className="text-sm font-medium text-gray-700">Cómo se reparte</Text>
+              <Text className="text-sm font-medium text-stone-700">Cómo se reparte</Text>
               <View className="flex-row flex-wrap gap-2">
                 {(
                   [
@@ -403,7 +403,7 @@ export function ExpenseFormModal({
                         active ? interactive.chipActive : interactive.chipInactive,
                       )}>
                       <Text
-                        className={`text-xs font-semibold ${active ? 'text-white' : 'text-gray-700'}`}>
+                        className={`text-xs font-semibold ${active ? 'text-white' : 'text-stone-700'}`}>
                         {option.label}
                       </Text>
                     </SafePressable>
@@ -411,8 +411,8 @@ export function ExpenseFormModal({
                 })}
               </View>
 
-              <Text className="text-sm font-medium text-gray-700">¿Quiénes te deben?</Text>
-              <Text className="text-xs text-gray-500">
+              <Text className="text-sm font-medium text-stone-700">¿Quiénes te deben?</Text>
+              <Text className="text-xs text-stone-500">
                 Toca para marcar o desmarcar. Si no ves a nadie, invita a un compañero al piso.
               </Text>
               {debtorCandidates.length === 0 ? (
@@ -434,7 +434,7 @@ export function ExpenseFormModal({
                           interactive.rowBetween,
                           selected ? interactive.borderedCardActive : undefined,
                         )}>
-                        <Text className="text-sm font-medium text-gray-900">{name}</Text>
+                        <Text className="text-sm font-medium text-stone-900">{name}</Text>
                         <Text className="text-sm text-amber-800">
                           {selected ? '✓ Te debe' : 'Incluir'}
                         </Text>
@@ -451,18 +451,18 @@ export function ExpenseFormModal({
                   interactive.borderedCard,
                   includePayer ? interactive.borderedCardActive : undefined,
                 )}>
-                <Text className="text-sm font-medium text-gray-900">
+                <Text className="text-sm font-medium text-stone-900">
                   {includePayer ? '✓ ' : ''}También me toca a mí
                 </Text>
-                <Text className="mt-1 text-xs text-gray-500">
+                <Text className="mt-1 text-xs text-stone-500">
                   Activado: repartes el total con los demás (tú también pagas tu parte). Desactivado:
                   ellos te deben el 100 %.
                 </Text>
               </SafePressable>
 
               {splitMode !== 'EQUAL' ? (
-                <View className="gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3">
-                  <Text className="text-xs text-gray-600">
+                <View className="gap-2 rounded-xl border border-stone-200 bg-stone-50 p-3">
+                  <Text className="text-xs text-stone-600">
                     {splitMode === 'PERCENT'
                       ? 'Escribe el % de cada participante. Debe sumar 100.'
                       : 'Escribe la cantidad de cada uno. Debe sumar el total.'}
@@ -493,7 +493,7 @@ export function ExpenseFormModal({
                 </View>
               ) : null}
 
-              <Text className="text-sm font-medium text-gray-700">¿Quién pagó / adelantó?</Text>
+              <Text className="text-sm font-medium text-stone-700">¿Quién pagó / adelantó?</Text>
               <View className="gap-2">
                 {members.map((member) => {
                   const selected = paidBy === member.user_id;
@@ -508,7 +508,7 @@ export function ExpenseFormModal({
                         interactive.rowBetween,
                         selected ? interactive.borderedCardActive : undefined,
                       )}>
-                      <Text className="text-sm font-medium text-gray-900">{name}</Text>
+                      <Text className="text-sm font-medium text-stone-900">{name}</Text>
                       <Text className="text-sm text-amber-800">{selected ? '✓' : ''}</Text>
                     </SafePressable>
                   );
@@ -534,14 +534,14 @@ export function ExpenseFormModal({
                 onChangeText={setDescription}
               />
 
-              <Text className="text-sm font-medium text-gray-700">Ticket / recibo</Text>
-              <Text className="text-xs text-gray-500">
+              <Text className="text-sm font-medium text-stone-700">Ticket / recibo</Text>
+              <Text className="text-xs text-stone-500">
                 Puedes guardar el gasto sin adjunto y añadirlo más tarde al editar.
               </Text>
               {previewUri ? (
                 <Image
                   source={{ uri: previewUri }}
-                  className="h-36 w-full rounded-xl bg-gray-100"
+                  className="h-36 w-full rounded-xl bg-stone-100"
                   resizeMode="cover"
                 />
               ) : null}
