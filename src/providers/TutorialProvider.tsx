@@ -13,7 +13,7 @@ import { TutorialHost } from '@/features/onboarding/components/TutorialHost';
 type TutorialContextValue = {
   /** Opens the Mico tutorial again (e.g. from Settings). */
   openTutorial: () => void;
-  /** Home registers its section setter so the tour can switch Feed/Agenda/Piso. */
+  /** Home registers its section setter so the tour can switch Pulso/Agenda/Piso. */
   registerHomeSectionSetter: (setter: (section: HomeSection) => void) => void;
   /** Applies a Home section during the tour (no-op if Home is not mounted). */
   setHomeSection: (section: HomeSection) => void;

@@ -31,7 +31,7 @@ const KIND_LABEL: Record<FeedNoticeKind, string> = {
 };
 
 /**
- * Feed card: house rules and complaints (optional anonymous).
+ * Piso card: house rules and complaints (optional anonymous).
  */
 export function HomeNoticesPanel({
   notices,

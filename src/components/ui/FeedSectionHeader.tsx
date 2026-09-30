@@ -6,7 +6,7 @@ type FeedSectionHeaderProps = {
 };
 
 /**
- * Clear section label inside the Home Feed scroll.
+ * Clear section label inside the Home Pulso scroll.
  */
 export function FeedSectionHeader({ title, subtitle }: FeedSectionHeaderProps) {
   return (

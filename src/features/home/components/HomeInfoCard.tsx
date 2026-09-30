@@ -40,7 +40,7 @@ export function homeHasPracticalInfo(home: Home | null | undefined): boolean {
 }
 
 /**
- * Feed card: shared flat practical info (Wi‑Fi, portal, bins) with edit sheet.
+ * Piso card: shared flat practical info (Wi‑Fi, portal, bins) with edit sheet.
  */
 export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
   const [editorOpen, setEditorOpen] = useState(false);
