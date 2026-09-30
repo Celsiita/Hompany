@@ -202,26 +202,36 @@ export function ShoppingListsPanel({
         <MascotLoading />
       ) : (
         <View className="gap-3">
-          <View className="flex-row flex-wrap gap-2">
-            {lists.map((list) => {
-              const active = activeList?.id === list.id;
-              const missing = list.items.filter((item) => item.needed).length;
-              return (
-                <SafePressable
-                  key={list.id}
-                  onPress={() => setSelectedListId(list.id)}
-                  contentStyle={mergeStyles(
-                    interactive.chip,
-                    active ? interactive.chipActive : interactive.chipInactive,
-                  )}>
-                  <Text className={`text-xs font-semibold ${active ? 'text-white' : 'text-gray-700'}`}>
-                    {list.name}
-                    {missing > 0 ? ` · ${missing}` : ''}
-                  </Text>
-                </SafePressable>
-              );
-            })}
-          </View>
+          {lists.length === 0 ? (
+            <View className="gap-1 rounded-xl border border-dashed border-amber-200 bg-amber-50/40 px-3 py-4">
+              <Text className="text-sm font-semibold text-amber-950">Sin listas aún</Text>
+              <Text className="text-sm leading-5 text-amber-900/70">
+                Crea la del súper o de productos compartidos para marcar lo que falta.
+              </Text>
+            </View>
+          ) : (
+            <View className="flex-row flex-wrap gap-2">
+              {lists.map((list) => {
+                const active = activeList?.id === list.id;
+                const missing = list.items.filter((item) => item.needed).length;
+                return (
+                  <SafePressable
+                    key={list.id}
+                    onPress={() => setSelectedListId(list.id)}
+                    contentStyle={mergeStyles(
+                      interactive.chip,
+                      active ? interactive.chipActive : interactive.chipInactive,
+                    )}>
+                    <Text
+                      className={`text-xs font-semibold ${active ? 'text-white' : 'text-stone-700'}`}>
+                      {list.name}
+                      {missing > 0 ? ` · ${missing}` : ''}
+                    </Text>
+                  </SafePressable>
+                );
+              })}
+            </View>
+          )}
 
           {!addFormOpen ? (
             <SafePressable
@@ -236,10 +246,10 @@ export function ShoppingListsPanel({
                 }
               }}
               contentStyle={mergeStyles(interactive.secondaryButton, { alignSelf: 'flex-start' })}>
-              <Text className="text-sm font-semibold text-gray-800">+ Añadir lista</Text>
+              <Text className="text-sm font-semibold text-stone-800">+ Añadir lista</Text>
             </SafePressable>
           ) : (
-            <View className="gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3">
+            <View className="gap-2 rounded-xl border border-stone-200 bg-stone-50 p-3">
               <TextField
                 label="Nombre"
                 value={newListName}
@@ -265,7 +275,7 @@ export function ShoppingListsPanel({
                       interactive.rowBetween,
                       selected ? interactive.borderedCardActive : undefined,
                     )}>
-                    <Text className="text-sm text-gray-900">
+                    <Text className="text-sm text-stone-900">
                       {member.profiles?.display_name ?? 'Compañero'}
                       {member.user_id === currentUserId ? ' · tú' : ''}
                     </Text>
@@ -290,7 +300,7 @@ export function ShoppingListsPanel({
 
           {activeList ? (
             <View className="gap-3 rounded-xl border border-amber-100 bg-white p-3">
-              <Text className="text-sm font-semibold text-gray-900">{activeList.name}</Text>
+              <Text className="text-sm font-semibold text-stone-900">{activeList.name}</Text>
 
               <View className="gap-2 rounded-xl border border-emerald-100 bg-emerald-50/60 px-3 py-2">
                 <Text className="text-xs font-semibold uppercase text-emerald-800">Gasto controlado</Text>
@@ -325,7 +335,7 @@ export function ShoppingListsPanel({
                       interactive.rowBetween,
                       selected ? interactive.borderedCardActive : undefined,
                     )}>
-                    <Text className="text-sm text-gray-900">
+                    <Text className="text-sm text-stone-900">
                       {member.profiles?.display_name ?? 'Compañero'}
                     </Text>
                     <Text className="text-sm text-amber-800">{selected ? '✓' : ''}</Text>
@@ -349,10 +359,10 @@ export function ShoppingListsPanel({
                   interactive.borderedCard,
                   activeList.rotation_enabled ? interactive.borderedCardActive : undefined,
                 )}>
-                <Text className="text-sm font-medium text-gray-900">
+                <Text className="text-sm font-medium text-stone-900">
                   {activeList.rotation_enabled ? '✓ ' : ''}Rotación para ir a comprar
                 </Text>
-                <Text className="mt-1 text-xs text-gray-500">
+                <Text className="mt-1 text-xs text-stone-500">
                   {activeList.rotation_enabled
                     ? `Comprador actual: ${memberName(activeList.current_buyer_user_id)}`
                     : 'Opcional: el acreedor/comprador rota entre participantes.'}
@@ -374,7 +384,7 @@ export function ShoppingListsPanel({
                             interactive.rowBetween,
                             selected ? interactive.borderedCardActive : undefined,
                           )}>
-                          <Text className="text-sm text-gray-900">
+                          <Text className="text-sm text-stone-900">
                             {member.profiles?.display_name ?? 'Compañero'}
                           </Text>
                           <Text className="text-sm text-amber-800">{selected ? '✓' : ''}</Text>
@@ -395,7 +405,7 @@ export function ShoppingListsPanel({
                 activeList.items.map((item) => (
                   <View
                     key={item.id}
-                    className="flex-row items-center gap-2 rounded-xl border border-gray-200 px-3 py-2">
+                    className="flex-row items-center gap-2 rounded-xl border border-stone-200 px-3 py-2">
                     <SafePressable
                       onPress={() => void onToggleNeeded(item.id, !item.needed)}
                       style={{ flex: 1 }}>
@@ -432,7 +442,7 @@ export function ShoppingListsPanel({
               </View>
             </View>
           ) : (
-            <Text className="text-sm text-gray-500">Crea la primera lista compartida.</Text>
+            <Text className="text-sm text-stone-500">Crea la primera lista compartida.</Text>
           )}
 
           {error ? <Text className="text-sm text-red-600">{error}</Text> : null}

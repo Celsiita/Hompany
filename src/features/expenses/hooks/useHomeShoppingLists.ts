@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   addShoppingListItem,
@@ -35,15 +35,20 @@ export function useHomeShoppingLists(): UseHomeShoppingListsResult {
   const { user } = useAuth();
   const { activeHomeId } = useHome();
   const [lists, setLists] = useState<ShoppingListWithItems[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const listsRef = useRef(lists);
+  listsRef.current = lists;
 
   const refresh = useCallback(async () => {
     if (!activeHomeId) {
       setLists([]);
+      setIsLoading(false);
       return;
     }
-    setIsLoading(true);
+    if (listsRef.current.length === 0) {
+      setIsLoading(true);
+    }
     setError(null);
     try {
       setLists(await listShoppingListsByHome(activeHomeId, user?.id));
