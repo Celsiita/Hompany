@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import Purchases, {
   type PurchasesPackage,
   type PurchasesError,
@@ -20,18 +20,65 @@ type PlusPaywallSheetProps = {
   onClose: (purchased: boolean) => void;
 };
 
+type PaywallLocale = 'es' | 'en';
+
 const PACKAGE_ORDER = [...HOMPANY_PLUS_PACKAGES];
 
-function packageLabel(pkg: PurchasesPackage): string {
+const COPY: Record<
+  PaywallLocale,
+  {
+    title: string;
+    body: string;
+    pick: string;
+    buying: string;
+    close: string;
+    empty: string;
+    loadError: string;
+    buyError: string;
+    monthly: string;
+    yearly: string;
+    lifetime: string;
+  }
+> = {
+  es: {
+    title: 'HOMPANY Plus',
+    body: 'Hecho para estudiantes: precio bajo, sin engaños. El piso sigue gratis; Plus es opcional.',
+    pick: 'Elegir',
+    buying: 'Comprando…',
+    close: 'Cerrar',
+    empty: 'No hay productos en el offering. Revisa RevenueCat (monthly / yearly / lifetime).',
+    loadError: 'No se pudieron cargar los productos',
+    buyError: 'No se pudo completar la compra',
+    monthly: 'Mensual',
+    yearly: 'Anual',
+    lifetime: 'De por vida',
+  },
+  en: {
+    title: 'HOMPANY Plus',
+    body: 'Built for students: low prices, no tricks. Your flat stays free; Plus is optional.',
+    pick: 'Choose',
+    buying: 'Purchasing…',
+    close: 'Close',
+    empty: 'No products in the offering. Check RevenueCat (monthly / yearly / lifetime).',
+    loadError: 'Could not load products',
+    buyError: 'Purchase could not be completed',
+    monthly: 'Monthly',
+    yearly: 'Yearly',
+    lifetime: 'Lifetime',
+  },
+};
+
+function packageLabel(pkg: PurchasesPackage, locale: PaywallLocale): string {
+  const copy = COPY[locale];
   const id = pkg.identifier.replace('$rc_', '');
   if (id === 'monthly' || pkg.packageType === 'MONTHLY') {
-    return 'Mensual';
+    return copy.monthly;
   }
   if (id === 'yearly' || pkg.packageType === 'ANNUAL') {
-    return 'Anual';
+    return copy.yearly;
   }
   if (id === 'lifetime' || pkg.packageType === 'LIFETIME') {
-    return 'De por vida';
+    return copy.lifetime;
   }
   return pkg.product.title || id;
 }
@@ -41,10 +88,12 @@ function packageLabel(pkg: PurchasesPackage): string {
  * (Expo Go Preview API mode / no native paywall module).
  */
 export function PlusPaywallSheet({ visible, onClose }: PlusPaywallSheetProps) {
+  const [locale, setLocale] = useState<PaywallLocale>('es');
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [loading, setLoading] = useState(false);
   const [buyingId, setBuyingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const copy = useMemo(() => COPY[locale], [locale]);
 
   useEffect(() => {
     if (!visible) {
@@ -72,7 +121,7 @@ export function PlusPaywallSheet({ visible, onClose }: PlusPaywallSheetProps) {
         if (!cancelled) {
           setPackages(sorted);
           if (sorted.length === 0) {
-            setError('No hay productos en el offering. Revisa RevenueCat (monthly / yearly / lifetime).');
+            setError(COPY.es.empty);
           }
         }
       } catch (err) {
@@ -80,7 +129,7 @@ export function PlusPaywallSheet({ visible, onClose }: PlusPaywallSheetProps) {
           setError(
             err && typeof err === 'object' && 'message' in err
               ? String((err as PurchasesError).message)
-              : 'No se pudieron cargar los productos',
+              : COPY.es.loadError,
           );
         }
       } finally {
@@ -106,9 +155,7 @@ export function PlusPaywallSheet({ visible, onClose }: PlusPaywallSheetProps) {
       if (purchasesError.userCancelled) {
         return;
       }
-      setError(
-        purchasesError.message ?? 'No se pudo completar la compra',
-      );
+      setError(purchasesError.message ?? copy.buyError);
     } finally {
       setBuyingId(null);
     }
@@ -117,12 +164,29 @@ export function PlusPaywallSheet({ visible, onClose }: PlusPaywallSheetProps) {
   return (
     <BottomSheetModal visible={visible} onClose={() => onClose(false)} maxHeightClassName="max-h-[85%]">
       <View className="gap-4">
-        <View className="gap-1">
-          <Text className="text-lg font-bold text-stone-900">HOMPANY Plus</Text>
-          <Text className="text-sm leading-5 text-stone-600">
-            Desbloquea el plan Plus. En Expo Go usamos este paywall (Preview); en un development
-            build verás el de RevenueCat.
-          </Text>
+        <View className="flex-row items-start justify-between gap-3">
+          <View className="min-w-0 flex-1 gap-1">
+            <Text className="text-lg font-bold text-stone-900">{copy.title}</Text>
+            <Text className="text-sm leading-5 text-stone-600">{copy.body}</Text>
+          </View>
+          <View className="flex-row overflow-hidden rounded-xl border border-stone-200">
+            <Pressable
+              onPress={() => setLocale('es')}
+              className={`px-2.5 py-1.5 ${locale === 'es' ? 'bg-teal-700' : 'bg-white'}`}>
+              <Text
+                className={`text-xs font-bold ${locale === 'es' ? 'text-white' : 'text-stone-600'}`}>
+                ES
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setLocale('en')}
+              className={`px-2.5 py-1.5 ${locale === 'en' ? 'bg-teal-700' : 'bg-white'}`}>
+              <Text
+                className={`text-xs font-bold ${locale === 'en' ? 'text-white' : 'text-stone-600'}`}>
+                EN
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         {loading ? (
@@ -144,7 +208,9 @@ export function PlusPaywallSheet({ visible, onClose }: PlusPaywallSheetProps) {
                     gap: 4,
                   })}>
                   <View className="flex-row items-center justify-between">
-                    <Text className="text-base font-bold text-stone-900">{packageLabel(pkg)}</Text>
+                    <Text className="text-base font-bold text-stone-900">
+                      {packageLabel(pkg, locale)}
+                    </Text>
                     <Text className="text-base font-semibold text-teal-800">
                       {pkg.product.priceString}
                     </Text>
@@ -153,7 +219,7 @@ export function PlusPaywallSheet({ visible, onClose }: PlusPaywallSheetProps) {
                     <Text className="text-xs text-stone-500">{pkg.product.description}</Text>
                   ) : null}
                   <Text className="text-xs font-semibold text-teal-700">
-                    {busy ? 'Comprando…' : 'Elegir'}
+                    {busy ? copy.buying : copy.pick}
                   </Text>
                 </SafePressable>
               );
@@ -162,7 +228,7 @@ export function PlusPaywallSheet({ visible, onClose }: PlusPaywallSheetProps) {
 
         {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
 
-        <Button label="Cerrar" variant="secondary" onPress={() => onClose(false)} />
+        <Button label={copy.close} variant="secondary" onPress={() => onClose(false)} />
       </View>
     </BottomSheetModal>
   );

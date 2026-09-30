@@ -17,13 +17,15 @@ Código: [`src/lib/purchases/entitlements.ts`](../src/lib/purchases/entitlements
 
 ## Productos (default offering)
 
-| Package id | Tipo |
-|------------|------|
-| `monthly` | Suscripción mensual |
-| `yearly` | Suscripción anual |
-| `lifetime` | Compra única |
+| Package id | Tipo | Precio sugerido (estudiantes / Test Store) |
+|------------|------|--------------------------------------------|
+| `monthly` | Suscripción mensual | **0,99 €** / mes |
+| `yearly` | Suscripción anual | **4,99 €** / año |
+| `lifetime` | Compra única | **9,99 €** |
 
 Todos deben desbloquear el entitlement `hompany_plus`.
+
+Los precios se editan en el **dashboard de RevenueCat** (Test Store → Products), no en el código. El paywall de la app muestra lo que venga de RC y permite elegir idioma **ES / EN**.
 
 1. [app.revenuecat.com](https://app.revenuecat.com) → crea proyecto **HOMPANY**.
 2. Añade app → **Test Store** (Next Gen, sin App Store).
