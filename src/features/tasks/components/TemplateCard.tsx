@@ -42,17 +42,17 @@ export function TemplateCard({
             <Text className="text-xl">{ICON_GLYPH[template.icon] ?? '✅'}</Text>
           </View>
           <View className="flex-1 gap-1">
-            <Text className="text-lg font-semibold text-gray-900">{template.title}</Text>
+            <Text className="text-lg font-semibold text-stone-900">{template.title}</Text>
             <Text className="text-xs font-medium text-blue-700">
               {categoryLabel(template.category)} · {recurrenceLabel(template.recurrence)}
             </Text>
             {template.description ? (
-              <Text className="text-sm text-gray-600">{template.description}</Text>
+              <Text className="text-sm text-stone-600">{template.description}</Text>
             ) : null}
           </View>
         </View>
-        <View className="rounded-full bg-gray-100 px-3 py-1">
-          <Text className="text-xs font-semibold text-gray-700">
+        <View className="rounded-md bg-stone-100 px-3 py-1">
+          <Text className="text-xs font-semibold text-stone-700">
             {template.points_value} pts
           </Text>
         </View>
@@ -61,7 +61,7 @@ export function TemplateCard({
       <View className="flex-row items-center justify-between">
         <View className="flex-row -space-x-2">
           {template.task_template_assignees.length === 0 ? (
-            <Text className="text-xs text-gray-500">Sin asignar</Text>
+            <Text className="text-xs text-stone-500">Sin asignar</Text>
           ) : (
             template.task_template_assignees.slice(0, 4).map((assignee) => (
               <View

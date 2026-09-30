@@ -37,7 +37,7 @@ function AlertRow({
   return (
     <View
       className={`flex-row items-center gap-3 rounded-xl border px-3 py-3 ${TONE_CLASS[alert.tone]}`}>
-      <View className="h-9 w-9 items-center justify-center rounded-full bg-white/80">
+      <View className="h-9 w-9 items-center justify-center rounded-md bg-white/80">
         <Text className="text-sm font-bold text-stone-800">{TONE_ICON[alert.tone]}</Text>
       </View>
       <View className="flex-1 gap-0.5">
