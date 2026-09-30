@@ -135,7 +135,7 @@ export function TaskCard({
           <Text className="text-xs font-bold uppercase tracking-wide text-amber-900">
             Requiere revisión
           </Text>
-          <Text className="text-sm text-amber-950">motivo: {disputeNote}</Text>
+          <Text className="text-sm text-amber-950">Motivo: {disputeNote}</Text>
         </View>
       ) : null}
 

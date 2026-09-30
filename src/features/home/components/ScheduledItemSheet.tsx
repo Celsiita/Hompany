@@ -7,6 +7,7 @@ import type { AgendaItem } from '@/features/home/lib/agenda-items';
 import { formatDueSummary } from '@/features/tasks/lib/countdown';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
 import { absentMemberWarning, isUserAbsentOnDate } from '@/lib/absences';
+import { mascotReaction } from '@/lib/mascot';
 import type { MemberAbsence } from '@/schemas/absence.schema';
 
 type ScheduledItemSheetProps = {
@@ -65,7 +66,7 @@ export function ScheduledItemSheet({
         {isTask ? 'Tarea' : 'Gasto'} · {item.actorLabel} · {preview.label}
       </Text>
       <Text className="mt-2 text-xs text-gray-500">
-        Vista previa de la próxima ejecución. No se puede completar hasta que esté abierta.
+        Vista previa: aún no se puede completar. Cuando llegue el día, la verás abierta en el tablero.
       </Text>
 
       <View className="mt-4">
@@ -104,7 +105,12 @@ export function ScheduledItemSheet({
 
         {canSwap ? (
           <View className="mb-3">
-            <Button label="⇄ Intercambiar" variant="secondary" loading={busy} onPress={onRequestSwap} />
+            <Button
+              label={mascotReaction('swap').button}
+              variant="secondary"
+              loading={busy}
+              onPress={onRequestSwap}
+            />
           </View>
         ) : null}
 
