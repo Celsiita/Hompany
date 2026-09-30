@@ -23,7 +23,7 @@ type TutorialHostProps = {
 
 const HIGHLIGHT_COPY: Record<TutorialHighlight, string> = {
   welcome: 'Tour guiado',
-  feed: 'Sección Feed',
+  feed: 'Sección Pulso',
   agenda: 'Sección Agenda',
   piso: 'Sección Piso',
   bell: 'Campanita de avisos',

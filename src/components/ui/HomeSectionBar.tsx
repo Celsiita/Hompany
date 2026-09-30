@@ -10,7 +10,7 @@ type HomeSectionBarProps = {
 };
 
 const TABS: Array<{ id: HomeSection; label: string }> = [
-  { id: 'FEED', label: 'Feed' },
+  { id: 'FEED', label: 'Pulso' },
   { id: 'AGENDA', label: 'Agenda' },
   { id: 'PISO', label: 'Piso' },
 ];
@@ -27,7 +27,7 @@ export function HomeSectionBar({ section, onSectionChange }: HomeSectionBarProps
         </Text>
         <HelpTip
           title="Inicio"
-          message="Feed = estado y ranking. Agenda = calendario del día. Piso = Wi‑Fi, portal, reglas y quejas. Los avisos urgentes están en la campanita."
+          message="Pulso = estado y ranking. Agenda = calendario del día. Piso = Wi‑Fi, portal, reglas y quejas. Los avisos urgentes están en la campanita."
         />
       </View>
       <View className="flex-row gap-2">

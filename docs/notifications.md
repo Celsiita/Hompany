@@ -17,7 +17,7 @@ Definido en [`src/features/home/lib/alerts.ts`](../src/features/home/lib/alerts.
 
 ## Comportamiento actual
 
-- Campanita en la cabecera de Home (badge rojo si hay urgentes) abre el inbox. También en el menú ⋮. **No hay lista de avisos en el Feed.**
+- Campanita en la cabecera de Home (badge rojo si hay urgentes) abre el inbox. También en el menú ⋮. **No hay lista de avisos en el Pulso.**
 - Inbox agrupado: Urgente / Pronto / Por revisar / Gastos. Tocar un aviso abre la tarjeta en Tareas o Gastos.
 - Ausencias, modo silencio y visitas del calendario se gestionan desde el menú ⋮.
 - Iconos `?` explican cada sección (Feed, Agenda, Piso, Tareas, Gastos, Ajustes).

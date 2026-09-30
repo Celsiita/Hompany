@@ -51,7 +51,7 @@ Invite code seed: `DEMO2026`. Tras un reset, cierra sesión y vuelve a entrar.
 ## Demo Shipaton (script ~90 s)
 
 1. Login Ana → tour Mico (sáltelo o avance 2 pasos).
-2. **Inicio → Feed:** cumplimiento + ranking + cuentas; toca `?`.
+2. **Inicio → Pulso:** cumplimiento + ranking + cuentas; toca `?`.
 3. **Agenda:** leyenda de colores + un día.
 4. **Piso:** Wi‑Fi / reglas.
 5. **Tareas** → chips Tuya/Compañero + countdown; **campanita** si hay avisos.

@@ -209,7 +209,7 @@ export function HomeScreen() {
           title={activeHome?.name ?? 'El piso'}
           subtitle={subtitle}
           helpTitle="Inicio"
-          helpMessage="Feed = pulso del piso. Agenda = calendario. Piso = Wi‑Fi y reglas. La campanita concentra avisos urgentes."
+          helpMessage="Pulso = estado del piso. Agenda = calendario. Piso = Wi‑Fi y reglas. La campanita concentra avisos urgentes."
           onAlertsPress={() => setAlertsOpen(true)}
           alertsCount={alerts.length}
           urgentAlertsCount={urgentAlertsCount}

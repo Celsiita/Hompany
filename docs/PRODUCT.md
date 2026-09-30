@@ -6,7 +6,7 @@ Guía de producto para quien use o revise la app. La periodicidad está detallad
 
 | Tab | Para qué sirve |
 |-----|----------------|
-| **Inicio** | Tres secciones: **Feed** (estado, ranking, cuentas), **Agenda** (calendario + lista), **Piso** (Wi‑Fi/reglas). Campanita de avisos. Menú ⋮: ausencias, modo silencio, visitas, iconos. |
+| **Inicio** | Tres secciones: **Pulso** (estado, ranking, cuentas), **Agenda** (calendario + lista), **Piso** (Wi‑Fi/reglas). Campanita de avisos. Menú ⋮: ausencias, modo silencio, visitas, iconos. |
 | **Tareas** | En curso / Historial. Chips **Tuya** / **Compañero**. Botón **+** para crear. Filtros, tipos, intercambios, foto. Ayuda `?`. |
 | **Gastos** | Súper, casa, ocio + tipos. Chips **Debes** / **Tú pagaste**. Botón **+** para crear. Ayuda `?`. |
 | **Ajustes** | Perfil, Plus, iconos, invitación, compañeros, tutorial, foto de prueba (admin), cuenta. |
@@ -67,9 +67,9 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 - Barra de salud: **Excelente** / **Regular** / **Crítico**.
 - Una sola franja: Pendientes | Entregadas | Completadas.
 - **Clasificación** del piso: ranking por `reputation_points`, con nombre e info de tareas (hechas, pendientes, en revisión, vencidas). Calculado en Postgres (`get_home_leaderboard`).
-- Home se divide en **Feed** / **Agenda** / **Piso**.
+- Home se divide en **Pulso** / **Agenda** / **Piso**.
 - **Agenda:** filtros, calendario, leyenda de colores (azul / cielo / ámbar) y lista. Ausencias / modo silencio / visitas → menú ⋮.
-- **Avisos in-app:** solo campanita + inbox (no lista en el Feed). Ver [`notifications.md`](./notifications.md).
+- **Avisos in-app:** solo campanita + inbox (no lista en el Pulso). Ver [`notifications.md`](./notifications.md).
 - **Ayuda:** iconos `?` en cabeceras y secciones clave.
 - **Tutorial:** tour interactivo v2 (cambia secciones / pestañas) desde 1ª apertura o Ajustes.
 - **Filtros Agenda:** botón Filtros (▲/▼) con `Mis cosas` | `Compañeros` (sin selección = Todo el piso) + chips `Tareas` / `Gastos`.

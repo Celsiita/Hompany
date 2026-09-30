@@ -46,13 +46,13 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     id: 'feed',
-    title: 'Feed = el pulso del piso',
+    title: 'Pulso = el estado del piso',
     body: 'Aquí ves si el piso va bien, el ranking y quién debe a quién. Nada de Wi‑Fi aquí: eso vive en Piso.',
     emoji: '🏠',
     highlight: 'feed',
     homeSection: 'FEED',
-    cta: 'Ver el Feed',
-    tip: 'Mira la barra de salud y la clasificación.',
+    cta: 'Ver el Pulso',
+    tip: 'Mira la barra de cumplimiento y la clasificación.',
   },
   {
     id: 'bell',
