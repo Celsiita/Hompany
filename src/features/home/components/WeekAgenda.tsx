@@ -7,7 +7,6 @@ import {
   type AgendaScopeFilter,
 } from '@/features/home/lib/agenda-items';
 import { examPeriodsOnDate } from '@/lib/exam-periods';
-import { mascotEmptyCopy } from '@/lib/mascot';
 import { stripCycleSuffix } from '@/lib/recurrence';
 import { useIconPack } from '@/providers/IconPackProvider';
 import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
@@ -95,13 +94,13 @@ export function WeekAgenda({
               </View>
             ) : null}
             {dayItems.length === 0 ? (
-              <Text className="text-sm text-gray-400">{mascotEmptyCopy('agenda_list').title}</Text>
+              <Text className="text-sm text-gray-400">Libre</Text>
             ) : (
               dayItems.map((item) => (
                 <Pressable key={item.id} onPress={() => onOpenItem(item)} hitSlop={4}>
                   <Text className={`text-sm ${itemTone(item)}`}>
-                    {item.kind === 'expense' ? '◇ ' : item.mine ? '● ' : '○ '}
                     {item.glyph} {stripCycleSuffix(item.title)}
+                    {item.lifecycle === 'scheduled' ? ' · prog.' : ''}
                   </Text>
                 </Pressable>
               ))

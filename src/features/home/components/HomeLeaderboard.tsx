@@ -37,8 +37,8 @@ export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
   }
 
   return (
-    <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-3">
-      <Text className="text-xs text-gray-500">
+    <View className="rounded-2xl border border-teal-200 bg-teal-50/30 p-4 gap-3">
+      <Text className="text-xs text-teal-900/70">
         Puntos de reputación (100 al inicio de semana) y tareas cumplidas
       </Text>
 

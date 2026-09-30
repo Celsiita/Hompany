@@ -425,18 +425,19 @@ export function SettingsScreen() {
             );
           })}
 
-          <Text className="text-sm font-medium text-gray-700 mt-1">Importar pack (JSON)</Text>
+          <Text className="text-sm font-medium text-gray-700 mt-1">Importar pack (Plus)</Text>
           <Text className="text-xs text-gray-500">
-            Ejemplo: {`{"name":"Fiesta","tasks":{"checklist":"🎉"},"expenses":{"PEER":"🥳"}}`}
+            Pega un JSON con nombre e iconos propios. Requiere HOMPANY Plus.
           </Text>
           <TextField
-            label="Pegar JSON del pack"
+            label="JSON del pack"
             value={iconPackJson}
             onChangeText={setIconPackJson}
             multiline
             className="min-h-[88px]"
             autoCapitalize="none"
             autoCorrect={false}
+            placeholder='{"name":"Fiesta","tasks":{"checklist":"🎉"}}'
           />
           <Button
             label="Importar y activar"
