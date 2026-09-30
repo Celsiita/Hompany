@@ -11,7 +11,7 @@ type StatusBadgeProps = {
  */
 export function StatusBadge({ tone }: StatusBadgeProps) {
   return (
-    <View className={`rounded-full px-3 py-1 ${tone.bg}`}>
+    <View className={`rounded-md px-3 py-1 ${tone.bg}`}>
       <Text className={`text-xs font-semibold ${tone.text}`}>{tone.label}</Text>
     </View>
   );

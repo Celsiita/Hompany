@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Image, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { ActivityListModal } from '@/components/ui/ActivityListModal';
 import { Button } from '@/components/ui/Button';
@@ -318,6 +319,7 @@ export function SettingsScreen() {
 
   return (
     <Screen>
+      <Animated.View entering={FadeIn.duration(240)} className="flex-1">
       <ScrollView
         showsVerticalScrollIndicator={false}
         bounces={false}
@@ -613,6 +615,7 @@ export function SettingsScreen() {
           <Text className="text-center text-sm font-semibold text-red-600">Eliminar cuenta</Text>
         </Pressable>
       </ScrollView>
+      </Animated.View>
 
       <OverflowMenu
         visible={menuMember !== null}

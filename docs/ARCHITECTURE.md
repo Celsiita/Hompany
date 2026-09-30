@@ -113,6 +113,7 @@ Documentación de producto: [`PRODUCT.md`](./PRODUCT.md), periodicidad: [`recurr
 - Listado/creación siempre filtrados por `activeHomeId`
 - Cards con countdown y acciones `PENDING → SUBMITTED → COMPLETED`
 - Home Pulso con salud del piso (`summarizeTasks`), clasificación (`get_home_leaderboard`), agenda con calendario colapsable (`AgendaCalendar`) y lista sincronizada (`AgendaList`); filtros Mis cosas / Compañeros (`toAgendaScopeFilter`); leave de sistema en menú ⋮; secciones Pulso / Agenda / Piso
+- Gastos: tablero + **listas compartidas** (`ShoppingListsPanel` / `useHomeShoppingLists`) en En curso
 - Tipos personalizados de tareas/gastos (`home_item_types` + `item_type_id`); tablero de tareas sin Zonas (solo QUICK + custom)
 - Gastos visibles solo para involucrados (RLS vía `is_expense_participant`); omitir fecha (`SKIPPED` / `skipped_dates`) sin romper la serie
 - **Ausencias** (`member_absences`): registro en Agenda; la rotación automática excluye ausentes; si todos están ausentes en una fecha, se omite la ocurrencia (`skipped_dates`)
