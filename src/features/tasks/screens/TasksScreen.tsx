@@ -39,6 +39,7 @@ import { formatHistoryDate } from '@/lib/recurrence';
 import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useHome } from '@/providers/HomeProvider';
+import { useToast } from '@/providers/ToastProvider';
 import type { UpsertTaskInput } from '@/schemas/task.schema';
 import type { TaskWithRelations } from '@/types/database.types';
 import { TASK_STATUS } from '@/types/task-status';
@@ -50,6 +51,7 @@ export function TasksScreen() {
   const { user } = useAuth();
   const { activeHome } = useHome();
   const confirm = useConfirmDialog();
+  const showToast = useToast();
   const router = useRouter();
   const params = useLocalSearchParams<{ focusId?: string | string[] }>();
   const routeFocusId = parseFocusId(params.focusId);
@@ -96,18 +98,8 @@ export function TasksScreen() {
     mode: 'APPROVE' | 'DISPUTE';
   } | null>(null);
   const [busyTaskId, setBusyTaskId] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [swapTask, setSwapTask] = useState<TaskWithRelations | null>(null);
   const [boardRefreshing, setBoardRefreshing] = useState(false);
-
-  useEffect(() => {
-    if (!actionSuccess) {
-      return;
-    }
-    const timer = setTimeout(() => setActionSuccess(null), 3200);
-    return () => clearTimeout(timer);
-  }, [actionSuccess]);
 
   const findTask = useCallback((id: string) => tasks.find((task) => task.id === id), [tasks]);
 
@@ -171,14 +163,22 @@ export function TasksScreen() {
     return () => clearTimeout(timer);
   }, [highlightedId, listData]);
 
-  async function runTaskAction(taskId: string, action: () => Promise<void>) {
-    setActionError(null);
-    setActionSuccess(null);
+  async function runTaskAction(
+    taskId: string,
+    action: () => Promise<void>,
+    successMessage?: string,
+  ) {
     setBusyTaskId(taskId);
     try {
       await action();
+      if (successMessage) {
+        showToast({ message: successMessage, tone: 'success' });
+      }
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'No se pudo completar la acción');
+      showToast({
+        message: err instanceof Error ? err.message : 'No se pudo completar la acción',
+        tone: 'error',
+      });
     } finally {
       setBusyTaskId(null);
     }
@@ -232,17 +232,20 @@ export function TasksScreen() {
     if (!ok) {
       return;
     }
-    await runTaskAction(task.id, () => removeTask(task.id));
+    await runTaskAction(task.id, () => removeTask(task.id), 'Tarea eliminada');
   }
 
   function proposeSwap(task: TaskWithRelations) {
     if (!canRequestTaskSwap(task)) {
-      setActionError('No se puede intercambiar una tarea ya completada o en revisión.');
+      showToast({
+        message: 'No se puede intercambiar una tarea ya completada o en revisión.',
+        tone: 'error',
+      });
       return;
     }
     const others = members.filter((member) => member.user_id !== user?.id);
     if (others.length === 0) {
-      setActionError('No hay compañeros para intercambiar.');
+      showToast({ message: 'No hay compañeros para intercambiar.', tone: 'error' });
       return;
     }
     setSwapTask(task);
@@ -331,21 +334,11 @@ export function TasksScreen() {
               </Text>
             ) : null}
 
-            {error || actionError ? (
+            {error ? (
               <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
-                <Text className="text-sm font-semibold text-amber-950">
-                  {error ? 'No se pudo cargar el tablero' : 'Acción no completada'}
-                </Text>
-                <Text className="text-sm leading-5 text-amber-900/80">{error ?? actionError}</Text>
-                {error ? (
-                  <Button label="Reintentar" variant="secondary" onPress={() => void refresh()} />
-                ) : null}
-              </View>
-            ) : null}
-
-            {actionSuccess ? (
-              <View className="rounded-2xl border border-teal-200 bg-teal-50 px-3 py-3">
-                <Text className="text-sm font-semibold text-teal-950">{actionSuccess}</Text>
+                <Text className="text-sm font-semibold text-amber-950">No se pudo cargar el tablero</Text>
+                <Text className="text-sm leading-5 text-amber-900/80">{error}</Text>
+                <Button label="Reintentar" variant="secondary" onPress={() => void refresh()} />
               </View>
             ) : null}
 
@@ -369,7 +362,13 @@ export function TasksScreen() {
                         <Button
                           label="Aceptar"
                           loading={busyTaskId === swap.id}
-                          onPress={() => void runTaskAction(swap.id, () => answerSwap(swap.id, true))}
+                          onPress={() =>
+                            void runTaskAction(
+                              swap.id,
+                              () => answerSwap(swap.id, true),
+                              'Intercambio aceptado',
+                            )
+                          }
                         />
                       </View>
                       <View className="flex-1">
@@ -377,7 +376,13 @@ export function TasksScreen() {
                           label="Rechazar"
                           variant="secondary"
                           loading={busyTaskId === swap.id}
-                          onPress={() => void runTaskAction(swap.id, () => answerSwap(swap.id, false))}
+                          onPress={() =>
+                            void runTaskAction(
+                              swap.id,
+                              () => answerSwap(swap.id, false),
+                              'Intercambio rechazado',
+                            )
+                          }
                         />
                       </View>
                     </View>
@@ -505,10 +510,11 @@ export function TasksScreen() {
               const task = swapTask;
               const name = member.profiles?.display_name ?? 'compañero';
               setSwapTask(null);
-              void runTaskAction(task.id, async () => {
-                await requestSwap(task, member.user_id);
-                setActionSuccess(`Cambio propuesto a ${name}. Esperando su respuesta.`);
-              });
+              void runTaskAction(
+                task.id,
+                () => requestSwap(task, member.user_id),
+                `Cambio propuesto a ${name}`,
+              );
             },
           }))}
       />
@@ -537,14 +543,17 @@ export function TasksScreen() {
         onSubmit={async (input) => {
           if (formMode === 'edit' && formTask) {
             await editTask(formTask.id, input);
+            showToast({ message: 'Tarea actualizada', tone: 'success' });
             return;
           }
           if (formMode === 'repeat' && formTask) {
             await repeatTask(formTask, input);
+            showToast({ message: 'Tarea repetida', tone: 'success' });
             return;
           }
           const created = await addTask(input as Omit<UpsertTaskInput, 'home_id'>);
           requestFocus(created.id);
+          showToast({ message: 'Tarea creada', tone: 'success' });
         }}
       />
 
@@ -559,7 +568,7 @@ export function TasksScreen() {
           if (!task) {
             return;
           }
-          void runTaskAction(task.id, () => submitProof(task, source));
+          void runTaskAction(task.id, () => submitProof(task, source), 'Entrega enviada a revisión');
         }}
       />
 
@@ -574,8 +583,10 @@ export function TasksScreen() {
           }
           const { task, mode } = reviewTarget;
           setReviewTarget(null);
-          void runTaskAction(task.id, () =>
-            reviewTask(task, mode, mode === 'APPROVE' ? '👏' : '🤨', comment || null),
+          void runTaskAction(
+            task.id,
+            () => reviewTask(task, mode, mode === 'APPROVE' ? '👏' : '🤨', comment || null),
+            mode === 'APPROVE' ? 'Prueba aprobada' : 'Prueba impugnada',
           );
         }}
       />

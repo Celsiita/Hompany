@@ -16,23 +16,9 @@ type FilterTogglePairProps<T extends string> = {
   clearable?: boolean;
 };
 
-function optionStyle(active: boolean) {
-  return mergeStyles(
-    interactive.roundedXl,
-    {
-      borderWidth: 1,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-    },
-    active
-      ? { borderColor: palette.blue400, backgroundColor: palette.blue50 }
-      : { borderColor: palette.gray200, backgroundColor: palette.gray50 },
-  );
-}
-
 /**
- * Two equal toggle buttons used for scope filters (Mis tareas / Compañeros, etc.).
- * Shared visual + functional style across Home, Tareas and Gastos.
+ * Two equal filter pills (same visual language as {@link ToggleChipRow}).
+ * Shared across Home, Tareas and Gastos.
  */
 export function FilterTogglePair<T extends string>({
   value,
@@ -55,10 +41,24 @@ export function FilterTogglePair<T extends string>({
               onChange(option.value);
             }}
             style={{ flex: 1 }}
-            contentStyle={optionStyle(active)}
+            contentStyle={mergeStyles(
+              interactive.pill,
+              interactive.center,
+              active
+                ? { backgroundColor: palette.brand }
+                : interactive.pillInactive,
+            )}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}>
-            <Text className="text-center text-sm font-semibold text-stone-800">{option.label}</Text>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontWeight: '600',
+                fontSize: 13,
+                color: active ? palette.white : palette.gray700,
+              }}>
+              {option.label}
+            </Text>
           </SafePressable>
         );
       })}

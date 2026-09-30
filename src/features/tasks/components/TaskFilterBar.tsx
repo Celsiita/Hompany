@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 
+import { FilterGroup } from '@/components/ui/FilterGroup';
 import { FilterTogglePair } from '@/components/ui/FilterTogglePair';
 import { RecurrenceFilterChips, type RecurrenceFilter } from '@/components/ui/RecurrenceFilterChips';
 import { TaskStatusFilterChips, type TaskBoardStatusFilter } from '@/components/ui/StatusFilterChips';
@@ -27,7 +28,7 @@ const SCOPE_OPTIONS = [
 ] as const;
 
 /**
- * Task board filters: scope, type, recurrence and status.
+ * Task board filters: scope, type, recurrence and status (shared pill format).
  */
 export function TaskFilterBar({
   category,
@@ -48,14 +49,22 @@ export function TaskFilterBar({
 
   return (
     <View className="gap-3">
-      <FilterTogglePair
-        value={scope === 'MINE' || scope === 'OTHERS' ? scope : 'ALL'}
-        options={SCOPE_OPTIONS}
-        onChange={(next) => onScopeChange(next === 'ALL' ? 'ALL' : next)}
-      />
-      <ToggleChipRow value={category} chips={typeChips} onChange={onCategoryChange} />
-      <RecurrenceFilterChips value={recurrence} onChange={onRecurrenceChange} />
-      <TaskStatusFilterChips value={status} onChange={onStatusChange} history={history} />
+      <FilterGroup label="Alcance">
+        <FilterTogglePair
+          value={scope === 'MINE' || scope === 'OTHERS' ? scope : 'ALL'}
+          options={SCOPE_OPTIONS}
+          onChange={(next) => onScopeChange(next === 'ALL' ? 'ALL' : next)}
+        />
+      </FilterGroup>
+      <FilterGroup label="Tipo">
+        <ToggleChipRow value={category} chips={typeChips} onChange={onCategoryChange} />
+      </FilterGroup>
+      <FilterGroup label="Periodicidad">
+        <RecurrenceFilterChips value={recurrence} onChange={onRecurrenceChange} />
+      </FilterGroup>
+      <FilterGroup label="Estado">
+        <TaskStatusFilterChips value={status} onChange={onStatusChange} history={history} />
+      </FilterGroup>
     </View>
   );
 }

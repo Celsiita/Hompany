@@ -9,6 +9,7 @@ import { SafePressable } from '@/components/ui/SafePressable';
 import { TextField } from '@/components/ui/TextField';
 import { interactive, mergeStyles } from '@/lib/interactive-styles';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import type { FeedNoticeKind, HomeNotice } from '@/schemas/home-notice.schema';
 
 type HomeNoticesPanelProps = {
@@ -44,6 +45,7 @@ export function HomeNoticesPanel({
   onRemove,
 }: HomeNoticesPanelProps) {
   const confirm = useConfirmDialog();
+  const showToast = useToast();
   const [editorOpen, setEditorOpen] = useState(false);
   const [kind, setKind] = useState<FeedNoticeKind>('RULE');
   const [title, setTitle] = useState('');
@@ -85,10 +87,11 @@ export function HomeNoticesPanel({
         body: body.trim() || undefined,
         is_anonymous: kind === 'COMPLAINT' ? isAnonymous : false,
       });
+      showToast({ message: 'Aviso publicado', tone: 'success' });
       setEditorOpen(false);
       resetForm();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo publicar');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo publicar', tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -104,6 +107,7 @@ export function HomeNoticesPanel({
       return;
     }
     await onRemove(notice.id);
+    showToast({ message: 'Aviso eliminado', tone: 'success' });
   }
 
   return (

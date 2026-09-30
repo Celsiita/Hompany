@@ -29,6 +29,7 @@ import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useHome } from '@/providers/HomeProvider';
 import { useIconPack } from '@/providers/IconPackProvider';
 import { usePurchases } from '@/providers/PurchasesProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
 import { registerSchema } from '@/schemas/auth.schema';
 import {
@@ -43,6 +44,7 @@ import type { HomeActivityEventWithActor } from '@/types/database.types';
 export function SettingsScreen() {
   const { user, signOut } = useAuth();
   const { openTutorial } = useTutorial();
+  const showToast = useToast();
   const {
     activeHome,
     homes,
@@ -65,7 +67,6 @@ export function SettingsScreen() {
   const [iconPackJson, setIconPackJson] = useState('');
   const [importingPack, setImportingPack] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
   const [savingName, setSavingName] = useState(false);
   const [homeBusy, setHomeBusy] = useState(false);
   const [proofBusy, setProofBusy] = useState(false);
@@ -114,7 +115,6 @@ export function SettingsScreen() {
       return;
     }
     setError(null);
-    setStatus(null);
     const parsed = registerSchema.shape.displayName.safeParse(displayName);
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? 'Nombre no válido');
@@ -124,9 +124,9 @@ export function SettingsScreen() {
     try {
       const updated = await updateDisplayName(user.id, parsed.data);
       setDisplayName(updated.display_name);
-      setStatus('Nombre actualizado');
+      showToast({ message: 'Nombre actualizado', tone: 'success' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar el nombre');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar el nombre', tone: 'error' });
     } finally {
       setSavingName(false);
     }
@@ -134,7 +134,6 @@ export function SettingsScreen() {
 
   async function handleCreateHome() {
     setError(null);
-    setStatus(null);
     const parsed = createHomeInputSchema.safeParse({ name: newHomeName });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? 'Nombre no válido');
@@ -144,9 +143,9 @@ export function SettingsScreen() {
     try {
       await createHome(parsed.data);
       setNewHomeName('');
-      setStatus('Piso creado');
+      showToast({ message: 'Piso creado', tone: 'success' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo crear el piso');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo crear el piso', tone: 'error' });
     } finally {
       setHomeBusy(false);
     }
@@ -154,7 +153,6 @@ export function SettingsScreen() {
 
   async function handleJoinHome() {
     setError(null);
-    setStatus(null);
     const parsed = joinHomeInputSchema.safeParse({ inviteCode });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? 'Código no válido');
@@ -164,9 +162,9 @@ export function SettingsScreen() {
     try {
       await joinHome(parsed.data);
       setInviteCode('');
-      setStatus('Te has unido al piso');
+      showToast({ message: 'Te has unido al piso', tone: 'success' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo unir al piso');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo unir al piso', tone: 'error' });
     } finally {
       setHomeBusy(false);
     }
@@ -178,7 +176,7 @@ export function SettingsScreen() {
     }
     const ok = await copyToClipboard(activeHome.invite_code);
     setCopied(ok);
-    setStatus(ok ? '¡Código copiado!' : 'No se pudo copiar');
+    showToast({ message: ok ? 'Código copiado' : 'No se pudo copiar', tone: ok ? 'success' : 'error' });
     setTimeout(() => setCopied(false), 2000);
   }
 
@@ -187,23 +185,22 @@ export function SettingsScreen() {
       return;
     }
     const ok = await copyToClipboard(homeInviteUrl(activeHome.invite_code));
-    setStatus(ok ? '¡Enlace de invitación copiado!' : 'No se pudo copiar el enlace');
+    showToast({ message: ok ? 'Enlace de invitación copiado' : 'No se pudo copiar el enlace', tone: ok ? 'success' : 'error' });
   }
 
   async function handleImportIconPack() {
     setError(null);
-    setStatus(null);
     setImportingPack(true);
     try {
       const pack = await importPackFromJson(iconPackJson);
       if (!pack) {
-        setStatus('Necesitas HOMPANY Plus para importar packs');
+        showToast({ message: 'Necesitas HOMPANY Plus para importar packs', tone: 'info' });
         return;
       }
       setIconPackJson('');
-      setStatus(`Pack «${pack.name}» importado y activo`);
+      showToast({ message: `Pack «${pack.name}» importado y activo`, tone: 'success' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo importar el pack');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo importar el pack', tone: 'error' });
     } finally {
       setImportingPack(false);
     }
@@ -225,9 +222,9 @@ export function SettingsScreen() {
       await leaveHome(activeHome.id);
       await clearActiveHome();
       await refreshHomes();
-      setStatus('Has abandonado el piso');
+      showToast({ message: 'Has abandonado el piso', tone: 'success' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo abandonar el piso');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo abandonar el piso', tone: 'error' });
     }
   }
 
@@ -246,7 +243,7 @@ export function SettingsScreen() {
       await clearActiveHome();
       await signOut();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo borrar la cuenta');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo borrar la cuenta', tone: 'error' });
     }
   }
 
@@ -264,7 +261,7 @@ export function SettingsScreen() {
     try {
       await signOut();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo cerrar sesión');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo cerrar sesión', tone: 'error' });
     } finally {
       await clearActiveHome();
       setSigningOut(false);
@@ -291,9 +288,9 @@ export function SettingsScreen() {
         proof_mode: next,
         proof_capture: activeHome.proof_capture ?? 'CAMERA_OR_GALLERY',
       });
-      setStatus('Ajuste de prueba actualizado');
+      showToast({ message: 'Ajuste de prueba actualizado', tone: 'success' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar la prueba');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar la prueba', tone: 'error' });
     } finally {
       setProofBusy(false);
     }
@@ -310,9 +307,9 @@ export function SettingsScreen() {
         proof_mode: activeHome.proof_mode ?? 'OPTIONAL',
         proof_capture: next,
       });
-      setStatus('Fuente de foto actualizada');
+      showToast({ message: 'Fuente de foto actualizada', tone: 'success' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar la fuente');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar la fuente', tone: 'error' });
     } finally {
       setProofBusy(false);
     }
@@ -361,7 +358,7 @@ export function SettingsScreen() {
               onPress={() => {
                 void presentPaywall().then((ok) => {
                   if (ok) {
-                    setStatus('¡Bienvenido a HOMPANY Plus!');
+                    showToast({ message: 'Bienvenido a HOMPANY Plus', tone: 'success' });
                   }
                 });
               }}
@@ -373,7 +370,7 @@ export function SettingsScreen() {
             onPress={() => {
               void restorePurchases().then((ok) => {
                 if (ok) {
-                  setStatus('Compras restauradas');
+                  showToast({ message: 'Compras restauradas', tone: 'success' });
                 }
               });
             }}
@@ -596,7 +593,7 @@ export function SettingsScreen() {
         </View>
 
         {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
-        {status ? <Text className="text-sm text-emerald-700">{status}</Text> : null}
+        
 
         <View className="rounded-2xl border border-stone-200 bg-white p-4 gap-3">
           <Text className="text-sm font-semibold text-stone-500">Ayuda</Text>
@@ -662,7 +659,7 @@ export function SettingsScreen() {
                             })
                               .then(reloadMembers)
                               .catch((err) =>
-                                setError(err instanceof Error ? err.message : 'No se pudo cambiar el rol'),
+                                showToast({ message: err instanceof Error ? err.message : 'No se pudo cambiar el rol', tone: 'error' }),
                               );
                           });
                         },
@@ -686,7 +683,7 @@ export function SettingsScreen() {
                             return kickHomeMember(activeHome.id, menuMember.user_id)
                               .then(reloadMembers)
                               .catch((err) =>
-                                setError(err instanceof Error ? err.message : 'No se pudo expulsar'),
+                                showToast({ message: err instanceof Error ? err.message : 'No se pudo expulsar', tone: 'error' }),
                               );
                           });
                         },

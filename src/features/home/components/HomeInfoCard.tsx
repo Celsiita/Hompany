@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import { BottomSheetModal } from '@/components/ui/BottomSheetModal';
 import { Button } from '@/components/ui/Button';
 import { SafePressable } from '@/components/ui/SafePressable';
+import { useToast } from '@/providers/ToastProvider';
 import { TextField } from '@/components/ui/TextField';
 import { copyToClipboard } from '@/lib/clipboard';
 import { interactive, mergeStyles } from '@/lib/interactive-styles';
@@ -43,6 +44,7 @@ export function homeHasPracticalInfo(home: Home | null | undefined): boolean {
  * Piso card: shared flat practical info (Wi‑Fi, portal, bins) with edit sheet.
  */
 export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
+  const showToast = useToast();
   const [editorOpen, setEditorOpen] = useState(false);
   const [wifiSsid, setWifiSsid] = useState('');
   const [wifiPassword, setWifiPassword] = useState('');
@@ -126,9 +128,10 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
         bin_day: binDay,
         notes,
       });
+      showToast({ message: 'Info del piso guardada', tone: 'success' });
       setEditorOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar', tone: 'error' });
     } finally {
       setSaving(false);
     }

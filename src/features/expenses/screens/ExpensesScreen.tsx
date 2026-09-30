@@ -26,6 +26,7 @@ import { mascotScreenLine } from '@/lib/mascot';
 import { parseFocusId } from '@/lib/navigation/board-focus';
 import { useAuth } from '@/providers/AuthProvider';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { formatHistoryDate } from '@/lib/recurrence';
 import type { ExpenseWithRelations } from '@/types/database.types';
 
@@ -35,6 +36,7 @@ import type { ExpenseWithRelations } from '@/types/database.types';
 export function ExpensesScreen() {
   const { user } = useAuth();
   const confirm = useConfirmDialog();
+  const showToast = useToast();
   const router = useRouter();
   const params = useLocalSearchParams<{ focusId?: string | string[] }>();
   const routeFocusId = parseFocusId(params.focusId);
@@ -71,7 +73,6 @@ export function ExpensesScreen() {
   const [editing, setEditing] = useState<ExpenseWithRelations | null>(null);
   const [formMode, setFormMode] = useState<'create' | 'edit' | 'repeat'>('create');
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
   const [boardRefreshing, setBoardRefreshing] = useState(false);
 
   const findExpense = useCallback(
@@ -122,13 +123,18 @@ export function ExpensesScreen() {
     return () => clearTimeout(timer);
   }, [highlightedId, listData]);
 
-  async function runAction(id: string, action: () => Promise<void>) {
-    setActionError(null);
+  async function runAction(id: string, action: () => Promise<void>, successMessage?: string) {
     setBusyId(id);
     try {
       await action();
+      if (successMessage) {
+        showToast({ message: successMessage, tone: 'success' });
+      }
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'No se pudo completar la acción');
+      showToast({
+        message: err instanceof Error ? err.message : 'No se pudo completar la acción',
+        tone: 'error',
+      });
     } finally {
       setBusyId(null);
     }
@@ -143,7 +149,7 @@ export function ExpensesScreen() {
     if (!ok) {
       return;
     }
-    await runAction(expense.id, () => removeExpense(expense.id));
+    await runAction(expense.id, () => removeExpense(expense.id), 'Gasto eliminado');
   }
 
   const activeFilterCount = [
@@ -241,15 +247,11 @@ export function ExpensesScreen() {
               />
             </CollapsibleFilterPanel>
 
-            {error || actionError ? (
+            {error ? (
               <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
-                <Text className="text-sm font-semibold text-amber-950">
-                  {error ? 'No se pudo cargar el tablero' : 'Acción no completada'}
-                </Text>
-                <Text className="text-sm leading-5 text-amber-900/80">{error ?? actionError}</Text>
-                {error ? (
-                  <Button label="Reintentar" variant="secondary" onPress={() => void refresh()} />
-                ) : null}
+                <Text className="text-sm font-semibold text-amber-950">No se pudo cargar el tablero</Text>
+                <Text className="text-sm leading-5 text-amber-900/80">{error}</Text>
+                <Button label="Reintentar" variant="secondary" onPress={() => void refresh()} />
               </View>
             ) : null}
 
@@ -293,14 +295,17 @@ export function ExpensesScreen() {
               onSettle={
                 isHistory
                   ? undefined
-                  : (expense) => void runAction(expense.id, () => settleExpense(expense.id))
+                  : (expense) =>
+                      void runAction(expense.id, () => settleExpense(expense.id), 'Gasto saldado')
               }
               onSettleShare={
                 isHistory
                   ? undefined
                   : (expense, share, isSettled) =>
-                      void runAction(expense.id, () =>
-                        settleShare(expense.id, share.id, isSettled),
+                      void runAction(
+                        expense.id,
+                        () => settleShare(expense.id, share.id, isSettled),
+                        isSettled ? 'Cobro deshecho' : 'Parte saldada',
                       )
               }
               onRepeat={
@@ -343,14 +348,17 @@ export function ExpensesScreen() {
         onSubmit={async (input) => {
           if (formMode === 'edit' && editing) {
             await editExpense(editing.id, input);
+            showToast({ message: 'Gasto actualizado', tone: 'success' });
             return;
           }
           if (formMode === 'repeat' && editing) {
             await repeatExpense(editing, input);
+            showToast({ message: 'Gasto repetido', tone: 'success' });
             return;
           }
           const created = await addExpense(input);
           requestFocus(created.id);
+          showToast({ message: 'Gasto creado', tone: 'success' });
         }}
       />
     </Screen>

@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 
+import { FilterGroup } from '@/components/ui/FilterGroup';
 import { FilterTogglePair } from '@/components/ui/FilterTogglePair';
 import { ToggleChipRow } from '@/components/ui/ToggleChipRow';
 import {
@@ -27,8 +28,7 @@ const CATEGORY_CHIPS: { key: 'tasks' | 'expenses'; label: string; accent: 'blue'
 ];
 
 /**
- * Agenda filters with the same toggle + chip style as Tareas and Gastos.
- * No selection on scope = Todo el piso.
+ * Agenda filters with the same labeled pill format as Tareas and Gastos.
  */
 export function AgendaScopeBar({
   viewScope,
@@ -45,25 +45,25 @@ export function AgendaScopeBar({
 
   return (
     <View className="gap-3">
-      <FilterTogglePair
-        value={viewScope}
-        options={SCOPE_OPTIONS}
-        onChange={onViewScopeChange}
-      />
-      <ToggleChipRow
-        value={categoryValue}
-        chips={CATEGORY_CHIPS}
-        onChange={(next) => {
-          if (next === 'ALL') {
-            onCategoriesChange({ tasks: true, expenses: true });
-            return;
-          }
-          onCategoriesChange({
-            tasks: next === 'tasks',
-            expenses: next === 'expenses',
-          });
-        }}
-      />
+      <FilterGroup label="Alcance">
+        <FilterTogglePair value={viewScope} options={SCOPE_OPTIONS} onChange={onViewScopeChange} />
+      </FilterGroup>
+      <FilterGroup label="Tipo">
+        <ToggleChipRow
+          value={categoryValue}
+          chips={CATEGORY_CHIPS}
+          onChange={(next) => {
+            if (next === 'ALL') {
+              onCategoriesChange({ tasks: true, expenses: true });
+              return;
+            }
+            onCategoriesChange({
+              tasks: next === 'tasks',
+              expenses: next === 'expenses',
+            });
+          }}
+        />
+      </FilterGroup>
     </View>
   );
 }

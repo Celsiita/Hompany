@@ -18,6 +18,7 @@ import { applyPeriodRangeSelection } from '@/features/home/lib/period-range-cale
 import { formatDateKey, toDateKey } from '@/lib/absences';
 import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import type { MemberSystemLeave, SystemLeaveKind } from '@/schemas/presence.schema';
 
 type SystemLeavePanelProps = {
@@ -61,6 +62,7 @@ export function SystemLeavePanel({
   onRemove,
 }: SystemLeavePanelProps) {
   const confirm = useConfirmDialog();
+  const showToast = useToast();
   const [formOpen, setFormOpen] = useState(false);
   const [kind, setKind] = useState<SystemLeaveKind | 'ALL'>('INDEFINITE');
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(new Date()));
@@ -126,13 +128,14 @@ export function SystemLeavePanel({
         end_date: kind === 'PLANNED' && rangeEnd ? toDateKey(rangeEnd) : null,
         reason: reason.trim() || undefined,
       });
+      showToast({ message: 'Baja registrada', tone: 'success' });
       setFormOpen(false);
       setRangeStart(null);
       setRangeEnd(null);
       setReason('');
       setKind('INDEFINITE');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar', tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -148,6 +151,7 @@ export function SystemLeavePanel({
       return;
     }
     await onRemove(leave.id);
+    showToast({ message: 'Baja quitada', tone: 'success' });
   }
 
   const body = (

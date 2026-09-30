@@ -40,7 +40,11 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 
 ## Filtros
 
-No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tareas / Compañeros) o dirección de deuda está activa, se lista todo. Pulsar de nuevo la píldora activa la desmarca.
+Mismo formato en Agenda, Tareas y Gastos: botón **Filtros** (▲/▼), grupos etiquetados (Alcance / Tipo / Periodicidad / Estado) y pastillas teal. Sin píldora «Todos»: si ninguna está activa, se lista todo. Pulsar de nuevo la píldora activa la desmarca.
+
+## Feedback (toasts)
+
+Las acciones (proponer cambio, aprobar, saldar, guardar ausencia, copiar código, etc.) muestran un aviso flotante arriba unos segundos. No hay que aceptar: desaparece solo. Los errores de carga del tablero siguen con Reintentar en pantalla.
 
 - **Tareas:** tipos = **Tareas rápidas** + tipos personalizados del hogar (`home_item_types`). Sin Zonas. Estados en curso: Pendiente / En revisión / Pausada. Historial: Completada / Atrasado / Por compañero / Omitida.
 - **Gastos:** kinds builtin (Súper, Casa, Ocio) + tipos personalizados. Dirección: **Mis deudas** / **Mis cobros**. Estados en curso: Pendiente / Pausado. Historial: Saldado / Atrasado / Omitido.
@@ -71,7 +75,7 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 - **Avisos in-app:** solo campanita + inbox (no lista en el Feed). Ver [`notifications.md`](./notifications.md).
 - **Ayuda:** iconos `?` en cabeceras y secciones clave.
 - **Tutorial:** tour interactivo v2 (cambia secciones / pestañas) desde 1ª apertura o Ajustes.
-- **Filtros Agenda:** botón Filtros (▲/▼) con `Mis cosas` | `Compañeros` (sin selección = Todo el piso) + chips `Tareas` / `Gastos`.
+- **Filtros Agenda:** botón Filtros (▲/▼) con grupos **Alcance** (`Mis cosas` | `Compañeros`) y **Tipo** (`Tareas` / `Gastos`), mismo estilo de pastillas que Tareas y Gastos.
 - **Calendario:** vista semanal = **7 días desde hoy** (sin días pasados; la flecha atrás se bloquea en hoy) o mes completo (botón Mes/Semana). Puntos: azul (tuyas), cielo hueco (compañeros), ámbar (gastos), violeta (ausencias), celeste (exámenes).
 - **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Libre».
 - Tareas (azul) y gastos (ámbar); **abiertas** vs **programadas** (tarjetas atenuadas). Gastos solo si estás involucrado.

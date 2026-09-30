@@ -19,6 +19,7 @@ import {
 } from '@/lib/home-notices';
 import { interactive, mergeStyles } from '@/lib/interactive-styles';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import type { CalendarNoticeKind, HomeNotice } from '@/schemas/home-notice.schema';
 
 type CalendarNoticesPanelProps = {
@@ -51,6 +52,7 @@ export function CalendarNoticesPanel({
   onRemove,
 }: CalendarNoticesPanelProps) {
   const confirm = useConfirmDialog();
+  const showToast = useToast();
   const [formOpen, setFormOpen] = useState(false);
   const [kind, setKind] = useState<CalendarNoticeKind>('VISIT');
   const [title, setTitle] = useState('');
@@ -107,13 +109,14 @@ export function CalendarNoticesPanel({
         starts_on: toDateKey(rangeStart),
         ends_on: toDateKey(rangeEnd ?? rangeStart),
       });
+      showToast({ message: 'Visita guardada', tone: 'success' });
       setFormOpen(false);
       setTitle('');
       setRangeStart(null);
       setRangeEnd(null);
       setKind('VISIT');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar', tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -129,6 +132,7 @@ export function CalendarNoticesPanel({
       return;
     }
     await onRemove(notice.id);
+    showToast({ message: 'Visita eliminada', tone: 'success' });
   }
 
   return (

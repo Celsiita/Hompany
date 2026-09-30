@@ -6,6 +6,7 @@ import { ConfirmProvider } from '@/providers/ConfirmProvider';
 import { HomeProvider } from '@/providers/HomeProvider';
 import { IconPackProvider } from '@/providers/IconPackProvider';
 import { PurchasesProvider } from '@/providers/PurchasesProvider';
+import { ToastProvider } from '@/providers/ToastProvider';
 import { TutorialProvider } from '@/providers/TutorialProvider';
 
 /**
@@ -14,17 +15,19 @@ import { TutorialProvider } from '@/providers/TutorialProvider';
 export function AppProviders({ children }: PropsWithChildren) {
   return (
     <SafeAreaProvider>
-      <ConfirmProvider>
-        <AuthProvider>
-          <PurchasesProvider>
-            <HomeProvider>
-              <IconPackProvider>
-                <TutorialProvider>{children}</TutorialProvider>
-              </IconPackProvider>
-            </HomeProvider>
-          </PurchasesProvider>
-        </AuthProvider>
-      </ConfirmProvider>
+      <ToastProvider>
+        <ConfirmProvider>
+          <AuthProvider>
+            <PurchasesProvider>
+              <HomeProvider>
+                <IconPackProvider>
+                  <TutorialProvider>{children}</TutorialProvider>
+                </IconPackProvider>
+              </HomeProvider>
+            </PurchasesProvider>
+          </AuthProvider>
+        </ConfirmProvider>
+      </ToastProvider>
     </SafeAreaProvider>
   );
 }

@@ -18,6 +18,7 @@ import { applyPeriodRangeSelection } from '@/features/home/lib/period-range-cale
 import { formatDateKey, toDateKey } from '@/lib/absences';
 import { punctualAbsenceTaskWarning } from '@/lib/presence';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import type { MemberAbsence } from '@/schemas/absence.schema';
 import type { MemberSystemLeave, SystemLeaveKind } from '@/schemas/presence.schema';
 
@@ -68,6 +69,7 @@ export function AbsencesPanel({
   onRemoveSystemLeave,
 }: AbsencesPanelProps) {
   const confirm = useConfirmDialog();
+  const showToast = useToast();
   const [absenceType, setAbsenceType] = useState<'PUNCTUAL' | 'SYSTEM' | 'ALL'>('PUNCTUAL');
   const [formOpen, setFormOpen] = useState(false);
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(new Date()));
@@ -115,12 +117,13 @@ export function AbsencesPanel({
     setSaving(true);
     try {
       await onAdd({ start_date: start, end_date: end, reason: reason.trim() || undefined });
+      showToast({ message: 'Ausencia guardada', tone: 'success' });
       setFormOpen(false);
       setReason('');
       setRangeStart(null);
       setRangeEnd(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar la ausencia');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar la ausencia', tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -136,6 +139,7 @@ export function AbsencesPanel({
       return;
     }
     await onRemove(absence.id);
+    showToast({ message: 'Ausencia eliminada', tone: 'success' });
   }
 
   const mine = absences.filter((row) => row.user_id === currentUserId);

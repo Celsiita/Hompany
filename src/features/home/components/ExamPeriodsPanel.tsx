@@ -19,6 +19,7 @@ import {
   toExamDateKey,
 } from '@/lib/exam-periods';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
 
 type ExamPeriodsPanelProps = {
@@ -47,6 +48,7 @@ export function ExamPeriodsPanel({
   onRemove,
 }: ExamPeriodsPanelProps) {
   const confirm = useConfirmDialog();
+  const showToast = useToast();
   const [formOpen, setFormOpen] = useState(false);
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(new Date()));
   const [rangeStart, setRangeStart] = useState<Date | null>(null);
@@ -86,12 +88,13 @@ export function ExamPeriodsPanel({
     setSaving(true);
     try {
       await onAdd({ start_date: start, end_date: end, label: trimmed });
+      showToast({ message: 'Modo silencio guardado', tone: 'success' });
       setFormOpen(false);
       setLabel('Finales');
       setRangeStart(null);
       setRangeEnd(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo guardar el periodo');
+      showToast({ message: err instanceof Error ? err.message : 'No se pudo guardar el periodo', tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -107,6 +110,7 @@ export function ExamPeriodsPanel({
       return;
     }
     await onRemove(period.id);
+    showToast({ message: 'Modo silencio eliminado', tone: 'success' });
   }
 
   const mine = examPeriods.filter((row) => row.user_id === currentUserId);

@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 
+import { FilterGroup } from '@/components/ui/FilterGroup';
 import { FilterTogglePair } from '@/components/ui/FilterTogglePair';
 import { RecurrenceFilterChips, type RecurrenceFilter } from '@/components/ui/RecurrenceFilterChips';
 import { ExpenseStatusFilterChips, type ExpenseBoardStatusFilter } from '@/components/ui/StatusFilterChips';
@@ -27,7 +28,7 @@ type ExpenseFilterBarProps = {
 };
 
 /**
- * Expense board filters: involvement, kind, recurrence and status.
+ * Expense board filters: involvement, kind, recurrence and status (shared pill format).
  */
 export function ExpenseFilterBar({
   involvement,
@@ -50,14 +51,22 @@ export function ExpenseFilterBar({
 
   return (
     <View className="gap-3">
-      <FilterTogglePair
-        value={involvement === 'I_OWE' || involvement === 'THEY_OWE_ME' ? involvement : 'ALL'}
-        options={INVOLVEMENT_OPTIONS}
-        onChange={onInvolvementChange}
-      />
-      <ToggleChipRow value={kind} chips={kindChips} onChange={onKindChange} />
-      <RecurrenceFilterChips value={recurrence} onChange={onRecurrenceChange} />
-      <ExpenseStatusFilterChips value={status} onChange={onStatusChange} history={history} />
+      <FilterGroup label="Alcance">
+        <FilterTogglePair
+          value={involvement === 'I_OWE' || involvement === 'THEY_OWE_ME' ? involvement : 'ALL'}
+          options={INVOLVEMENT_OPTIONS}
+          onChange={onInvolvementChange}
+        />
+      </FilterGroup>
+      <FilterGroup label="Tipo">
+        <ToggleChipRow value={kind} chips={kindChips} onChange={onKindChange} />
+      </FilterGroup>
+      <FilterGroup label="Periodicidad">
+        <RecurrenceFilterChips value={recurrence} onChange={onRecurrenceChange} />
+      </FilterGroup>
+      <FilterGroup label="Estado">
+        <ExpenseStatusFilterChips value={status} onChange={onStatusChange} history={history} />
+      </FilterGroup>
     </View>
   );
 }

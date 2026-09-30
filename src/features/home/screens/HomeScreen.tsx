@@ -43,6 +43,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
 import { useIconPack } from '@/providers/IconPackProvider';
 import { usePurchases } from '@/providers/PurchasesProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
 
 /**
@@ -53,6 +54,7 @@ export function HomeScreen() {
   const { user } = useAuth();
   const { activeHome, updateHomePracticalInfo } = useHome();
   const { registerHomeSectionSetter } = useTutorial();
+  const showToast = useToast();
   const {
     tasks,
     isLoading,
@@ -328,13 +330,31 @@ export function HomeScreen() {
               }
               const task = tasks.find((row) => row.id === item.entityId);
               if (!task || !canRequestTaskSwap(task)) {
+                showToast({
+                  message: 'No se puede proponer cambio en esta tarea',
+                  tone: 'error',
+                });
                 return;
               }
               const other = agendaMembers.find((member) => member.user_id !== user?.id);
               if (!other) {
+                showToast({ message: 'No hay compañeros para intercambiar', tone: 'error' });
                 return;
               }
-              void requestSwap(task, other.user_id);
+              void (async () => {
+                try {
+                  await requestSwap(task, other.user_id);
+                  showToast({
+                    message: `Cambio propuesto a ${other.profiles?.display_name ?? 'compañero'}`,
+                    tone: 'success',
+                  });
+                } catch (err) {
+                  showToast({
+                    message: err instanceof Error ? err.message : 'No se pudo proponer el cambio',
+                    tone: 'error',
+                  });
+                }
+              })();
             }}
           />
           </Animated.View>
