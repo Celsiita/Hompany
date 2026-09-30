@@ -26,16 +26,16 @@ type IconPackContextValue = {
   pack: IconPack;
   packs: IconPack[];
   /**
-   * Selects a pack. Locked Plus packs open the paywall instead of switching.
+   * Selects a pack (all packs are free).
    * @returns true when the pack became active.
    */
   setPackId: (id: IconPackId) => Promise<boolean>;
   /**
-   * Imports a custom pack (Plus). Opens paywall when the user is not Plus.
+   * Imports a custom pack from JSON.
    */
   importPackFromJson: (raw: string) => Promise<IconPack | null>;
   removeCustomPack: (id: IconPackId) => Promise<void>;
-  /** Whether the pack needs HOMPANY Plus and the user does not have it. */
+  /** Always false — packs no longer require Plus. */
   isPackLocked: (id: IconPackId) => boolean;
 };
 
@@ -50,7 +50,7 @@ function resolvePack(packId: IconPackId, custom: IconPack[]): IconPack {
 
 /**
  * Persists the selected thematic icon pack and any imported custom packs.
- * Non-Classic packs require HOMPANY Plus (`hompany_plus` entitlement).
+ * Packs are free; Plus gates reputation insights on the Feed.
  */
 export function IconPackProvider({ children }: PropsWithChildren) {
   const { isPlus, presentPaywall } = usePurchases();

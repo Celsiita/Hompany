@@ -89,7 +89,7 @@ Un recorrido de ~90 s sin pantallas rotas, errores de red ni estados vacíos con
 3. **Agenda:** calendario con puntos; abrir un ítem.
 4. **Tareas:** crear / completar con foto (o entregar una existente) → badge “En revisión”.
 5. **Gastos:** ver balance / saldar o crear gasto rápido.
-6. **Ajustes:** código invite + **HOMPANY Plus** (Pilar 1) → unlock iconos.
+6. **Ajustes:** código invite + **HOMPANY Plus** (Pilar 1) → insights de reputación en Feed.
 7. (Opcional 10 s) Segundo usuario Bruno solo si da tiempo; **no** depende de realtime.
 
 ### Checklist smoke (antes del vídeo)
@@ -97,11 +97,11 @@ Un recorrido de ~90 s sin pantallas rotas, errores de red ni estados vacíos con
 Ejecutar en dispositivo/emulador con Supabase local (`npm run db:reset` → seed limpio):
 
 - [ ] Auth login / logout
-- [ ] Tabs Home / Tareas / Gastos / Ajustes sin crash
+- [ ] Tabs Inicio / Piso / Tareas / Gastos / Ajustes sin crash
 - [ ] Crear tarea one-shot con due date
 - [ ] Entregar con foto (cámara o galería según settings del piso)
 - [ ] Crear gasto + ver balance
-- [ ] Cambiar pack de iconos (tras Plus)
+- [ ] Cambiar pack de iconos (gratis) + abrir paywall Reputación Plus
 - [ ] Tutorial Mico no bloquea el demo (skip o ya completado en seed)
 
 ### Bugs: solo bloqueantes
