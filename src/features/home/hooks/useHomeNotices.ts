@@ -34,6 +34,8 @@ export function useHomeNotices(): UseHomeNoticesResult {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const instanceId = useRef(Symbol('useHomeNotices'));
+  const noticesRef = useRef(notices);
+  noticesRef.current = notices;
 
   const load = useCallback(async () => {
     if (!activeHomeId) {
@@ -42,7 +44,9 @@ export function useHomeNotices(): UseHomeNoticesResult {
       return;
     }
 
-    setIsLoading(true);
+    if (noticesRef.current.length === 0) {
+      setIsLoading(true);
+    }
     setError(null);
     try {
       const rows = await listHomeNotices(activeHomeId);

@@ -32,6 +32,8 @@ export function useHomeAbsences(): UseHomeAbsencesResult {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const instanceId = useRef(Symbol('useHomeAbsences'));
+  const absencesRef = useRef(absences);
+  absencesRef.current = absences;
 
   const load = useCallback(async () => {
     if (!activeHomeId) {
@@ -40,7 +42,9 @@ export function useHomeAbsences(): UseHomeAbsencesResult {
       return;
     }
 
-    setIsLoading(true);
+    if (absencesRef.current.length === 0) {
+      setIsLoading(true);
+    }
     setError(null);
     try {
       const rows = await listAbsencesByHome(activeHomeId);

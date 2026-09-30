@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   addPresenceMonth,
@@ -41,6 +41,8 @@ export function useHomePresence(): UseHomePresenceResult {
   const [systemLeaves, setSystemLeaves] = useState<MemberSystemLeave[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const dataRef = useRef({ periods: 0, leaves: 0 });
+  dataRef.current = { periods: presencePeriods.length, leaves: systemLeaves.length };
 
   const load = useCallback(async () => {
     if (!activeHomeId) {
@@ -49,7 +51,9 @@ export function useHomePresence(): UseHomePresenceResult {
       setIsLoading(false);
       return;
     }
-    setIsLoading(true);
+    if (dataRef.current.periods === 0 && dataRef.current.leaves === 0) {
+      setIsLoading(true);
+    }
     setError(null);
     try {
       const [periods, leaves] = await Promise.all([

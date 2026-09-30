@@ -253,7 +253,7 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
 
             {dayItems.length === 0 ? (
               hasMarkers ? null : (
-                <Text className="text-xs text-gray-400">Libre</Text>
+                <Text className="text-xs text-stone-400">Libre</Text>
               )
             ) : (
               dayItems.map((item) => (

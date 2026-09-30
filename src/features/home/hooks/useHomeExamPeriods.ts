@@ -32,6 +32,8 @@ export function useHomeExamPeriods(): UseHomeExamPeriodsResult {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const instanceId = useRef(Symbol('useHomeExamPeriods'));
+  const examPeriodsRef = useRef(examPeriods);
+  examPeriodsRef.current = examPeriods;
 
   const load = useCallback(async () => {
     if (!activeHomeId) {
@@ -40,7 +42,9 @@ export function useHomeExamPeriods(): UseHomeExamPeriodsResult {
       return;
     }
 
-    setIsLoading(true);
+    if (examPeriodsRef.current.length === 0) {
+      setIsLoading(true);
+    }
     setError(null);
     try {
       const rows = await listExamPeriodsByHome(activeHomeId);
