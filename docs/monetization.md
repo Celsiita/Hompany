@@ -15,7 +15,15 @@ HOMPANY usa [RevenueCat](https://www.revenuecat.com/) para **HOMPANY Plus**. El 
 
 Código: [`src/lib/purchases/entitlements.ts`](../src/lib/purchases/entitlements.ts), `PurchasesProvider`, Ajustes / Piso.
 
-## Setup (tú en el dashboard)
+## Productos (default offering)
+
+| Package id | Tipo |
+|------------|------|
+| `monthly` | Suscripción mensual |
+| `yearly` | Suscripción anual |
+| `lifetime` | Compra única |
+
+Todos deben desbloquear el entitlement `hompany_plus`.
 
 1. [app.revenuecat.com](https://app.revenuecat.com) → crea proyecto **HOMPANY**.
 2. Añade app → **Test Store** (Next Gen, sin App Store).

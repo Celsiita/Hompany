@@ -33,6 +33,8 @@ type PurchasesContextValue = {
   customerInfo: CustomerInfo | null;
   /** Opens the RevenueCat paywall (or a fallback alert). */
   presentPaywall: () => Promise<boolean>;
+  /** Opens Customer Center (manage subscription) when available. */
+  presentCustomerCenter: () => Promise<void>;
   /** Restores previous purchases and refreshes Plus status. */
   restorePurchases: () => Promise<boolean>;
   /** Forces a CustomerInfo refresh. */
@@ -191,6 +193,24 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
     }
   }, [isConfigured]);
 
+  const presentCustomerCenter = useCallback(async () => {
+    if (!isConfigured) {
+      Alert.alert('HOMPANY Plus', 'Las compras no están configuradas en este dispositivo.');
+      return;
+    }
+    try {
+      await RevenueCatUI.presentCustomerCenter();
+      const info = await Purchases.getCustomerInfo();
+      setCustomerInfo(info);
+    } catch (err) {
+      const message =
+        err && typeof err === 'object' && 'message' in err
+          ? String((err as PurchasesError).message)
+          : 'No se pudo abrir el centro de cliente';
+      Alert.alert('HOMPANY Plus', message);
+    }
+  }, [isConfigured]);
+
   const restorePurchases = useCallback(async () => {
     if (!isConfigured) {
       Alert.alert('HOMPANY Plus', 'Las compras no están configuradas en este dispositivo.');
@@ -223,6 +243,7 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
       isConfigured,
       customerInfo,
       presentPaywall,
+      presentCustomerCenter,
       restorePurchases,
       refreshCustomerInfo,
     }),
@@ -232,6 +253,7 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
       isConfigured,
       customerInfo,
       presentPaywall,
+      presentCustomerCenter,
       restorePurchases,
       refreshCustomerInfo,
     ],

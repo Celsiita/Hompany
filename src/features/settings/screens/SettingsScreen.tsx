@@ -60,7 +60,7 @@ export function SettingsScreen() {
   const confirm = useConfirmDialog();
   const { packId, setPackId, packs, importPackFromJson, removeCustomPack, isPackLocked } =
     useIconPack();
-  const { isPlus, isConfigured, presentPaywall, restorePurchases } = usePurchases();
+  const { isPlus, isConfigured, presentPaywall, presentCustomerCenter, restorePurchases } = usePurchases();
 
   const [displayName, setDisplayName] = useState('');
   const [members, setMembers] = useState<HomeMemberWithProfile[]>([]);
@@ -508,7 +508,15 @@ export function SettingsScreen() {
                 });
               }}
             />
-          ) : null}
+          ) : (
+            <Button
+              label="Gestionar suscripción"
+              variant="secondary"
+              onPress={() => {
+                void presentCustomerCenter();
+              }}
+            />
+          )}
           <Button
             label="Restaurar compras"
             variant="secondary"
