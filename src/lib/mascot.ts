@@ -32,7 +32,7 @@ export type MascotReactionKind =
   | 'swap_proposed'
   | 'loading';
 
-export type MascotScreenLine = 'feed' | 'agenda' | 'convivencia' | 'tasks' | 'expenses' | 'settings';
+export type MascotScreenLine = 'feed' | 'agenda' | 'piso' | 'tasks' | 'expenses' | 'settings';
 
 type MascotPersona = {
   /** Accent used by drawn face (fur / cheeks). */
@@ -188,7 +188,7 @@ const REACTIONS: Record<
 const SCREEN_LINES: Record<MascotScreenLine, string> = {
   feed: 'Salud del piso, ranking y cuentas',
   agenda: 'Calendario de lo que toca esta semana',
-  convivencia: 'Ausencias, silencio, visitas y Wi‑Fi',
+  piso: 'Ausencias, silencio, visitas y Wi‑Fi',
   tasks: 'Cuadrante · foto y puntos',
   expenses: 'Súper, casa y deudas claras',
   settings: 'Piso, invitación, Plus y tutorial',

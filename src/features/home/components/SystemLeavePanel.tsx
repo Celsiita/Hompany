@@ -30,6 +30,8 @@ type SystemLeavePanelProps = {
   defaultExpanded?: boolean;
   /** When true, render body only (used inside unified Ausencias panel). */
   embedded?: boolean;
+  /** When true, only list/manage the current user's leaves. */
+  mineOnly?: boolean;
   onAdd: (input: {
     kind: SystemLeaveKind;
     start_date: string;
@@ -58,6 +60,7 @@ export function SystemLeavePanel({
   busy = false,
   defaultExpanded = false,
   embedded = false,
+  mineOnly = false,
   onAdd,
   onRemove,
 }: SystemLeavePanelProps) {
@@ -91,7 +94,8 @@ export function SystemLeavePanel({
     members.find((member) => member.user_id === userId)?.profiles?.display_name ?? 'Compañero';
 
   const mine = systemLeaves.filter((row) => row.user_id === currentUserId);
-  const others = systemLeaves.filter((row) => row.user_id !== currentUserId);
+  const others = mineOnly ? [] : systemLeaves.filter((row) => row.user_id !== currentUserId);
+  const listedLeaves = mineOnly ? mine : systemLeaves;
 
   function handleSelectDate(date: Date) {
     if (kind === 'INDEFINITE') {
@@ -158,7 +162,7 @@ export function SystemLeavePanel({
     <View className="gap-3">
       {isLoading ? (
         <MascotLoading />
-      ) : systemLeaves.length === 0 ? (
+      ) : listedLeaves.length === 0 ? (
         <View className="gap-1 rounded-xl border border-dashed border-amber-200 bg-amber-50/40 px-3 py-4">
           <Text className="text-sm font-semibold text-amber-950">Sin bajas largas</Text>
           <Text className="text-sm leading-5 text-amber-900/70">

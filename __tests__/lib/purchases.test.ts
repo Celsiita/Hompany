@@ -30,8 +30,8 @@ describe('hasActiveEntitlement', () => {
 describe('iconPackRequiresPlus', () => {
   it('keeps classic free and locks cozy/playful/custom', () => {
     expect(iconPackRequiresPlus('classic')).toBe(false);
-    expect(iconPackRequiresPlus('cozy')).toBe(true);
-    expect(iconPackRequiresPlus('playful')).toBe(true);
-    expect(iconPackRequiresPlus('custom:abc')).toBe(true);
+    expect(iconPackRequiresPlus('cozy')).toBe(false);
+    expect(iconPackRequiresPlus('playful')).toBe(false);
+    expect(iconPackRequiresPlus('custom:abc')).toBe(false);
   });
 });

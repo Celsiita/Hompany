@@ -124,12 +124,6 @@ export function IconPackProvider({ children }: PropsWithChildren) {
 
   const importPackFromJson = useCallback(
     async (raw: string) => {
-      if (!isPlus) {
-        const unlocked = await presentPaywall();
-        if (!unlocked) {
-          return null;
-        }
-      }
       const pack = parseImportedIconPackJson(raw);
       const next = [...customPacks.filter((item) => item.name !== pack.name), pack];
       setCustomPacks(next);
@@ -137,7 +131,7 @@ export function IconPackProvider({ children }: PropsWithChildren) {
       await applyPackId(pack.id);
       return pack;
     },
-    [customPacks, isPlus, presentPaywall, applyPackId],
+    [customPacks, applyPackId],
   );
 
   const removeCustomPack = useCallback(

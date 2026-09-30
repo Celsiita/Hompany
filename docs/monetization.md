@@ -1,14 +1,14 @@
 # Monetización (RevenueCat)
 
-HOMPANY usa [RevenueCat](https://www.revenuecat.com/) para **HOMPANY Plus**: packs de iconos Hogar / Play e importación JSON. El core (tareas, gastos, agenda, convivencia) sigue gratis.
+HOMPANY usa [RevenueCat](https://www.revenuecat.com/) para **HOMPANY Plus**: **insights de reputación** en el Feed (puesto, distancia al primero, pts por tareas). El core (tareas, gastos, agenda, piso) y los packs de iconos siguen gratis.
 
 ## Entitlement
 
 | Id | Qué desbloquea |
 |----|----------------|
-| `hompany_plus` | Packs no-Clásico + importar pack JSON + badge Plus en Ajustes |
+| `hompany_plus` | Tarjeta **Reputación Plus** en Feed + badge Plus |
 
-Código: [`src/lib/purchases/entitlements.ts`](../src/lib/purchases/entitlements.ts), gate en [`IconPackProvider`](../src/providers/IconPackProvider.tsx), UI en Ajustes.
+Código: [`src/lib/purchases/entitlements.ts`](../src/lib/purchases/entitlements.ts), UI en Feed (`ReputationInsightsCard`) y Ajustes.
 
 ## Setup local / Shipaton
 

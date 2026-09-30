@@ -37,8 +37,8 @@ const FOCUS_SLOTS: Partial<Record<TutorialHighlight, FocusSlot>> = {
     widthPct: 88,
     heightPct: 36,
   },
-  convivencia: {
-    label: 'Convivencia · vida del hogar',
+  piso: {
+    label: 'Piso · vida del hogar',
     topPct: 18,
     leftPct: 6,
     widthPct: 88,

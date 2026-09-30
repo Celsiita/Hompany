@@ -12,8 +12,8 @@ alwaysApply: true
 - Contexto estudiantes: convivencia, exámenes/silencio, gastos compartidos, reputación.
 
 ## Home
-- Feed: Estado → Datos del piso (o sección propia) → Clasificación → Cuentas. **Sin lista de avisos en Feed** (solo campanita).
-- Agenda: calendario + lista primero. Ausencias / silencio / visitas se gestionan en **Convivencia**.
+- Feed: Estado → Clasificación (+ Reputación Plus) → Cuentas. **Sin lista de avisos en Feed** (solo campanita).
+- Agenda: calendario + lista primero. Ausencias / silencio / visitas se gestionan en la tab **Piso**.
 - Colores agenda: azul tareas, ámbar gastos, puntos míos vs compañeros claros.
 
 ## Ayuda

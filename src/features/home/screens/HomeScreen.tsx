@@ -11,12 +11,9 @@ import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { AlertsModal } from '@/features/home/components/AlertsModal';
-import { ConvivenciaLifePanels } from '@/features/home/components/ConvivenciaLifePanels';
 import { HomeAgenda } from '@/features/home/components/HomeAgenda';
-import { HomeInfoCard } from '@/features/home/components/HomeInfoCard';
 import { HomeLeaderboard } from '@/features/home/components/HomeLeaderboard';
-import { HomeNoticesPanel } from '@/features/home/components/HomeNoticesPanel';
-import { QuietNowCard } from '@/features/home/components/QuietNowCard';
+import { ReputationInsightsCard } from '@/features/home/components/ReputationInsightsCard';
 import { useHomeAbsences } from '@/features/home/hooks/useHomeAbsences';
 import { useHomeExamPeriods } from '@/features/home/hooks/useHomeExamPeriods';
 import { useHomeNotices } from '@/features/home/hooks/useHomeNotices';
@@ -29,7 +26,6 @@ import {
   excludeAbsentAssigneeTasks,
   filterTasksForAbsentViewer,
 } from '@/features/tasks/lib/absence-task-rules';
-import { reassignRotatingTasksForPunctualAbsence } from '@/features/tasks/api/tasks-api';
 import { filterExpensesForViewer, type AgendaItem } from '@/features/home/lib/agenda-items';
 import { useHomeTasks } from '@/features/tasks/hooks/useHomeTasks';
 import { canRequestTaskSwap } from '@/features/tasks/lib/board-filters';
@@ -43,13 +39,12 @@ import { useToast } from '@/providers/ToastProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
 
 /**
- * Home — Feed (estado → ranking → cuentas), Agenda, Convivencia (vida + info).
- * Avisos solo en campanita. Packs de iconos en Ajustes.
- * Ausencias / modo silencio / visitas se gestionan en Convivencia.
+ * Home — Feed (estado → ranking → insights Plus → cuentas) and Agenda.
+ * Piso life management lives in the Piso tab.
  */
 export function HomeScreen() {
   const { user } = useAuth();
-  const { activeHome, updateHomePracticalInfo } = useHome();
+  const { activeHome } = useHome();
   const { registerHomeSectionSetter } = useTutorial();
   const showToast = useToast();
   const {
@@ -71,42 +66,20 @@ export function HomeScreen() {
     cancelOccurrence: cancelExpenseOccurrence,
     reassignOccurrence: reassignExpenseOccurrence,
   } = useHomeExpenses();
-  const {
-    absences,
-    isLoading: absencesLoading,
-    addAbsence,
-    removeAbsence,
-  } = useHomeAbsences();
-  const {
-    examPeriods,
-    isLoading: examPeriodsLoading,
-    addExamPeriod,
-    removeExamPeriod,
-  } = useHomeExamPeriods();
-  const {
-    systemLeaves,
-    isLoading: presenceLoading,
-    addSystemLeave,
-    removeSystemLeave,
-  } = useHomePresence();
-  const {
-    feedNotices,
-    calendarNotices,
-    isLoading: noticesLoading,
-    addNotice,
-    removeNotice,
-  } = useHomeNotices();
+  const { absences } = useHomeAbsences();
+  const { examPeriods } = useHomeExamPeriods();
+  const { systemLeaves } = useHomePresence();
+  const { calendarNotices } = useHomeNotices();
   const {
     rows: leaderboard,
     isLoading: leaderboardLoading,
     error: leaderboardError,
     refresh: refreshLeaderboard,
   } = useHomeLeaderboard();
-  const { isPlus } = usePurchases();
+  const { isPlus, presentPaywall } = usePurchases();
   const [section, setSection] = useState<HomeSection>('FEED');
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [feedRefreshing, setFeedRefreshing] = useState(false);
-  const [quietBusy, setQuietBusy] = useState(false);
 
   useEffect(() => {
     registerHomeSectionSetter(setSection);
@@ -135,23 +108,24 @@ export function HomeScreen() {
     [systemLeaves, user?.id],
   );
 
-  const agendaTasks = useMemo(
-    () =>
-      systemFrozen
-        ? []
-        : filterTasksForAbsentViewer(tasks, absences, user?.id),
-    [tasks, absences, user?.id, systemFrozen],
-  );
+  const agendaTasks = useMemo(() => {
+    if (systemFrozen) {
+      return [];
+    }
+    return excludeAbsentAssigneeTasks(
+      filterTasksForAbsentViewer(tasks, absences, user?.id),
+      absences,
+    );
+  }, [tasks, absences, user?.id, systemFrozen]);
 
-  const agendaExpenses = useMemo(
-    () => (systemFrozen ? [] : visibleExpenses),
-    [systemFrozen, visibleExpenses],
-  );
+  const agendaExpenses = useMemo(() => {
+    if (systemFrozen) {
+      return [];
+    }
+    return visibleExpenses;
+  }, [visibleExpenses, systemFrozen]);
 
-  const healthSummary = useMemo(
-    () => summarizeTasks(excludeAbsentAssigneeTasks(tasks, absences)),
-    [tasks, absences],
-  );
+  const healthSummary = useMemo(() => summarizeTasks(tasks), [tasks]);
 
   const alerts = useMemo(
     () =>
@@ -172,16 +146,10 @@ export function HomeScreen() {
 
   const agendaMembers = members.length > 0 ? members : taskMembers;
 
-  const memberDisplayName = (userId: string) =>
-    agendaMembers.find((member) => member.user_id === userId)?.profiles?.display_name ??
-    'Compañero';
-
   const subtitle =
     section === 'FEED'
       ? `${mascotScreenLine('feed')}${isPlus ? ' · Plus' : ''}`
-      : section === 'AGENDA'
-        ? mascotScreenLine('agenda')
-        : mascotScreenLine('convivencia');
+      : mascotScreenLine('agenda');
 
   async function handleCancelOccurrence(item: AgendaItem) {
     if (item.kind === 'task') {
@@ -220,7 +188,7 @@ export function HomeScreen() {
           title={activeHome?.name ?? 'El piso'}
           subtitle={subtitle}
           helpTitle="Inicio"
-          helpMessage="Feed = estado del piso. Agenda = calendario. Convivencia = ausencias, silencio, visitas, Wi‑Fi y reglas. La campanita concentra avisos urgentes."
+          helpMessage="Feed = estado y reputación. Agenda = calendario. Piso (tab) = ausencias, silencio, visitas y Wi‑Fi. La campanita concentra avisos urgentes."
           onAlertsPress={() => setAlertsOpen(true)}
           alertsCount={alerts.length}
           urgentAlertsCount={urgentAlertsCount}
@@ -230,231 +198,136 @@ export function HomeScreen() {
 
         {section === 'FEED' ? (
           <Animated.View key="feed" entering={FadeIn.duration(240)} className="flex-1">
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            bounces
-            overScrollMode="auto"
-            contentInsetAdjustmentBehavior="never"
-            refreshControl={
-              <RefreshControl
-                refreshing={feedRefreshing}
-                onRefresh={() => void refreshFeed()}
-                tintColor="#0f766e"
-                colors={['#0f766e']}
-              />
-            }
-            contentContainerClassName="gap-5 pb-8">
-            <View className="flex-row items-center justify-between">
-              <FeedSectionHeader title="Estado" subtitle="Salud del piso esta semana" />
-              <HelpTip
-                title="Estado del piso"
-                message="El % resume si el piso va bien. Pendientes, en revisión (foto) y hechas van debajo. Lo urgente está en la campanita."
-              />
-            </View>
-            {isLoading ? <MascotLoading /> : <HealthMeter summary={healthSummary} />}
-
-            <View className="flex-row items-center justify-between">
-              <FeedSectionHeader title="Clasificación" subtitle="Reputación semanal · 100 pts de salida" />
-              <HelpTip
-                title="Clasificación"
-                message="Empiezas con 100 pts. Cumplir tareas suma; fallar resta. El chip «tú» te marca en el ranking."
-              />
-            </View>
-            {leaderboardLoading ? (
-              <MascotLoading label="Ordenando el ranking…" />
-            ) : leaderboardError ? (
-              <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
-                <Text className="text-sm font-semibold text-amber-950">
-                  No se pudo cargar la clasificación
-                </Text>
-                <Text className="text-sm leading-5 text-amber-900/80">{leaderboardError}</Text>
-                <Button
-                  label="Reintentar"
-                  variant="secondary"
-                  onPress={() => void refreshLeaderboard()}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              bounces
+              overScrollMode="auto"
+              contentInsetAdjustmentBehavior="never"
+              refreshControl={
+                <RefreshControl
+                  refreshing={feedRefreshing}
+                  onRefresh={() => void refreshFeed()}
+                  tintColor="#0f766e"
+                  colors={['#0f766e']}
+                />
+              }
+              contentContainerClassName="gap-5 pb-8">
+              <View className="flex-row items-center justify-between">
+                <FeedSectionHeader title="Estado" subtitle="Salud del piso esta semana" />
+                <HelpTip
+                  title="Estado del piso"
+                  message="El % resume si el piso va bien. Pendientes, en revisión (foto) y hechas van debajo. Lo urgente está en la campanita."
                 />
               </View>
-            ) : (
-              <HomeLeaderboard rows={leaderboard} currentUserId={user?.id} />
-            )}
+              {isLoading ? <MascotLoading /> : <HealthMeter summary={healthSummary} />}
 
-            <View className="flex-row items-center justify-between">
-              <FeedSectionHeader title="Cuentas" subtitle="Quién debe a quién" />
-              <HelpTip
-                title="Cuentas"
-                message="Resumen rápido de deudas entre compañeros. El detalle y saldar están en la pestaña Gastos."
-              />
-            </View>
-            {expensesLoading ? (
-              <MascotLoading label="Sumando quién debe a quién…" />
-            ) : (
-              <BalanceSummary balances={balances} members={members} currentUserId={user?.id} />
-            )}
-          </ScrollView>
+              <View className="flex-row items-center justify-between">
+                <FeedSectionHeader
+                  title="Clasificación"
+                  subtitle="Reputación semanal · 100 pts de salida"
+                />
+                <HelpTip
+                  title="Clasificación"
+                  message="Empiezas con 100 pts. Cumplir tareas suma; fallar resta. El chip «tú» te marca en el ranking."
+                />
+              </View>
+              {leaderboardLoading ? (
+                <MascotLoading label="Ordenando el ranking…" />
+              ) : leaderboardError ? (
+                <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
+                  <Text className="text-sm font-semibold text-amber-950">
+                    No se pudo cargar la clasificación
+                  </Text>
+                  <Text className="text-sm leading-5 text-amber-900/80">{leaderboardError}</Text>
+                  <Button
+                    label="Reintentar"
+                    variant="secondary"
+                    onPress={() => void refreshLeaderboard()}
+                  />
+                </View>
+              ) : (
+                <>
+                  <HomeLeaderboard rows={leaderboard} currentUserId={user?.id} />
+                  <ReputationInsightsCard
+                    rows={leaderboard}
+                    currentUserId={user?.id}
+                    isPlus={isPlus}
+                    onUnlock={() => {
+                      void presentPaywall().then((ok) => {
+                        if (ok) {
+                          showToast({ message: 'Bienvenido a HOMPANY Plus', tone: 'success' });
+                        }
+                      });
+                    }}
+                  />
+                </>
+              )}
+
+              <View className="flex-row items-center justify-between">
+                <FeedSectionHeader title="Cuentas" subtitle="Quién debe a quién" />
+                <HelpTip
+                  title="Cuentas"
+                  message="Resumen rápido de deudas entre compañeros. El detalle y saldar están en la pestaña Gastos."
+                />
+              </View>
+              {expensesLoading ? (
+                <MascotLoading label="Sumando quién debe a quién…" />
+              ) : (
+                <BalanceSummary balances={balances} members={members} currentUserId={user?.id} />
+              )}
+            </ScrollView>
           </Animated.View>
         ) : null}
 
         {section === 'AGENDA' ? (
           <Animated.View key="agenda" entering={FadeIn.duration(240)} className="flex-1">
-          <HomeAgenda
-            tasks={agendaTasks}
-            expenses={agendaExpenses}
-            members={agendaMembers}
-            absences={absences}
-            examPeriods={examPeriods}
-            calendarNotices={calendarNotices}
-            currentUserId={user?.id}
-            isAdmin={isAdmin}
-            onRefresh={async () => {
-              await Promise.all([refreshTasks(), refreshExpenses()]);
-            }}
-            onCancelOccurrence={handleCancelOccurrence}
-            onReassignOccurrence={handleReassignOccurrence}
-            onRequestSwap={(item) => {
-              if (item.kind !== 'task') {
-                return;
-              }
-              const task = tasks.find((row) => row.id === item.entityId);
-              if (!task || !canRequestTaskSwap(task)) {
-                showToast({
-                  message: 'No se puede proponer cambio en esta tarea',
-                  tone: 'error',
-                });
-                return;
-              }
-              const other = agendaMembers.find((member) => member.user_id !== user?.id);
-              if (!other) {
-                showToast({ message: 'No hay compañeros para intercambiar', tone: 'error' });
-                return;
-              }
-              void (async () => {
-                try {
-                  await requestSwap(task, other.user_id);
+            <HomeAgenda
+              tasks={agendaTasks}
+              expenses={agendaExpenses}
+              members={agendaMembers}
+              absences={absences}
+              examPeriods={examPeriods}
+              calendarNotices={calendarNotices}
+              currentUserId={user?.id}
+              isAdmin={isAdmin}
+              onRefresh={async () => {
+                await Promise.all([refreshTasks(), refreshExpenses()]);
+              }}
+              onCancelOccurrence={handleCancelOccurrence}
+              onReassignOccurrence={handleReassignOccurrence}
+              onRequestSwap={(item) => {
+                if (item.kind !== 'task') {
+                  return;
+                }
+                const task = tasks.find((row) => row.id === item.entityId);
+                if (!task || !canRequestTaskSwap(task)) {
                   showToast({
-                    message: `Cambio propuesto a ${other.profiles?.display_name ?? 'compañero'}`,
-                    tone: 'success',
-                  });
-                } catch (err) {
-                  showToast({
-                    message: err instanceof Error ? err.message : 'No se pudo proponer el cambio',
+                    message: 'No se puede proponer cambio en esta tarea',
                     tone: 'error',
                   });
+                  return;
                 }
-              })();
-            }}
-          />
-          </Animated.View>
-        ) : null}
-
-        {section === 'CONVIVENCIA' ? (
-          <Animated.View key="convivencia" entering={FadeIn.duration(240)} className="flex-1">
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            bounces
-            overScrollMode="auto"
-            contentInsetAdjustmentBehavior="never"
-            contentContainerClassName="gap-4 pb-8">
-            <View className="flex-row items-center justify-between">
-              <FeedSectionHeader
-                title="Vida del hogar"
-                subtitle="Activas, próximas y crear nuevas"
-              />
-              <HelpTip
-                title="Vida del hogar"
-                message="Aquí creas y ves ausencias, modo silencio de exámenes y visitas. En Agenda solo aparecen como marcas. «Silencio ahora» es un aviso puntual, distinto del modo exámenes."
-              />
-            </View>
-
-            <QuietNowCard
-              authorName={
-                agendaMembers.find((member) => member.user_id === user?.id)?.profiles
-                  ?.display_name ?? 'Yo'
-              }
-              busy={quietBusy}
-              onRequest={async (input) => {
-                setQuietBusy(true);
-                try {
-                  await addNotice(input);
-                } finally {
-                  setQuietBusy(false);
+                const other = agendaMembers.find((member) => member.user_id !== user?.id);
+                if (!other) {
+                  showToast({ message: 'No hay compañeros para intercambiar', tone: 'error' });
+                  return;
                 }
+                void (async () => {
+                  try {
+                    await requestSwap(task, other.user_id);
+                    showToast({
+                      message: `Cambio propuesto a ${other.profiles?.display_name ?? 'compañero'}`,
+                      tone: 'success',
+                    });
+                  } catch (err) {
+                    showToast({
+                      message: err instanceof Error ? err.message : 'No se pudo proponer el cambio',
+                      tone: 'error',
+                    });
+                  }
+                })();
               }}
             />
-
-            <ConvivenciaLifePanels
-              members={agendaMembers}
-              currentUserId={user?.id}
-              isAdmin={isAdmin}
-              tasks={tasks}
-              absences={absences}
-              absencesLoading={absencesLoading}
-              systemLeaves={systemLeaves}
-              systemLeavesLoading={presenceLoading}
-              examPeriods={examPeriods}
-              examPeriodsLoading={examPeriodsLoading}
-              calendarNotices={calendarNotices}
-              calendarNoticesLoading={noticesLoading}
-              onAddAbsence={async (input) => {
-                await addAbsence(input);
-                if (user?.id && activeHome?.id) {
-                  await reassignRotatingTasksForPunctualAbsence({
-                    homeId: activeHome.id,
-                    actorId: user.id,
-                    absentUserId: user.id,
-                    startDate: input.start_date,
-                    endDate: input.end_date,
-                  });
-                }
-              }}
-              onRemoveAbsence={removeAbsence}
-              onAddSystemLeave={addSystemLeave}
-              onRemoveSystemLeave={removeSystemLeave}
-              onAddExamPeriod={async (input) => {
-                await addExamPeriod(input);
-              }}
-              onRemoveExamPeriod={removeExamPeriod}
-              onAddCalendarNotice={async (input) => {
-                await addNotice(input);
-              }}
-              onRemoveCalendarNotice={removeNotice}
-            />
-
-            <View className="flex-row items-center justify-between">
-              <FeedSectionHeader
-                title="Info práctica"
-                subtitle="Wi‑Fi, portal, basura y notas"
-              />
-              <HelpTip
-                title="Info del piso"
-                message="Datos que todos necesitan: red Wi‑Fi, código del portal, día de basura. Edítalos desde la tarjeta."
-              />
-            </View>
-            <HomeInfoCard
-              home={activeHome}
-              onSave={async (input) => {
-                await updateHomePracticalInfo(input);
-              }}
-            />
-
-            <View className="flex-row items-center justify-between">
-              <FeedSectionHeader title="Reglas y quejas" subtitle="Acuerdos del hogar" />
-              <HelpTip
-                title="Reglas y quejas"
-                message="Acuerdos visibles para todos. Las quejas pueden ser anónimas — sin chat de WhatsApp interminable."
-              />
-            </View>
-            <HomeNoticesPanel
-              notices={feedNotices}
-              isLoading={noticesLoading}
-              currentUserId={user?.id}
-              isAdmin={isAdmin}
-              authorName={memberDisplayName}
-              onAdd={async (input) => {
-                await addNotice(input);
-              }}
-              onRemove={removeNotice}
-            />
-          </ScrollView>
           </Animated.View>
         ) : null}
       </View>

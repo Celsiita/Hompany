@@ -28,6 +28,8 @@ type ExamPeriodsPanelProps = {
   currentUserId?: string | null;
   isLoading?: boolean;
   busy?: boolean;
+  /** When true, only list/manage the current user's periods. */
+  mineOnly?: boolean;
   onAdd: (input: { start_date: string; end_date: string; label: string }) => Promise<void>;
   onRemove: (periodId: string) => Promise<void>;
 };
@@ -44,6 +46,7 @@ export function ExamPeriodsPanel({
   currentUserId,
   isLoading = false,
   busy = false,
+  mineOnly = false,
   onAdd,
   onRemove,
 }: ExamPeriodsPanelProps) {
@@ -114,7 +117,8 @@ export function ExamPeriodsPanel({
   }
 
   const mine = examPeriods.filter((row) => row.user_id === currentUserId);
-  const others = examPeriods.filter((row) => row.user_id !== currentUserId);
+  const others = mineOnly ? [] : examPeriods.filter((row) => row.user_id !== currentUserId);
+  const listedPeriods = mineOnly ? mine : examPeriods;
 
   return (
     <View className="gap-3">
@@ -124,7 +128,7 @@ export function ExamPeriodsPanel({
       </View>
       {isLoading ? (
         <MascotLoading />
-      ) : examPeriods.length === 0 ? (
+      ) : listedPeriods.length === 0 ? (
         <View className="gap-1 rounded-xl border border-dashed border-violet-200 bg-violet-50/40 px-3 py-4">
           <Text className="text-sm font-semibold text-violet-950">Sin modo silencio</Text>
           <Text className="text-sm leading-5 text-violet-800/70">

@@ -2,7 +2,7 @@ import { SymbolView } from 'expo-symbols';
 import { Tabs } from 'expo-router';
 
 /**
- * Tab navigation: Home, Tareas, Gastos, Ajustes.
+ * Tab navigation: Inicio, Piso, Tareas, Gastos, Ajustes.
  */
 export default function TabLayout() {
   return (
@@ -23,6 +23,23 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: 'house.fill', android: 'home', web: 'home' }}
+              tintColor={color}
+              size={24}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="piso"
+        options={{
+          title: 'Piso',
+          tabBarIcon: ({ color }) => (
+            <SymbolView
+              name={{
+                ios: 'person.3.fill',
+                android: 'groups',
+                web: 'groups',
+              }}
               tintColor={color}
               size={24}
             />

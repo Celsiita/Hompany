@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 
-export type HomeSection = 'FEED' | 'AGENDA' | 'CONVIVENCIA';
+export type HomeSection = 'FEED' | 'AGENDA';
 
 type HomeSectionBarProps = {
   section: HomeSection;
@@ -10,11 +10,10 @@ type HomeSectionBarProps = {
 const TABS: Array<{ id: HomeSection; label: string; hint: string }> = [
   { id: 'FEED', label: 'Feed', hint: 'Estado' },
   { id: 'AGENDA', label: 'Agenda', hint: 'Calendario' },
-  { id: 'CONVIVENCIA', label: 'Convivencia', hint: 'Vida' },
 ];
 
 /**
- * Switches Home between Feed, Agenda and Convivencia (pill segments).
+ * Switches Home between Feed and Agenda (pill segments).
  */
 export function HomeSectionBar({ section, onSectionChange }: HomeSectionBarProps) {
   return (

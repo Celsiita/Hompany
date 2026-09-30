@@ -12,7 +12,7 @@ import type { CalendarNoticeKind, HomeNotice } from '@/schemas/home-notice.schem
 import type { MemberSystemLeave, SystemLeaveKind } from '@/schemas/presence.schema';
 import type { TaskWithRelations } from '@/types/database.types';
 
-type ConvivenciaLifePanelsProps = {
+type PisoLifePanelsProps = {
   members: HomeMemberWithProfile[];
   currentUserId?: string | null;
   isAdmin?: boolean;
@@ -46,9 +46,9 @@ type ConvivenciaLifePanelsProps = {
 };
 
 /**
- * Active/upcoming absences, exam silence and visits — managed inside Convivencia.
+ * Piso tab: manage only the current user's absences, silence and visits.
  */
-export function ConvivenciaLifePanels({
+export function PisoLifePanels({
   members,
   currentUserId,
   isAdmin = false,
@@ -69,7 +69,7 @@ export function ConvivenciaLifePanels({
   onRemoveExamPeriod,
   onAddCalendarNotice,
   onRemoveCalendarNotice,
-}: ConvivenciaLifePanelsProps) {
+}: PisoLifePanelsProps) {
   return (
     <View className="gap-3">
       <CollapsibleSection title="Ausencias" accent="amber" defaultExpanded>
@@ -80,6 +80,7 @@ export function ConvivenciaLifePanels({
           currentUserId={currentUserId}
           isLoading={absencesLoading}
           systemLeavesLoading={systemLeavesLoading}
+          mineOnly
           countTasksInRange={(startDate, endDate) =>
             countOpenTasksInDateRange({
               tasks,
@@ -95,12 +96,13 @@ export function ConvivenciaLifePanels({
         />
       </CollapsibleSection>
 
-      <CollapsibleSection title="Modo silencio (exámenes)" accent="violet" defaultExpanded>
+      <CollapsibleSection title="Modo silencio" accent="violet" defaultExpanded>
         <ExamPeriodsPanel
           examPeriods={examPeriods}
           members={members}
           currentUserId={currentUserId}
           isLoading={examPeriodsLoading}
+          mineOnly
           onAdd={onAddExamPeriod}
           onRemove={onRemoveExamPeriod}
         />
@@ -112,6 +114,7 @@ export function ConvivenciaLifePanels({
           isLoading={calendarNoticesLoading}
           currentUserId={currentUserId}
           isAdmin={isAdmin}
+          mineOnly
           onAdd={onAddCalendarNotice}
           onRemove={onRemoveCalendarNotice}
         />

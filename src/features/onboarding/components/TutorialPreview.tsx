@@ -86,11 +86,11 @@ export function TutorialPreview({ highlight }: TutorialPreviewProps) {
           </View>
         </FocusRing>
       );
-    case 'convivencia':
+    case 'piso':
       return (
         <FocusRing label="Vida del hogar">
           <View className="gap-1.5 rounded-xl bg-teal-50/80 p-3">
-            <Text className="text-xs font-semibold text-violet-900">🔇 Pedir silencio ahora</Text>
+            <Text className="text-xs font-semibold text-violet-900">Reclamar silencio</Text>
             <Text className="text-xs font-semibold text-teal-900">Ausencias · Modo silencio · Visitas</Text>
             <Text className="text-xs text-stone-600">Wi‑Fi · Portal · Reglas</Text>
           </View>

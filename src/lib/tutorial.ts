@@ -9,7 +9,7 @@ export type TutorialHighlight =
   | 'welcome'
   | 'feed'
   | 'agenda'
-  | 'convivencia'
+  | 'piso'
   | 'bell'
   | 'tasks'
   | 'expenses'
@@ -26,9 +26,9 @@ export type TutorialStep = {
   /** Optional secondary tip under the CTA */
   tip?: string;
   /** Switch Home section when this step shows (if on Home). */
-  homeSection?: 'FEED' | 'AGENDA' | 'CONVIVENCIA';
+  homeSection?: 'FEED' | 'AGENDA';
   /** Navigate to a tab route when pressing CTA (before advancing). */
-  goTab?: '/(tabs)' | '/(tabs)/tasks' | '/(tabs)/expenses' | '/(tabs)/settings';
+  goTab?: '/(tabs)' | '/(tabs)/piso' | '/(tabs)/tasks' | '/(tabs)/expenses' | '/(tabs)/settings';
 };
 
 /**
@@ -47,7 +47,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 'feed',
     title: 'Feed = el estado del piso',
-    body: 'Aquí ves si el piso va bien, el ranking y quién debe a quién. Wi‑Fi y ausencias viven en Convivencia.',
+    body: 'Aquí ves si el piso va bien, el ranking y quién debe a quién. Wi‑Fi y ausencias viven en la pestaña Piso.',
     emoji: '🏠',
     highlight: 'feed',
     homeSection: 'FEED',
@@ -72,16 +72,16 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     highlight: 'agenda',
     homeSection: 'AGENDA',
     cta: 'Abrir Agenda',
-    tip: 'Ausencias y silencio se gestionan en Convivencia.',
+    tip: 'Ausencias y silencio se gestionan en la pestaña Piso.',
   },
   {
-    id: 'convivencia',
-    title: 'Convivencia = vida del hogar',
-    body: 'Ausencias, modo silencio de exámenes, visitas, Wi‑Fi y reglas. También puedes pedir silencio ahora si necesitas tranquilidad ya.',
-    emoji: '🤝',
-    highlight: 'convivencia',
-    homeSection: 'CONVIVENCIA',
-    cta: 'Ver Convivencia',
+    id: 'piso',
+    title: 'Piso = vida del hogar',
+    body: 'Ausencias, modo silencio, visitas, reclamar silencio, Wi‑Fi y reglas. Solo gestionas lo tuyo; el resto lo ve en Agenda.',
+    emoji: '🏠',
+    highlight: 'piso',
+    goTab: '/(tabs)/piso',
+    cta: 'Ir a Piso',
   },
   {
     id: 'tasks',
@@ -106,7 +106,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 'settings',
     title: 'Ajustes y Plus',
-    body: 'Invita con código/QR, gestiona compañeros y desbloquea packs de iconos con HOMPANY Plus.',
+    body: 'Invita con código/QR, gestiona compañeros y desbloquea insights de reputación con HOMPANY Plus.',
     emoji: '⚙️',
     highlight: 'settings',
     goTab: '/(tabs)/settings',

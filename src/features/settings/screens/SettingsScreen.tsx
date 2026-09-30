@@ -196,7 +196,7 @@ export function SettingsScreen() {
     try {
       const pack = await importPackFromJson(iconPackJson);
       if (!pack) {
-        showToast({ message: 'Necesitas HOMPANY Plus para importar packs', tone: 'info' });
+        showToast({ message: 'No se pudo importar el pack', tone: 'error' });
         return;
       }
       setIconPackJson('');
@@ -330,7 +330,7 @@ export function SettingsScreen() {
           title="Ajustes"
           subtitle={mascotScreenLine('settings')}
           helpTitle="Ajustes"
-          helpMessage="Primero tu piso e invitación. Luego Plus e iconos (opcionales). Al final, tutorial y cuenta."
+          helpMessage="Primero tu piso e invitación. Luego Plus (reputación) e iconos. Al final, tutorial y cuenta."
         />
 
         <SettingsSection title="Perfil" subtitle="Cómo te ven tus compañeros">
@@ -486,7 +486,7 @@ export function SettingsScreen() {
 
         <SettingsSection
           title="HOMPANY Plus"
-          subtitle="Packs de iconos opcionales. El core del piso sigue gratis."
+          subtitle="Insights de reputación en el Feed. El core del piso sigue gratis."
           tone="plus">
           <View className="flex-row items-center justify-between">
             <Text className="text-sm font-semibold text-teal-900">Estado</Text>
@@ -529,7 +529,7 @@ export function SettingsScreen() {
 
         <SettingsSection
           title="Iconos"
-          subtitle="Clásico gratis. Hogar, Play e importados necesitan Plus.">
+          subtitle="Clásico, Hogar, Play e importados — todos gratis.">
           {packs.map((pack) => {
             const active = packId === pack.id;
             const custom = !isBuiltinIconPackId(pack.id);
@@ -567,9 +567,9 @@ export function SettingsScreen() {
             );
           })}
 
-          <CollapsibleSection title="Importar pack JSON (Plus)" accent="teal">
+          <CollapsibleSection title="Importar pack JSON" accent="teal">
             <Text className="text-xs text-stone-500">
-              Pega un JSON con nombre e iconos propios. Requiere HOMPANY Plus.
+              Pega un JSON con nombre e iconos propios.
             </Text>
             <TextField
               label="JSON del pack"

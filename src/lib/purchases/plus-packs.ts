@@ -1,11 +1,11 @@
 import { isBuiltinIconPackId, type IconPackId } from '@/lib/icons/packs';
 
 /**
- * Free tier keeps the Classic pack only. Hogar, Play and custom packs need Plus.
+ * Icon packs are free. Plus monetizes reputation insights (see Feed).
+ * Kept for API compatibility with IconPackProvider.
  */
-export function iconPackRequiresPlus(packId: IconPackId): boolean {
-  if (!isBuiltinIconPackId(packId)) {
-    return true;
-  }
-  return packId !== 'classic';
+export function iconPackRequiresPlus(_packId: IconPackId): boolean {
+  void _packId;
+  void isBuiltinIconPackId;
+  return false;
 }

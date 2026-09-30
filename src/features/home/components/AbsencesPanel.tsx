@@ -30,6 +30,8 @@ type AbsencesPanelProps = {
   isLoading?: boolean;
   systemLeavesLoading?: boolean;
   busy?: boolean;
+  /** When true, only list/manage the current user's rows. */
+  mineOnly?: boolean;
   /** Open tasks assigned to the viewer that fall in the selected range. */
   countTasksInRange?: (startDate: string, endDate: string) => number;
   onAdd: (input: { start_date: string; end_date: string; reason?: string }) => Promise<void>;
@@ -62,6 +64,7 @@ export function AbsencesPanel({
   isLoading = false,
   systemLeavesLoading = false,
   busy = false,
+  mineOnly = false,
   countTasksInRange,
   onAdd,
   onRemove,
@@ -143,8 +146,9 @@ export function AbsencesPanel({
   }
 
   const mine = absences.filter((row) => row.user_id === currentUserId);
-  const others = absences.filter((row) => row.user_id !== currentUserId);
+  const others = mineOnly ? [] : absences.filter((row) => row.user_id !== currentUserId);
   const showSystem = Boolean(onAddSystemLeave && onRemoveSystemLeave);
+  const listedAbsences = mineOnly ? mine : absences;
 
   return (
     <View className="gap-3">
@@ -175,6 +179,7 @@ export function AbsencesPanel({
           currentUserId={currentUserId}
           isLoading={systemLeavesLoading}
           busy={busy}
+          mineOnly={mineOnly}
           onAdd={onAddSystemLeave!}
           onRemove={onRemoveSystemLeave!}
         />
@@ -182,7 +187,7 @@ export function AbsencesPanel({
         <MascotLoading />
       ) : (
         <View className="gap-3">
-          {absences.length === 0 ? (
+          {listedAbsences.length === 0 ? (
             <View className="gap-1 rounded-xl border border-dashed border-amber-200 bg-amber-50/40 px-3 py-4">
               <Text className="text-sm font-semibold text-amber-950">Sin ausencias cortas</Text>
               <Text className="text-sm leading-5 text-amber-900/70">

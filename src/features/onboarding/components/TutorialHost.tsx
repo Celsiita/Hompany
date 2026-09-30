@@ -27,7 +27,7 @@ const HIGHLIGHT_COPY: Record<TutorialHighlight, string> = {
   welcome: 'Tour guiado',
   feed: 'Sección Feed',
   agenda: 'Sección Agenda',
-  convivencia: 'Sección Convivencia',
+  piso: 'Pestaña Piso',
   bell: 'Campanita de avisos',
   tasks: 'Pestaña Tareas',
   expenses: 'Pestaña Gastos',

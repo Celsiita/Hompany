@@ -28,6 +28,8 @@ type CalendarNoticesPanelProps = {
   busy?: boolean;
   currentUserId?: string | null;
   isAdmin?: boolean;
+  /** When true, only list notices authored by the current user. */
+  mineOnly?: boolean;
   onAdd: (input: {
     kind: CalendarNoticeKind;
     title: string;
@@ -48,6 +50,7 @@ export function CalendarNoticesPanel({
   busy = false,
   currentUserId,
   isAdmin = false,
+  mineOnly = false,
   onAdd,
   onRemove,
 }: CalendarNoticesPanelProps) {
@@ -62,16 +65,23 @@ export function CalendarNoticesPanel({
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const visibleNotices = useMemo(() => {
+    if (!mineOnly || !currentUserId) {
+      return notices;
+    }
+    return notices.filter((row) => row.author_id === currentUserId);
+  }, [notices, mineOnly, currentUserId]);
+
   const marks = useMemo(
     () =>
-      notices
+      visibleNotices
         .filter((row) => row.starts_on && row.ends_on)
         .map((row) => ({
           start_date: row.starts_on as string,
           end_date: row.ends_on as string,
           user_id: row.author_id ?? 'notice',
         })),
-    [notices],
+    [visibleNotices],
   );
 
   const periodMarks = useMemo(
@@ -151,7 +161,7 @@ export function CalendarNoticesPanel({
 
         {isLoading ? (
           <MascotLoading />
-        ) : notices.length === 0 ? (
+        ) : visibleNotices.length === 0 ? (
           <View className="gap-1 rounded-xl border border-dashed border-stone-200 bg-stone-50/80 px-3 py-4">
             <Text className="text-sm font-semibold text-stone-800">Sin visitas ni eventos</Text>
             <Text className="text-sm leading-5 text-stone-500">
@@ -159,7 +169,7 @@ export function CalendarNoticesPanel({
             </Text>
           </View>
         ) : (          <View className="gap-2">
-            {notices.map((notice) => {
+            {visibleNotices.map((notice) => {
               const canDelete =
                 isAdmin || (Boolean(currentUserId) && notice.author_id === currentUserId);
               const glyph =
