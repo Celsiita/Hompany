@@ -119,7 +119,7 @@ export function MatchingSoonButton({ layout = 'compact' }: MatchingSoonButtonPro
           <View className="min-w-0 flex-1 gap-0.5">
             <Text className="text-sm font-bold text-amber-950">Buscar piso o compañeros</Text>
             <Text className="text-[11px] leading-4 text-amber-900/80">
-              Plus · reputación como señal de confianza
+              La reputación Plus será tu carta de presentación
             </Text>
           </View>
           <Text className="text-base font-bold text-amber-800">›</Text>

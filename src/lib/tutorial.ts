@@ -38,7 +38,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 'welcome',
     title: `${MASCOT_NAME} te da la bienvenida`,
-    body: 'HOMPANY es el juego de convivencia de tu piso: tareas con foto, gastos claros y un poco de reputación. En un minuto ves dónde está cada cosa.',
+    body: 'HOMPANY: deja de discutir por las tareas y el dinero. Foto al completar, deudas claras y un poco de reputación. En un minuto ves el piso.',
     emoji: '🐵',
     highlight: 'welcome',
     cta: 'Empezar tour',
@@ -47,7 +47,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 'feed',
     title: 'Feed = el estado del piso',
-    body: 'Aquí ves si el piso va bien, el ranking y quién debe a quién. Wi‑Fi y ausencias viven en la pestaña Piso.',
+    body: 'Estado del piso, ranking y cuentas. Menos pelea, más claridad. Wi‑Fi y ausencias están en Piso.',
     emoji: '🏠',
     highlight: 'feed',
     homeSection: 'FEED',

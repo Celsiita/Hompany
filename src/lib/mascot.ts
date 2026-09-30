@@ -186,12 +186,12 @@ const REACTIONS: Record<
 };
 
 const SCREEN_LINES: Record<MascotScreenLine, string> = {
-  feed: 'Salud del piso, ranking y cuentas',
-  agenda: 'Calendario de lo que toca esta semana',
-  piso: 'Ausencias, silencio, visitas y Wi‑Fi',
-  tasks: 'Cuadrante · foto y puntos',
-  expenses: 'Súper, casa y deudas claras',
-  settings: 'Piso, invitación, Plus y tutorial',
+  feed: 'Menos discusiones · más claridad',
+  agenda: 'Qué toca esta semana, de un vistazo',
+  piso: 'Silencio, ausencias y datos del hogar',
+  tasks: 'Foto y listo · sin pelear por fregar',
+  expenses: 'Quién debe a quién · sin drama',
+  settings: 'Piso, Plus e iconos',
 };
 
 /**

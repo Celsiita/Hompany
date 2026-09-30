@@ -101,7 +101,7 @@ Ejecutar en dispositivo/emulador con Supabase local (`npm run db:reset` → seed
 - [ ] Crear tarea one-shot con due date
 - [ ] Entregar con foto (cámara o galería según settings del piso)
 - [ ] Crear gasto + ver balance
-- [ ] Cambiar pack de iconos (gratis) + abrir paywall Plus (teaser Próximamente)
+- [ ] Cambiar pack de iconos (gratis) + desbloquear reputación Plus + teaser Próximamente
 - [ ] Tutorial Mico no bloquea el demo (skip o ya completado en seed)
 
 ### Bugs: solo bloqueantes

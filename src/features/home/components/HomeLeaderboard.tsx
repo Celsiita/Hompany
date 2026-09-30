@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 
 import { MascotEmpty } from '@/components/ui/MascotEmpty';
 import {
@@ -54,8 +54,13 @@ export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
         const initial = leaderboardInitial(row.display_name);
 
         return (
-          <View
+          <Animated.View
             key={row.user_id}
+            entering={
+              isMe && isFirst
+                ? ZoomIn.delay(120).duration(320).springify().damping(12)
+                : FadeInDown.delay(40 + row.rank * 30).duration(280)
+            }
             className={`flex-row items-center gap-3 rounded-2xl px-3 py-3 ${
               isMe
                 ? 'border border-teal-300 bg-teal-50'
@@ -94,7 +99,7 @@ export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
                 pts
               </Text>
             </View>
-          </View>
+          </Animated.View>
         );
       })}
     </Animated.View>

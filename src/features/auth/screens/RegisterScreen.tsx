@@ -50,7 +50,7 @@ export function RegisterScreen() {
         </Text>
         <Text className="text-2xl font-bold text-stone-900">Crear cuenta</Text>
         <Text className="text-base text-stone-600">
-          Para tu piso de estudiantes: tareas, gastos y convivencia sin drama.
+          Deja de discutir por fregar y por el súper. Tareas con foto, gastos claros, reputación.
         </Text>
         <Pressable
           onPress={() => router.push('/(auth)/login')}

@@ -14,6 +14,7 @@ import { AlertsModal } from '@/features/home/components/AlertsModal';
 import { HomeAgenda } from '@/features/home/components/HomeAgenda';
 import { HomeLeaderboard } from '@/features/home/components/HomeLeaderboard';
 import { MatchingSoonButton } from '@/features/home/components/MatchingPreviewCard';
+import { ReputationInsightsCard } from '@/features/home/components/ReputationInsightsCard';
 import { useHomeAbsences } from '@/features/home/hooks/useHomeAbsences';
 import { useHomeExamPeriods } from '@/features/home/hooks/useHomeExamPeriods';
 import { useHomeNotices } from '@/features/home/hooks/useHomeNotices';
@@ -34,6 +35,7 @@ import { isUserSystemFrozen } from '@/lib/presence';
 import { mascotScreenLine } from '@/lib/mascot';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
+import { usePurchases } from '@/providers/PurchasesProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
 
@@ -75,6 +77,7 @@ export function HomeScreen() {
     error: leaderboardError,
     refresh: refreshLeaderboard,
   } = useHomeLeaderboard();
+  const { isPlus, presentPaywall } = usePurchases();
   const [section, setSection] = useState<HomeSection>('FEED');
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [feedRefreshing, setFeedRefreshing] = useState(false);
@@ -184,7 +187,7 @@ export function HomeScreen() {
           title={activeHome?.name ?? 'El piso'}
           subtitle={subtitle}
           helpTitle="Inicio"
-          helpMessage="Feed = estado y reputación. Agenda = calendario. Piso (tab) = ausencias, silencio, visitas y Wi‑Fi. La campanita concentra avisos urgentes."
+          helpMessage="HOMPANY: deja de discutir por fregar y por el súper. Feed = estado y ranking. Agenda = calendario. Piso = vida del hogar. Campanita = urgentes."
           onAlertsPress={() => setAlertsOpen(true)}
           alertsCount={alerts.length}
           urgentAlertsCount={urgentAlertsCount}
@@ -244,6 +247,18 @@ export function HomeScreen() {
               ) : (
                 <>
                   <HomeLeaderboard rows={leaderboard} currentUserId={user?.id} />
+                  <ReputationInsightsCard
+                    rows={leaderboard}
+                    currentUserId={user?.id}
+                    isPlus={isPlus}
+                    onUnlock={() => {
+                      void presentPaywall().then((ok) => {
+                        if (ok) {
+                          showToast({ message: 'Plus activo · reputación desbloqueada', tone: 'success' });
+                        }
+                      });
+                    }}
+                  />
                   <MatchingSoonButton layout="row" />
                 </>
               )}

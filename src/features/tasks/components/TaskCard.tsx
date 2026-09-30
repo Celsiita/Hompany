@@ -1,4 +1,5 @@
 import { Image, Pressable, Text, View } from 'react-native';
+import Animated, { ZoomIn } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -191,11 +192,13 @@ export function TaskCard({
       )}
 
       {task.proof_image_url && task.status === TASK_STATUS.SUBMITTED ? (
-        <Image
-          source={{ uri: task.proof_image_url }}
-          className="h-40 w-full rounded-xl bg-stone-100"
-          resizeMode="cover"
-        />
+        <Animated.View entering={ZoomIn.duration(260).springify().damping(14)}>
+          <Image
+            source={{ uri: task.proof_image_url }}
+            className="h-40 w-full rounded-xl bg-stone-100"
+            resizeMode="cover"
+          />
+        </Animated.View>
       ) : null}
 
       {task.status === TASK_STATUS.SUBMITTED && !onApprove && !onDispute ? (

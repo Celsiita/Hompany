@@ -48,7 +48,7 @@ export function LoginScreen() {
           HOMPANY
         </Text>
         <Text className="text-base leading-6" style={{ color: palette.inkMuted }}>
-          Para pisos de estudiantes: tareas con foto, gastos claros y reputación sin drama.
+          Para pisos de estudiantes: deja de discutir por las tareas y el dinero.
         </Text>
         <Pressable
           onPress={() => {
