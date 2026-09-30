@@ -55,7 +55,7 @@ describe('formatLeaderboardTaskInfo', () => {
         tasks_submitted: 0,
         tasks_overdue: 0,
       }),
-    ).toBe('1 hecha · 2 pend.');
+    ).toBe('1 hecha · 2 pendientes');
   });
 
   it('includes review and overdue when present', () => {
@@ -66,7 +66,7 @@ describe('formatLeaderboardTaskInfo', () => {
         tasks_submitted: 1,
         tasks_overdue: 2,
       }),
-    ).toBe('3 hechas · 0 pend. · 1 en revisión · 2 vencidas');
+    ).toBe('3 hechas · 0 pendientes · 1 en revisión · 2 vencidas');
   });
 });
 
