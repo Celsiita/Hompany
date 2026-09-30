@@ -1,16 +1,18 @@
 # Monetización (RevenueCat)
 
-HOMPANY usa [RevenueCat](https://www.revenuecat.com/) para **HOMPANY Plus**: **insights de reputación** en el Feed (puesto, distancia al primero, pts por tareas). El core (tareas, gastos, agenda, piso) y los packs de iconos siguen gratis.
+HOMPANY usa [RevenueCat](https://www.revenuecat.com/) para **HOMPANY Plus**. El core (tareas, gastos, agenda, piso, clasificación) y los packs de iconos siguen gratis.
 
-**Roadmap (post-Shipaton):** Plus también desbloqueará descubrir piso/gente (matching). Teaser: botón **Emparejar** en Inicio y Piso.
+**Hoy (Shipaton):** paywall + entitlement cableados; teaser **Próximamente** (Feed bajo ranking + cabecera Piso) cuenta la historia: Plus = descubrir piso/gente usando la reputación como señal de confianza.
+
+**Roadmap:** perfiles opt-in → listados Plus → solicitud → membership.
 
 ## Entitlement
 
 | Id | Qué desbloquea |
 |----|----------------|
-| `hompany_plus` | Tarjeta **Reputación Plus** en Feed + badge Plus |
+| `hompany_plus` | Paywall Shipaton + (roadmap) matching / descubrir |
 
-Código: [`src/lib/purchases/entitlements.ts`](../src/lib/purchases/entitlements.ts), UI en Feed (`ReputationInsightsCard`) y Ajustes.
+Código: [`src/lib/purchases/entitlements.ts`](../src/lib/purchases/entitlements.ts), UI teaser en Feed/Piso y Ajustes.
 
 ## Setup local / Shipaton
 

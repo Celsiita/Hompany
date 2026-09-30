@@ -6,7 +6,7 @@ Guía de producto para quien use o revise la app. La periodicidad está detallad
 
 | Tab | Para qué sirve |
 |-----|----------------|
-| **Inicio** | **Feed** (estado, ranking, reputación Plus) y **Agenda** (calendario + lista). Campanita de avisos. |
+| **Inicio** | **Feed** (estado, ranking, cuentas) y **Agenda** (calendario + lista). Campanita de avisos. Teaser **Próximamente** bajo ranking. |
 | **Piso** | Vida del hogar (lo mío + compañeros), reclamar silencio, Wi‑Fi, reglas. |
 | **Tareas** | En curso / Historial. Chips **Tuya** / **Compañero**. Botón **+** para crear. Filtros, tipos, intercambios, foto. Ayuda `?`. |
 | **Gastos** | Súper/casa/ocio. Chips **Debes** / **Tú pagaste**. Botón **+** para crear. Ayuda `?`. |
@@ -79,8 +79,8 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 - **Filtros Agenda:** botón Filtros con **Quién** (`Mis cosas` | `Compañeros`), **Qué** (`Tareas` / `Gastos`) y **Vida** (`Ausencias` | `Silencio` | `Visitas`). Debes/Te deben se ven por color en calendario (Gastos + Mis cosas).
 - **Calendario:** vista semanal por defecto (7 días desde hoy; atrás bloqueada en hoy) o mes (`Ver mes` / `Ver semana`). Puntos: azul / cielo hueco / rosa / ámbar. 🔇 y 🧳 solo en el día.
 - **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Libre». Botón ↑ para volver arriba en Agenda, Tareas y Gastos.
-- **Piso:** tres recuadros (Ausencias / Silencio / Visitas) abren modal; **Reclamar silencio** CTA; botón **Emparejar** (teaser matching / Plus); Wi‑Fi/reglas/quejas.
-- **Plus:** insights de reputación en Feed (puesto, gap al #1, pts por tareas). Packs de iconos gratis. Roadmap: matching (listados + solicitud). Botón Emparejar también en Inicio.
+- **Piso:** tres recuadros (Ausencias / Silencio / Visitas) abren modal; **Reclamar silencio** CTA; botón **Próximamente** (matching / Plus); Wi‑Fi/reglas/quejas.
+- **Plus:** teaser matching (reputación como señal al buscar piso/gente). Packs de iconos gratis. Clasificación del Feed es gratis.
 - Tareas (azul) y gastos (ámbar); **abiertas** vs **programadas** (tarjetas atenuadas). Gastos solo si estás involucrado.
 - **Ausencias** (⋮): **Corta** (finde/viaje — solo tareas + reasignación) y **Larga / baja** (congela la app salvo gastos atrasados).
 - **Modo silencio** (morado): periodos de baja presión. Franjas violetas en calendario/lista con `🔇`.
@@ -104,4 +104,4 @@ Tres paquetes incluidos (**Clásico**, **Hogar**, **Play**) y packs importados �
 
 ## HOMPANY Plus (RevenueCat)
 
-En **Ajustes**: sección Plus → Ver / Restaurar. Hoy: **insights de reputación** en el Feed. Roadmap: matching piso ↔ gente (teaser en tab **Piso**). El core del hogar es gratis.
+En **Ajustes**: sección Plus → Ver / Restaurar. Teaser **Próximamente** en Feed (bajo clasificación) y cabecera de **Piso**: matching con reputación como señal. El core del hogar es gratis.

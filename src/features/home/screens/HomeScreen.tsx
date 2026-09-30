@@ -13,8 +13,7 @@ import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { AlertsModal } from '@/features/home/components/AlertsModal';
 import { HomeAgenda } from '@/features/home/components/HomeAgenda';
 import { HomeLeaderboard } from '@/features/home/components/HomeLeaderboard';
-import { MatchingHeaderButton } from '@/features/home/components/MatchingPreviewCard';
-import { ReputationInsightsCard } from '@/features/home/components/ReputationInsightsCard';
+import { MatchingSoonButton } from '@/features/home/components/MatchingPreviewCard';
 import { useHomeAbsences } from '@/features/home/hooks/useHomeAbsences';
 import { useHomeExamPeriods } from '@/features/home/hooks/useHomeExamPeriods';
 import { useHomeNotices } from '@/features/home/hooks/useHomeNotices';
@@ -35,7 +34,6 @@ import { isUserSystemFrozen } from '@/lib/presence';
 import { mascotScreenLine } from '@/lib/mascot';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHome } from '@/providers/HomeProvider';
-import { usePurchases } from '@/providers/PurchasesProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { useTutorial } from '@/providers/TutorialProvider';
 
@@ -77,7 +75,6 @@ export function HomeScreen() {
     error: leaderboardError,
     refresh: refreshLeaderboard,
   } = useHomeLeaderboard();
-  const { isPlus, presentPaywall } = usePurchases();
   const [section, setSection] = useState<HomeSection>('FEED');
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [feedRefreshing, setFeedRefreshing] = useState(false);
@@ -148,9 +145,7 @@ export function HomeScreen() {
   const agendaMembers = members.length > 0 ? members : taskMembers;
 
   const subtitle =
-    section === 'FEED'
-      ? `${mascotScreenLine('feed')}${isPlus ? ' · Plus' : ''}`
-      : mascotScreenLine('agenda');
+    section === 'FEED' ? mascotScreenLine('feed') : mascotScreenLine('agenda');
 
   async function handleCancelOccurrence(item: AgendaItem) {
     if (item.kind === 'task') {
@@ -193,7 +188,6 @@ export function HomeScreen() {
           onAlertsPress={() => setAlertsOpen(true)}
           alertsCount={alerts.length}
           urgentAlertsCount={urgentAlertsCount}
-          headerEnd={<MatchingHeaderButton />}
         />
 
         <HomeSectionBar section={section} onSectionChange={setSection} />
@@ -250,18 +244,7 @@ export function HomeScreen() {
               ) : (
                 <>
                   <HomeLeaderboard rows={leaderboard} currentUserId={user?.id} />
-                  <ReputationInsightsCard
-                    rows={leaderboard}
-                    currentUserId={user?.id}
-                    isPlus={isPlus}
-                    onUnlock={() => {
-                      void presentPaywall().then((ok) => {
-                        if (ok) {
-                          showToast({ message: 'Bienvenido a HOMPANY Plus', tone: 'success' });
-                        }
-                      });
-                    }}
-                  />
+                  <MatchingSoonButton layout="row" />
                 </>
               )}
 
