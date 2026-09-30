@@ -30,8 +30,8 @@ export function ProofSourceModal({
         <Pressable
           className="w-full gap-3 rounded-2xl bg-white p-4"
           onPress={(event) => event.stopPropagation()}>
-          <Text className="text-lg font-bold text-gray-900">Entregar prueba</Text>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-lg font-bold text-stone-900">Entregar prueba</Text>
+          <Text className="text-sm text-stone-600">
             {proofRequired
               ? cameraOnly
                 ? 'Este piso exige foto hecha con la cámara (sin galería).'

@@ -58,21 +58,21 @@ export function ScheduledItemSheet({
 
   return (
     <BottomSheetModal visible={visible} onClose={onClose} maxHeightClassName="max-h-[80%]" animationType="fade">
-      <Text className="text-xs font-semibold uppercase text-gray-400">Programada</Text>
-      <Text className="mt-1 text-lg font-bold text-gray-800 opacity-80">
+      <Text className="text-xs font-semibold uppercase text-stone-400">Programada</Text>
+      <Text className="mt-1 text-lg font-bold text-stone-800 opacity-80">
         {item.glyph} {item.title}
       </Text>
-      <Text className="mt-1 text-sm text-gray-500">
+      <Text className="mt-1 text-sm text-stone-500">
         {isTask ? 'Tarea' : 'Gasto'} · {item.actorLabel} · {preview.label}
       </Text>
-      <Text className="mt-2 text-xs text-gray-500">
+      <Text className="mt-2 text-xs text-stone-500">
         Vista previa: aún no se puede completar. Cuando llegue el día, la verás abierta en el tablero.
       </Text>
 
       <View className="mt-4">
         {canReassign && onReassign ? (
           <View className="mb-3 gap-2">
-            <Text className="text-sm font-semibold text-gray-800">
+            <Text className="text-sm font-semibold text-stone-800">
               {isTask ? 'Reasignar esta fecha' : 'Reasignar acreedor (esta fecha)'}
             </Text>
             {members.map((member) => {
@@ -94,7 +94,7 @@ export function ScheduledItemSheet({
                   className={`rounded-xl border px-3 py-3 ${
                     selected ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'
                   }`}>
-                  <Text className="text-sm font-medium text-gray-900">{name}</Text>
+                  <Text className="text-sm font-medium text-stone-900">{name}</Text>
                   <Text className="text-sm text-teal-700">{selected ? '✓' : ''}</Text>
                 </Pressable>
               );
@@ -125,8 +125,8 @@ export function ScheduledItemSheet({
         ) : null}
       </View>
 
-      <Pressable onPress={onClose} className="mt-3 rounded-xl bg-gray-100 px-3 py-3">
-        <Text className="text-center text-sm font-semibold text-gray-700">Cerrar</Text>
+      <Pressable onPress={onClose} className="mt-3 rounded-xl bg-stone-100 px-3 py-3">
+        <Text className="text-center text-sm font-semibold text-stone-700">Cerrar</Text>
       </Pressable>
     </BottomSheetModal>
   );
