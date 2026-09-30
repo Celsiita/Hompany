@@ -15,7 +15,6 @@ import {
   DEFAULT_AGENDA_VIEW_SCOPE,
 } from '@/features/home/components/AgendaScopeBar';
 import { CollapsibleFilterPanel } from '@/components/ui/CollapsibleFilterPanel';
-import { HelpTip } from '@/components/ui/HelpTip';
 import {
   SCROLL_TO_TOP_THRESHOLD,
   ScrollToTopButton,
@@ -236,13 +235,6 @@ export function HomeAgenda({
           ) : undefined
         }>
         <View className="gap-3 pb-8">
-          <View className="flex-row items-center justify-end">
-            <HelpTip
-              title="Agenda"
-              message="Toca un día para ver su lista. Azul = tuyas, cielo = compañeros, rosa = debes, ámbar = te deben. 🧳 ausencia, 🔇 silencio, 🚪 visita, 🔧 reparación, 📅 evento. Crear o editar: pestaña Piso."
-            />
-          </View>
-
           <AgendaCalendar
             {...shared}
             viewScope={viewScope}

@@ -20,7 +20,7 @@ function LegendDot({ className, label }: LegendDotProps) {
 }
 
 /**
- * Short color legend: the 4 money/task dots + help for silence/absence/urgent.
+ * Short color legend under the calendar + single help tip for all agenda markers.
  */
 export function AgendaColorLegend() {
   return (
@@ -30,8 +30,8 @@ export function AgendaColorLegend() {
       <LegendDot className="bg-rose-500" label="Debes" />
       <LegendDot className="bg-amber-500" label="Te deben" />
       <HelpTip
-        title="Colores de la agenda"
-        message="Azul = tus tareas. Círculo hueco = compañeros. Rosa = debes. Ámbar = te deben. En el día: 🔇 silencio, 🧳 ausencia. Rojo en la lista = vencida."
+        title="Agenda"
+        message="Toca un día para ver su lista. Azul = tuyas, cielo = compañeros, rosa = debes, ámbar = te deben. 🧳 ausencia, 🔇 silencio, 🚪 visita, 🔧 reparación, 📅 evento. Crear o editar: pestaña Piso."
       />
     </View>
   );

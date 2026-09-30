@@ -19,7 +19,7 @@ Definido en [`src/features/home/lib/alerts.ts`](../src/features/home/lib/alerts.
 
 - Campanita en la cabecera de Home (badge rojo si hay urgentes) abre el inbox. **No hay lista de avisos en el Feed ni en el menú ⋮.**
 - Inbox agrupado: Urgente / Pronto / Por revisar / Gastos. Tocar un aviso abre la tarjeta en Tareas o Gastos.
-- Ausencias, modo silencio y visitas se gestionan en la tab **Piso** (solo las tuyas al crear/ver; Agenda muestra las de todos).
+- Ausencias, modo silencio y visitas se gestionan en la tab **Piso** (recuadros → modal; lo mío + próximas de compañeros).
 - **Reclamar silencio** (Piso) crea un evento de hoy en la agenda.
 - Packs de iconos: gratis en Ajustes. Plus = insights de reputación en Feed.
 - Iconos `?` explican cada sección (Feed, Agenda, Convivencia, Tareas, Gastos, Ajustes).
