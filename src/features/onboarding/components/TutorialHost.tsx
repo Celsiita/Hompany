@@ -143,7 +143,7 @@ export function TutorialHost({
             ))}
           </View>
 
-          <View className="self-start rounded-full bg-teal-50 px-3 py-1">
+          <View className="self-start rounded-md bg-teal-50 px-3 py-1">
             <Text className="text-[11px] font-bold text-teal-900">
               {HIGHLIGHT_COPY[step.highlight]}
             </Text>

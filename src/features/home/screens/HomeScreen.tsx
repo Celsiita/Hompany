@@ -341,8 +341,8 @@ export function HomeScreen() {
           <Animated.View key="piso" entering={FadeIn.duration(240)} className="flex-1">
           <ScrollView
             showsVerticalScrollIndicator={false}
-            bounces={false}
-            overScrollMode="never"
+            bounces
+            overScrollMode="auto"
             contentInsetAdjustmentBehavior="never"
             contentContainerClassName="gap-4 pb-8">
             <View className="flex-row items-center justify-between">
