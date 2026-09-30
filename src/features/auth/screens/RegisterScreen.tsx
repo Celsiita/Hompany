@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui/Button';
