@@ -13,9 +13,11 @@ import { MascotEmpty } from '@/components/ui/MascotEmpty';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
 import {
   agendaItemsForDay,
+  agendaLifeVisibility,
   buildAgendaItems,
   startOfDay,
   type AgendaItem,
+  type AgendaLifeFocus,
   type AgendaScopeFilter,
 } from '@/features/home/lib/agenda-items';
 import { absencesOnDate, formatAbsenceDayLabel } from '@/lib/absences';
@@ -48,6 +50,7 @@ type AgendaListProps = {
   members?: HomeMemberWithProfile[];
   currentUserId?: string | null;
   scope?: AgendaScopeFilter;
+  lifeFocus?: AgendaLifeFocus;
   selectedDay?: Date | null;
   now?: Date;
   scrollRef?: RefObject<ScrollView | null>;
@@ -68,6 +71,7 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
     members = [],
     currentUserId,
     scope,
+    lifeFocus = 'ALL',
     selectedDay,
     now = new Date(),
     scrollRef,
@@ -144,15 +148,17 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
     offsetsRef.current[key] = listRootY.current + relativeY;
   }, []);
 
+  const life = agendaLifeVisibility(lifeFocus);
+
   const hasLifeMarkers = useMemo(() => {
     return days.some((day) => {
       return (
-        examPeriodsOnDate(examPeriods, day).length > 0 ||
-        absencesOnDate(absences, day).length > 0 ||
-        noticesOnDate(calendarNotices, day).length > 0
+        (life.silence && examPeriodsOnDate(examPeriods, day).length > 0) ||
+        (life.absences && absencesOnDate(absences, day).length > 0) ||
+        (life.visits && noticesOnDate(calendarNotices, day).length > 0)
       );
     });
-  }, [days, examPeriods, absences, calendarNotices]);
+  }, [days, examPeriods, absences, calendarNotices, life.absences, life.silence, life.visits]);
 
   if (items.length === 0 && !hasLifeMarkers) {
     return <MascotEmpty kind="agenda_list" />;
@@ -166,9 +172,9 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
       }}>
       {days.map((day) => {
         const dayItems = agendaItemsForDay(items, day);
-        const daySilence = examPeriodsOnDate(examPeriods, day);
-        const dayAbsences = absencesOnDate(absences, day);
-        const dayNotices = noticesOnDate(calendarNotices, day);
+        const daySilence = life.silence ? examPeriodsOnDate(examPeriods, day) : [];
+        const dayAbsences = life.absences ? absencesOnDate(absences, day) : [];
+        const dayNotices = life.visits ? noticesOnDate(calendarNotices, day) : [];
         const label = new Intl.DateTimeFormat('es-ES', {
           weekday: 'long',
           day: 'numeric',

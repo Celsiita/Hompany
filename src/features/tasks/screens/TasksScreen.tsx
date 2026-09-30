@@ -17,6 +17,10 @@ import { MascotLoading } from '@/components/ui/MascotLoading';
 import { OverflowMenu } from '@/components/ui/OverflowMenu';
 import { Screen } from '@/components/ui/Screen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import {
+  SCROLL_TO_TOP_THRESHOLD,
+  ScrollToTopButton,
+} from '@/components/ui/ScrollToTopButton';
 import { ProofSourceModal } from '@/features/tasks/components/ProofSourceModal';
 import { TaskCard } from '@/features/tasks/components/TaskCard';
 import { TaskFilterBar } from '@/features/tasks/components/TaskFilterBar';
@@ -98,6 +102,7 @@ export function TasksScreen() {
     mode: 'APPROVE' | 'DISPUTE';
   } | null>(null);
   const [busyTaskId, setBusyTaskId] = useState<string | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [swapTask, setSwapTask] = useState<TaskWithRelations | null>(null);
   const [boardRefreshing, setBoardRefreshing] = useState(false);
 
@@ -268,6 +273,10 @@ export function TasksScreen() {
         bounces
         overScrollMode="auto"
         contentInsetAdjustmentBehavior="never"
+        scrollEventThrottle={16}
+        onScroll={(event) => {
+          setShowScrollTop(event.nativeEvent.contentOffset.y > SCROLL_TO_TOP_THRESHOLD);
+        }}
         onScrollToIndexFailed={({ index }) => {
           setTimeout(() => {
             listRef.current?.scrollToIndex({ index, animated: true, viewPosition: 0.15 });
@@ -494,6 +503,10 @@ export function TasksScreen() {
           );
         }}
         contentContainerClassName="pb-8"
+      />
+      <ScrollToTopButton
+        visible={showScrollTop}
+        onPress={() => listRef.current?.scrollToOffset({ offset: 0, animated: true })}
       />
       </Animated.View>
 

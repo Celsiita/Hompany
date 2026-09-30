@@ -75,9 +75,9 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 - **Avisos in-app:** solo campanita + inbox (no lista en el Feed). Ver [`notifications.md`](./notifications.md).
 - **Ayuda:** iconos `?` en cabeceras y secciones clave.
 - **Tutorial:** tour interactivo v2 (cambia secciones / pestañas) desde 1ª apertura o Ajustes.
-- **Filtros Agenda:** botón Filtros con **Quién** (`Mis cosas` | `Compañeros`), **Qué** (`Tareas` / `Gastos`) y **Dinero** (`Debes` | `Te deben`).
+- **Filtros Agenda:** botón Filtros con **Quién** (`Mis cosas` | `Compañeros`), **Qué** (`Tareas` / `Gastos`) y **Vida** (`Ausencias` | `Silencio` | `Visitas`). Debes/Te deben se ven por color en calendario (Gastos + Mis cosas).
 - **Calendario:** vista semanal por defecto (7 días desde hoy; atrás bloqueada en hoy) o mes (`Ver mes` / `Ver semana`). Puntos: azul / cielo hueco / rosa / ámbar. 🔇 y 🧳 solo en el día.
-- **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Libre».
+- **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Libre». Botón ↑ para volver arriba en Agenda, Tareas y Gastos.
 - Tareas (azul) y gastos (ámbar); **abiertas** vs **programadas** (tarjetas atenuadas). Gastos solo si estás involucrado.
 - **Ausencias** (⋮): **Corta** (finde/viaje — solo tareas + reasignación) y **Larga / baja** (congela la app salvo gastos atrasados).
 - **Modo silencio** (morado): periodos de baja presión. Franjas violetas en calendario/lista con `🔇`.

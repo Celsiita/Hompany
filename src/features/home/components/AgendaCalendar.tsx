@@ -4,11 +4,13 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AgendaDayMarkers } from '@/features/home/components/AgendaDayMarkers';
 import {
   agendaItemsForDay,
+  agendaLifeVisibility,
   buildAgendaItems,
   computeAgendaDayDots,
   computeAgendaDayEmojis,
   startOfDay,
   type AgendaItem,
+  type AgendaLifeFocus,
   type AgendaScopeFilter,
   type AgendaViewScope,
 } from '@/features/home/lib/agenda-items';
@@ -43,6 +45,7 @@ type AgendaCalendarProps = {
   calendarNotices?: HomeNotice[];
   currentUserId?: string | null;
   scope?: AgendaScopeFilter;
+  lifeFocus?: AgendaLifeFocus;
   viewScope: AgendaViewScope;
   expanded: boolean;
   onToggleExpanded: () => void;
@@ -66,6 +69,7 @@ export function AgendaCalendar({
   calendarNotices = [],
   currentUserId,
   scope,
+  lifeFocus = 'ALL',
   viewScope,
   expanded,
   onToggleExpanded,
@@ -105,6 +109,7 @@ export function AgendaCalendar({
   const weekDays = useMemo(() => daysInWeek(weekAnchor), [weekAnchor]);
   const monthCells = useMemo(() => buildMonthCells(visibleMonth, now), [visibleMonth, now]);
   const showOthers = viewScope === 'others' || viewScope === 'ALL';
+  const life = agendaLifeVisibility(lifeFocus);
   const canGoPrevWeek =
     clampWeekAnchor(shiftWeek(weekAnchor, -1, now), now).getTime() < startOfDay(weekAnchor).getTime();
 
@@ -123,8 +128,8 @@ export function AgendaCalendar({
   }
 
   function daySurfaceStyle(day: Date) {
-    const inSilence = hasExamPeriodsOnDate(examPeriods, day);
-    const inAbsence = hasAbsencesOnDate(absences, day);
+    const inSilence = life.silence && hasExamPeriodsOnDate(examPeriods, day);
+    const inAbsence = life.absences && hasAbsencesOnDate(absences, day);
     return mergeStyles(
       styles.daySurface,
       interactive.center,
@@ -136,9 +141,9 @@ export function AgendaCalendar({
   function renderDayCell(day: Date, compact: boolean) {
     const dayItems = agendaItemsForDay(items, day);
     const dots = computeAgendaDayDots(dayItems);
-    const inSilence = hasExamPeriodsOnDate(examPeriods, day);
-    const inAbsence = hasAbsencesOnDate(absences, day);
-    const noticeEmojis = noticeEmojisOnDate(calendarNotices, day);
+    const inSilence = life.silence && hasExamPeriodsOnDate(examPeriods, day);
+    const inAbsence = life.absences && hasAbsencesOnDate(absences, day);
+    const noticeEmojis = life.visits ? noticeEmojisOnDate(calendarNotices, day) : [];
     const emojis = computeAgendaDayEmojis(dayItems, {
       silence: inSilence,
       absence: inAbsence,
