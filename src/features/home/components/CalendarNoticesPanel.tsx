@@ -12,7 +12,7 @@ import {
 } from '@/features/home/components/PeriodRangeCalendar';
 import { startOfMonth } from '@/features/home/lib/month-calendar';
 import { applyPeriodRangeSelection } from '@/features/home/lib/period-range-calendar';
-import { formatDateKey, toDateKey } from '@/lib/absences';
+import { formatDateKey, toDateKey, isPeriodActiveOrUpcoming } from '@/lib/absences';
 import {
   CALENDAR_NOTICE_GLYPH,
   CALENDAR_NOTICE_LABEL,
@@ -28,7 +28,7 @@ type CalendarNoticesPanelProps = {
   busy?: boolean;
   currentUserId?: string | null;
   isAdmin?: boolean;
-  /** When true, only list notices authored by the current user. */
+  /** When true, manage yours and show peers' active/upcoming separately. */
   mineOnly?: boolean;
   onAdd: (input: {
     kind: CalendarNoticeKind;
@@ -65,12 +65,30 @@ export function CalendarNoticesPanel({
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const visibleNotices = useMemo(() => {
-    if (!mineOnly || !currentUserId) {
+  const mineNotices = useMemo(() => {
+    if (!currentUserId) {
       return notices;
     }
     return notices.filter((row) => row.author_id === currentUserId);
-  }, [notices, mineOnly, currentUserId]);
+  }, [notices, currentUserId]);
+
+  const peerUpcomingNotices = useMemo(() => {
+    if (!currentUserId) {
+      return [];
+    }
+    return notices.filter(
+      (row) =>
+        row.author_id !== currentUserId &&
+        (!mineOnly || isPeriodActiveOrUpcoming(row.ends_on)),
+    );
+  }, [notices, currentUserId, mineOnly]);
+
+  const visibleNotices = useMemo(() => {
+    if (!mineOnly) {
+      return notices;
+    }
+    return [...mineNotices, ...peerUpcomingNotices];
+  }, [mineOnly, notices, mineNotices, peerUpcomingNotices]);
 
   const marks = useMemo(
     () =>
@@ -168,8 +186,14 @@ export function CalendarNoticesPanel({
               Añade una reparación o visita para que salga en el calendario.
             </Text>
           </View>
-        ) : (          <View className="gap-2">
-            {visibleNotices.map((notice) => {
+        ) : (
+          <View className="gap-3">
+            {mineOnly && mineNotices.length > 0 ? (
+              <Text className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">
+                Tuyas
+              </Text>
+            ) : null}
+            {(mineOnly ? mineNotices : notices).map((notice) => {
               const canDelete =
                 isAdmin || (Boolean(currentUserId) && notice.author_id === currentUserId);
               const glyph =
@@ -205,6 +229,43 @@ export function CalendarNoticesPanel({
                 </View>
               );
             })}
+            {mineOnly && peerUpcomingNotices.length > 0 ? (
+              <View className="gap-2">
+                <Text className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">
+                  Próximas del resto
+                </Text>
+                {peerUpcomingNotices.map((notice) => {
+                  const glyph =
+                    notice.kind === 'VISIT' ||
+                    notice.kind === 'REPAIR' ||
+                    notice.kind === 'EVENT'
+                      ? CALENDAR_NOTICE_GLYPH[notice.kind]
+                      : '📌';
+                  const label =
+                    notice.kind === 'VISIT' ||
+                    notice.kind === 'REPAIR' ||
+                    notice.kind === 'EVENT'
+                      ? CALENDAR_NOTICE_LABEL[notice.kind]
+                      : notice.kind;
+                  return (
+                    <View
+                      key={notice.id}
+                      className="flex-row items-center gap-2 rounded-xl border border-stone-100 bg-stone-50 px-3 py-2">
+                      <Text className="text-base">{glyph}</Text>
+                      <View className="flex-1 gap-0.5">
+                        <Text className="text-sm font-semibold text-stone-900">{notice.title}</Text>
+                        <Text className="text-xs text-stone-500">
+                          {label}
+                          {notice.starts_on && notice.ends_on
+                            ? ` · ${formatDateKey(notice.starts_on)} – ${formatDateKey(notice.ends_on)}`
+                            : ''}
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            ) : null}
           </View>
         )}
 

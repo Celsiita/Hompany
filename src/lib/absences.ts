@@ -87,6 +87,20 @@ export function toDateKey(date: Date): string {
 }
 
 /**
+ * True when a date-key range has not fully ended yet (active or upcoming).
+ * Null/undefined end = open-ended (still relevant).
+ */
+export function isPeriodActiveOrUpcoming(
+  endDate: string | null | undefined,
+  today: string = toDateKey(new Date()),
+): boolean {
+  if (!endDate) {
+    return true;
+  }
+  return endDate >= today;
+}
+
+/**
  * Formats YYYY-MM-DD for display (local calendar day).
  */
 export function formatDateKey(key: string): string {

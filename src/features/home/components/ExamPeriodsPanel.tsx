@@ -13,11 +13,8 @@ import {
 } from '@/features/home/components/PeriodRangeCalendar';
 import { startOfMonth } from '@/features/home/lib/month-calendar';
 import { applyPeriodRangeSelection } from '@/features/home/lib/period-range-calendar';
-import {
-  formatExamDateKey,
-  formatSilenceModeBanner,
-  toExamDateKey,
-} from '@/lib/exam-periods';
+import { formatExamDateKey, formatSilenceModeBanner, toExamDateKey } from '@/lib/exam-periods';
+import { isPeriodActiveOrUpcoming } from '@/lib/absences';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
@@ -28,7 +25,7 @@ type ExamPeriodsPanelProps = {
   currentUserId?: string | null;
   isLoading?: boolean;
   busy?: boolean;
-  /** When true, only list/manage the current user's periods. */
+  /** When true, manage yours and show peers' active/upcoming separately. */
   mineOnly?: boolean;
   onAdd: (input: { start_date: string; end_date: string; label: string }) => Promise<void>;
   onRemove: (periodId: string) => Promise<void>;
@@ -117,8 +114,12 @@ export function ExamPeriodsPanel({
   }
 
   const mine = examPeriods.filter((row) => row.user_id === currentUserId);
-  const others = mineOnly ? [] : examPeriods.filter((row) => row.user_id !== currentUserId);
-  const listedPeriods = mineOnly ? mine : examPeriods;
+  const others = mineOnly
+    ? examPeriods.filter(
+        (row) => row.user_id !== currentUserId && isPeriodActiveOrUpcoming(row.end_date),
+      )
+    : examPeriods.filter((row) => row.user_id !== currentUserId);
+  const hasAny = mine.length > 0 || others.length > 0;
 
   return (
     <View className="gap-3">
@@ -128,7 +129,7 @@ export function ExamPeriodsPanel({
       </View>
       {isLoading ? (
         <MascotLoading />
-      ) : listedPeriods.length === 0 ? (
+      ) : !hasAny ? (
         <View className="gap-1 rounded-xl border border-dashed border-violet-200 bg-violet-50/40 px-3 py-4">
           <Text className="text-sm font-semibold text-violet-950">Sin modo silencio</Text>
           <Text className="text-sm leading-5 text-violet-800/70">
@@ -136,24 +137,42 @@ export function ExamPeriodsPanel({
           </Text>
         </View>
       ) : (
-        <View className="gap-2">
-          {mine.map((period) => (
-            <SilenceModeRow
-              key={period.id}
-              banner={formatSilenceModeBanner(period.label, 'Tú')}
-              period={period}
-              canRemove
-              busy={busy}
-              onRemove={() => void handleRemove(period)}
-            />
-          ))}
-          {others.map((period) => (
-            <SilenceModeRow
-              key={period.id}
-              banner={formatSilenceModeBanner(period.label, memberName(period.user_id))}
-              period={period}
-            />
-          ))}
+        <View className="gap-3">
+          {mine.length > 0 ? (
+            <View className="gap-2">
+              {mineOnly ? (
+                <Text className="text-[11px] font-semibold uppercase tracking-wide text-violet-800/80">
+                  Tuyos
+                </Text>
+              ) : null}
+              {mine.map((period) => (
+                <SilenceModeRow
+                  key={period.id}
+                  banner={formatSilenceModeBanner(period.label, 'Tú')}
+                  period={period}
+                  canRemove
+                  busy={busy}
+                  onRemove={() => void handleRemove(period)}
+                />
+              ))}
+            </View>
+          ) : null}
+          {others.length > 0 ? (
+            <View className="gap-2">
+              {mineOnly ? (
+                <Text className="text-[11px] font-semibold uppercase tracking-wide text-violet-800/80">
+                  Próximos del resto
+                </Text>
+              ) : null}
+              {others.map((period) => (
+                <SilenceModeRow
+                  key={period.id}
+                  banner={formatSilenceModeBanner(period.label, memberName(period.user_id))}
+                  period={period}
+                />
+              ))}
+            </View>
+          ) : null}
         </View>
       )}
 

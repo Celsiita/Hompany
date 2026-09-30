@@ -80,10 +80,10 @@ export function PisoScreen() {
           />
 
           <View className="flex-row items-center justify-between">
-            <FeedSectionHeader title="Tu vida en el piso" subtitle="Solo lo tuyo · activas y próximas" />
+            <FeedSectionHeader title="Tu vida en el piso" subtitle="Tuyas + próximas del resto" />
             <HelpTip
               title="Tu vida en el piso"
-              message="Registras y ves tus ausencias, modo silencio y visitas. El resto del piso las ve en la Agenda."
+              message="Gestionas las tuyas y ves las próximas de tus compañeros. Todo el piso las ve también en la Agenda."
             />
           </View>
 

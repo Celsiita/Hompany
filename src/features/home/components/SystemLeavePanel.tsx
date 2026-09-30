@@ -15,7 +15,7 @@ import {
 } from '@/features/home/components/PeriodRangeCalendar';
 import { startOfMonth } from '@/features/home/lib/month-calendar';
 import { applyPeriodRangeSelection } from '@/features/home/lib/period-range-calendar';
-import { formatDateKey, toDateKey } from '@/lib/absences';
+import { formatDateKey, toDateKey, isPeriodActiveOrUpcoming } from '@/lib/absences';
 import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -30,7 +30,7 @@ type SystemLeavePanelProps = {
   defaultExpanded?: boolean;
   /** When true, render body only (used inside unified Ausencias panel). */
   embedded?: boolean;
-  /** When true, only list/manage the current user's leaves. */
+  /** When true, manage yours and show peers' active/upcoming separately. */
   mineOnly?: boolean;
   onAdd: (input: {
     kind: SystemLeaveKind;
@@ -94,8 +94,12 @@ export function SystemLeavePanel({
     members.find((member) => member.user_id === userId)?.profiles?.display_name ?? 'Compañero';
 
   const mine = systemLeaves.filter((row) => row.user_id === currentUserId);
-  const others = mineOnly ? [] : systemLeaves.filter((row) => row.user_id !== currentUserId);
-  const listedLeaves = mineOnly ? mine : systemLeaves;
+  const others = mineOnly
+    ? systemLeaves.filter(
+        (row) => row.user_id !== currentUserId && isPeriodActiveOrUpcoming(row.end_date),
+      )
+    : systemLeaves.filter((row) => row.user_id !== currentUserId);
+  const listedLeaves = [...mine, ...others];
 
   function handleSelectDate(date: Date) {
     if (kind === 'INDEFINITE') {
@@ -170,20 +174,38 @@ export function SystemLeavePanel({
           </Text>
         </View>
       ) : (
-        <View className="gap-2">
-          {mine.map((leave) => (
-            <LeaveRow
-              key={leave.id}
-              label="Tú"
-              leave={leave}
-              canRemove
-              busy={busy}
-              onRemove={() => void handleRemove(leave)}
-            />
-          ))}
-          {others.map((leave) => (
-            <LeaveRow key={leave.id} label={memberName(leave.user_id)} leave={leave} />
-          ))}
+        <View className="gap-3">
+          {mine.length > 0 ? (
+            <View className="gap-2">
+              {mineOnly ? (
+                <Text className="text-[11px] font-semibold uppercase tracking-wide text-amber-800/80">
+                  Tuyas
+                </Text>
+              ) : null}
+              {mine.map((leave) => (
+                <LeaveRow
+                  key={leave.id}
+                  label="Tú"
+                  leave={leave}
+                  canRemove
+                  busy={busy}
+                  onRemove={() => void handleRemove(leave)}
+                />
+              ))}
+            </View>
+          ) : null}
+          {others.length > 0 ? (
+            <View className="gap-2">
+              {mineOnly ? (
+                <Text className="text-[11px] font-semibold uppercase tracking-wide text-amber-800/80">
+                  Próximas del resto
+                </Text>
+              ) : null}
+              {others.map((leave) => (
+                <LeaveRow key={leave.id} label={memberName(leave.user_id)} leave={leave} />
+              ))}
+            </View>
+          ) : null}
         </View>
       )}
 

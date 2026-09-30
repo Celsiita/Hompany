@@ -79,7 +79,7 @@ No hay cabecera nativa duplicada: el título vive solo en la pantalla.
 - **Filtros Agenda:** botón Filtros con **Quién** (`Mis cosas` | `Compañeros`), **Qué** (`Tareas` / `Gastos`) y **Vida** (`Ausencias` | `Silencio` | `Visitas`). Debes/Te deben se ven por color en calendario (Gastos + Mis cosas).
 - **Calendario:** vista semanal por defecto (7 días desde hoy; atrás bloqueada en hoy) o mes (`Ver mes` / `Ver semana`). Puntos: azul / cielo hueco / rosa / ámbar. 🔇 y 🧳 solo en el día.
 - **Lista:** días continuos con tarjetas; tap en día del calendario hace scroll a esa sección. Vacío: «Libre». Botón ↑ para volver arriba en Agenda, Tareas y Gastos.
-- **Piso:** crear y ver **solo las tuyas** ausencias, modo silencio y visitas; **Reclamar silencio**; Wi‑Fi/reglas/quejas.
+- **Piso:** crear y ver **las tuyas** más las **próximas del resto**; **Reclamar silencio**; Wi‑Fi/reglas/quejas.
 - **Plus:** insights de reputación en Feed (puesto, gap al #1, pts por tareas). Packs de iconos gratis.
 - Tareas (azul) y gastos (ámbar); **abiertas** vs **programadas** (tarjetas atenuadas). Gastos solo si estás involucrado.
 - **Ausencias** (⋮): **Corta** (finde/viaje — solo tareas + reasignación) y **Larga / baja** (congela la app salvo gastos atrasados).

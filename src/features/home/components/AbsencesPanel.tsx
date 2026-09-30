@@ -15,7 +15,7 @@ import {
 import { SystemLeavePanel } from '@/features/home/components/SystemLeavePanel';
 import { startOfMonth } from '@/features/home/lib/month-calendar';
 import { applyPeriodRangeSelection } from '@/features/home/lib/period-range-calendar';
-import { formatDateKey, toDateKey } from '@/lib/absences';
+import { formatDateKey, toDateKey, isPeriodActiveOrUpcoming } from '@/lib/absences';
 import { punctualAbsenceTaskWarning } from '@/lib/presence';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -30,7 +30,7 @@ type AbsencesPanelProps = {
   isLoading?: boolean;
   systemLeavesLoading?: boolean;
   busy?: boolean;
-  /** When true, only list/manage the current user's rows. */
+  /** When true, manage only yours and show peers' active/upcoming separately. */
   mineOnly?: boolean;
   /** Open tasks assigned to the viewer that fall in the selected range. */
   countTasksInRange?: (startDate: string, endDate: string) => number;
@@ -146,9 +146,13 @@ export function AbsencesPanel({
   }
 
   const mine = absences.filter((row) => row.user_id === currentUserId);
-  const others = mineOnly ? [] : absences.filter((row) => row.user_id !== currentUserId);
+  const others = mineOnly
+    ? absences.filter(
+        (row) => row.user_id !== currentUserId && isPeriodActiveOrUpcoming(row.end_date),
+      )
+    : absences.filter((row) => row.user_id !== currentUserId);
   const showSystem = Boolean(onAddSystemLeave && onRemoveSystemLeave);
-  const listedAbsences = mineOnly ? mine : absences;
+  const hasAny = mine.length > 0 || others.length > 0;
 
   return (
     <View className="gap-3">
@@ -187,7 +191,7 @@ export function AbsencesPanel({
         <MascotLoading />
       ) : (
         <View className="gap-3">
-          {listedAbsences.length === 0 ? (
+          {!hasAny ? (
             <View className="gap-1 rounded-xl border border-dashed border-amber-200 bg-amber-50/40 px-3 py-4">
               <Text className="text-sm font-semibold text-amber-950">Sin ausencias cortas</Text>
               <Text className="text-sm leading-5 text-amber-900/70">
@@ -195,24 +199,42 @@ export function AbsencesPanel({
               </Text>
             </View>
           ) : (
-            <View className="gap-2">
-              {mine.map((absence) => (
-                <AbsenceRow
-                  key={absence.id}
-                  label="Tú"
-                  absence={absence}
-                  canRemove
-                  busy={busy}
-                  onRemove={() => void handleRemove(absence)}
-                />
-              ))}
-              {others.map((absence) => (
-                <AbsenceRow
-                  key={absence.id}
-                  label={memberName(absence.user_id)}
-                  absence={absence}
-                />
-              ))}
+            <View className="gap-3">
+              {mine.length > 0 ? (
+                <View className="gap-2">
+                  {mineOnly ? (
+                    <Text className="text-[11px] font-semibold uppercase tracking-wide text-amber-800/80">
+                      Tuyas
+                    </Text>
+                  ) : null}
+                  {mine.map((absence) => (
+                    <AbsenceRow
+                      key={absence.id}
+                      label="Tú"
+                      absence={absence}
+                      canRemove
+                      busy={busy}
+                      onRemove={() => void handleRemove(absence)}
+                    />
+                  ))}
+                </View>
+              ) : null}
+              {others.length > 0 ? (
+                <View className="gap-2">
+                  {mineOnly ? (
+                    <Text className="text-[11px] font-semibold uppercase tracking-wide text-amber-800/80">
+                      Próximas del resto
+                    </Text>
+                  ) : null}
+                  {others.map((absence) => (
+                    <AbsenceRow
+                      key={absence.id}
+                      label={memberName(absence.user_id)}
+                      absence={absence}
+                    />
+                  ))}
+                </View>
+              ) : null}
             </View>
           )}
 
