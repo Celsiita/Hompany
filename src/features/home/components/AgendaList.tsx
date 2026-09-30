@@ -24,7 +24,6 @@ import {
   CALENDAR_NOTICE_LABEL,
   noticesOnDate,
 } from '@/lib/home-notices';
-import { mascotEmptyCopy } from '@/lib/mascot';
 import { localDateKey } from '@/lib/recurrence';
 import { useIconPack } from '@/providers/IconPackProvider';
 import type { MemberAbsence } from '@/schemas/absence.schema';
