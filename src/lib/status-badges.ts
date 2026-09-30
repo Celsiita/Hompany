@@ -43,8 +43,8 @@ export const STATUS_BADGE = {
   },
   peer: {
     label: 'Por compañero',
-    bg: 'bg-violet-100',
-    text: 'text-violet-900',
+    bg: 'bg-sky-100',
+    text: 'text-sky-900',
   },
   skipped: {
     label: 'Omitida',
@@ -53,8 +53,8 @@ export const STATUS_BADGE = {
   },
   paused: {
     label: 'Pausado',
-    bg: 'bg-indigo-100',
-    text: 'text-indigo-900',
+    bg: 'bg-slate-100',
+    text: 'text-slate-800',
   },
   requested: {
     label: 'Solicitado',

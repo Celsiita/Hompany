@@ -74,7 +74,7 @@ const ACCENT = {
 export function CollapsibleSection({
   title,
   info,
-  accent = 'violet',
+  accent = 'teal',
   children,
   defaultExpanded = false,
 }: CollapsibleSectionProps) {

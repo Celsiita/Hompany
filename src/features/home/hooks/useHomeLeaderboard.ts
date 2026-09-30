@@ -12,7 +12,7 @@ type UseHomeLeaderboardResult = {
 };
 
 /**
- * Fetches the active-home leaderboard for the Feed ranking card.
+ * Fetches the active-home leaderboard for the Pulso ranking card.
  */
 export function useHomeLeaderboard(): UseHomeLeaderboardResult {
   const { activeHomeId } = useHome();

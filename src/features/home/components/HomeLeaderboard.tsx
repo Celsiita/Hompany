@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import { MascotEmpty } from '@/components/ui/MascotEmpty';
 import {
   formatLeaderboardTaskInfo,
   leaderboardInitial,
@@ -29,11 +30,7 @@ function rankTone(rank: number): { badge: string; text: string } {
  */
 export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
   if (rows.length === 0) {
-    return (
-      <View className="rounded-2xl border border-gray-200 bg-white p-4 gap-2">
-        <Text className="text-sm text-gray-500">Aún no hay compañeros en el piso.</Text>
-      </View>
-    );
+    return <MascotEmpty kind="leaderboard" />;
   }
 
   return (
