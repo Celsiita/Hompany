@@ -105,7 +105,7 @@ export function ExpenseCard({
             <View className="flex-row flex-wrap items-center gap-1.5">
               {ownershipLabel ? (
                 <View
-                  className={`rounded-full px-2 py-0.5 ${
+                  className={`rounded-md px-2 py-0.5 ${
                     isCreditor
                       ? 'bg-amber-200/80'
                       : iOwe

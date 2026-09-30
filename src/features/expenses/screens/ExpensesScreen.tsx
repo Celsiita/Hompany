@@ -190,8 +190,8 @@ export function ExpensesScreen() {
         data={listData}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
-        bounces={false}
-        overScrollMode="never"
+        bounces
+        overScrollMode="auto"
         contentInsetAdjustmentBehavior="never"
         onScrollToIndexFailed={({ index }) => {
           setTimeout(() => {

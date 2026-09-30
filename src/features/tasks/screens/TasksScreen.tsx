@@ -251,8 +251,8 @@ export function TasksScreen() {
         ref={listRef}
         data={listData}
         keyExtractor={(item) => item.id}
-        bounces={false}
-        overScrollMode="never"
+        bounces
+        overScrollMode="auto"
         contentInsetAdjustmentBehavior="never"
         onScrollToIndexFailed={({ index }) => {
           setTimeout(() => {

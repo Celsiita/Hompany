@@ -106,7 +106,7 @@ export function TaskCard({
             <View className="flex-row flex-wrap items-center gap-1.5">
               {ownershipLabel ? (
                 <View
-                  className={`rounded-full px-2 py-0.5 ${
+                  className={`rounded-md px-2 py-0.5 ${
                     mine ? 'bg-blue-200/80' : 'bg-sky-200/80'
                   }`}>
                   <Text

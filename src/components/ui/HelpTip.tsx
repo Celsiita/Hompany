@@ -22,7 +22,7 @@ export function HelpTip({ title, message, label = '?', children }: HelpTipProps)
         hitSlop={10}
         accessibilityRole="button"
         accessibilityLabel={`Ayuda: ${title}`}
-        className="h-7 w-7 items-center justify-center rounded-full border border-teal-200 bg-teal-50">
+        className="h-7 w-7 items-center justify-center rounded-md border border-teal-200 bg-teal-50">
         {children ?? <Text className="text-xs font-bold text-teal-800">{label}</Text>}
       </Pressable>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
