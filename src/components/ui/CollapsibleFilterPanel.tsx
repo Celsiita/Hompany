@@ -25,7 +25,7 @@ export function CollapsibleFilterPanel({ children, activeHint }: CollapsibleFilt
           Filtros{activeHint ? ` · ${activeHint}` : ''}
         </Text>
         <Text className="text-base" accessibilityLabel={open ? 'Ocultar filtros' : 'Mostrar filtros'}>
-          {open ? '🐵' : '🙈'}
+          {open ? '▲' : '▼'}
         </Text>
       </SafePressable>
       {open ? <View className="gap-3">{children}</View> : null}

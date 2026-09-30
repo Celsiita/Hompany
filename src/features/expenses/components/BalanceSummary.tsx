@@ -40,7 +40,7 @@ export function BalanceSummary({ balances, members, currentUserId }: BalanceSumm
       )}
 
       {relevantDebts.length === 0 ? (
-        <Text className="text-sm text-amber-900/80">No hay deudas pendientes.</Text>
+        <Text className="text-sm text-amber-900/80">Sin deudas abiertas entre vosotros.</Text>
       ) : (
         relevantDebts.slice(0, 4).map((debt) => {
           const from = memberName(members, debt.fromUserId);
