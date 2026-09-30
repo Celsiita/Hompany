@@ -90,7 +90,7 @@ No hay píldora «Todos». Si ninguna categoría, periodicidad, alcance (Mis tar
 ## Layout
 
 - Un solo título por pantalla (`ScreenHeader`). La cabecera nativa de tabs está oculta.
-- El scroll nativo no hace overscroll (sin franja blanca encima de los tabs). Ajustes deja margen inferior para «Cerrar sesión».
+- Pull-to-refresh en Pulso, Agenda, Tareas y Gastos (tint teal). El bounce del scroll solo sirve para eso.
 
 ## Iconos
 

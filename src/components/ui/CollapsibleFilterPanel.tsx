@@ -21,7 +21,7 @@ export function CollapsibleFilterPanel({ children, activeHint }: CollapsibleFilt
       <SafePressable
         onPress={() => setOpen((value) => !value)}
         contentStyle={mergeStyles(interactive.rowBetween, interactive.borderedCard)}>
-        <Text className="text-sm font-semibold text-gray-800">
+        <Text className="text-sm font-semibold text-stone-800">
           Filtros{activeHint ? ` · ${activeHint}` : ''}
         </Text>
         <Text className="text-base" accessibilityLabel={open ? 'Ocultar filtros' : 'Mostrar filtros'}>

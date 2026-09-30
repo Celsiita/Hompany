@@ -192,11 +192,11 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
                 ? 'border-teal-300 bg-teal-50/50'
                 : isToday
                   ? 'border-teal-200 bg-teal-50/30'
-                  : 'border-gray-100 bg-white'
+                  : 'border-stone-100 bg-white'
             }`}>
             <Text
               className={`text-xs font-bold uppercase ${
-                isToday ? 'text-teal-800' : 'text-gray-500'
+                isToday ? 'text-teal-800' : 'text-stone-500'
               }`}>
               {label}
             </Text>
