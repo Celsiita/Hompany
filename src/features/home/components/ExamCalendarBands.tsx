@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
 import { examPeriodsOverlappingRange, formatExamPeriodBanner } from '@/lib/exam-periods';
 import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type ExamCalendarBandsProps = {
   examPeriods: MemberExamPeriod[];
@@ -20,13 +21,15 @@ export function ExamCalendarBands({
   monthStart,
   monthEnd,
 }: ExamCalendarBandsProps) {
+  const { t } = useLocale();
   const overlapping = examPeriodsOverlappingRange(examPeriods, monthStart, monthEnd);
   if (overlapping.length === 0) {
     return null;
   }
 
   const memberName = (userId: string) =>
-    members.find((member) => member.user_id === userId)?.profiles?.display_name ?? 'Compañero';
+    members.find((member) => member.user_id === userId)?.profiles?.display_name ??
+    t('common.roommate');
 
   return (
     <View className="gap-1.5">
