@@ -1,5 +1,10 @@
 raw/
 raw-capture.webm
 audio/
+audio-hq/
+cards/
+preview/
 voiceover-timed.wav
+voiceover-hq.wav
+captions.ass
 *.webm

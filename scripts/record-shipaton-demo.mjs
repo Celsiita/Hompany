@@ -1,6 +1,6 @@
 /**
- * Records a Shipaton demo walkthrough of HOMPANY (Expo web) as WebM via Playwright.
- * Requires Expo web on DEMO_URL (default http://127.0.0.1:8082) and seeded Supabase.
+ * High-quality Shipaton demo capture (Expo web, English UI).
+ * Waits for real content, kills error toasts, deliberate pacing.
  */
 import { chromium, devices } from 'playwright';
 import fs from 'node:fs';
@@ -11,127 +11,188 @@ const OUT_DIR = path.resolve('docs/demo-video');
 const VIDEO_DIR = path.join(OUT_DIR, 'raw');
 
 fs.mkdirSync(VIDEO_DIR, { recursive: true });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function sleep(ms) {
-  await new Promise((r) => setTimeout(r, ms));
+async function installToastKiller(page) {
+  await page.addInitScript(() => {
+    const kill = () => {
+      document.getElementById('error-toast')?.remove();
+      document.querySelectorAll('[id*="error-toast"], [class*="error-toast"]').forEach((n) => n.remove());
+    };
+    setInterval(kill, 200);
+    const obs = new MutationObserver(kill);
+    document.addEventListener('DOMContentLoaded', () => {
+      kill();
+      obs.observe(document.documentElement, { childList: true, subtree: true });
+    });
+  });
+  await page.addStyleTag({
+    content: `
+      #error-toast, [id*="error-toast"] { display: none !important; visibility: hidden !important; pointer-events: none !important; }
+    `,
+  }).catch(() => {});
 }
 
-async function dismissOverlays(page) {
-  // Error toasts / tutorial can intercept pointer events.
+async function clearNoise(page) {
   await page.evaluate(() => {
-    const toast = document.getElementById('error-toast');
-    if (toast) toast.remove();
+    document.getElementById('error-toast')?.remove();
   }).catch(() => {});
-  const skip = page.getByText(/Saltar tour|Skip tour/i).first();
-  if (await skip.isVisible().catch(() => false)) {
-    await skip.click({ force: true }).catch(() => {});
-    await sleep(600);
+  for (const re of [/Skip tour/i, /^Close$/i, /^Cerrar$/i, /Saltar tour/i]) {
+    const btn = page.getByText(re).last();
+    if (await btn.isVisible().catch(() => false)) {
+      await btn.click({ force: true }).catch(() => {});
+      await sleep(350);
+    }
   }
-  const close = page.getByText(/^Cerrar$|^Close$/i).last();
-  if (await close.isVisible().catch(() => false)) {
-    await close.click({ force: true }).catch(() => {});
+}
+
+async function waitText(page, re, timeout = 25000) {
+  await page.getByText(re).first().waitFor({ state: 'visible', timeout }).catch(() => {});
+}
+
+async function waitReady(page, contentRe) {
+  // Avoid filming the mascot loading spinner
+  for (let i = 0; i < 40; i++) {
+    const loading = await page.getByText(/hanging on|colgado|one second|un segundo/i).isVisible().catch(() => false);
+    const content = await page.getByText(contentRe).first().isVisible().catch(() => false);
+    if (!loading && content) return;
     await sleep(400);
   }
+  await waitText(page, contentRe, 15000);
 }
 
 async function go(page, route) {
-  await dismissOverlays(page);
-  await page.goto(`${BASE}${route}`, { waitUntil: 'domcontentloaded', timeout: 60_000 });
-  await sleep(1800);
-  await dismissOverlays(page);
+  await clearNoise(page);
+  await page.goto(`${BASE}${route}`, { waitUntil: 'domcontentloaded', timeout: 90_000 });
+  await sleep(800);
+  await installToastKiller(page);
+  await clearNoise(page);
+}
+
+async function hold(page, ms) {
+  const n = Math.max(1, Math.ceil(ms / 700));
+  for (let i = 0; i < n; i++) {
+    await clearNoise(page);
+    await sleep(Math.min(700, ms - i * 700));
+  }
 }
 
 async function main() {
-  const browser = await chromium.launch({ headless: true });
+  const takeDir = path.join(VIDEO_DIR, `take-${Date.now()}`);
+  fs.mkdirSync(takeDir, { recursive: true });
+
+  const browser = await chromium.launch({ headless: true, args: ['--disable-dev-shm-usage'] });
   const context = await browser.newContext({
     ...devices['Pixel 7'],
-    recordVideo: {
-      dir: VIDEO_DIR,
-      size: { width: 412, height: 915 },
-    },
+    deviceScaleFactor: 2,
+    recordVideo: { dir: takeDir, size: { width: 412, height: 915 } },
     locale: 'en-US',
+    colorScheme: 'light',
   });
   const page = await context.newPage();
+  page.setDefaultTimeout(25_000);
+  await installToastKiller(page);
 
-  console.log('Opening', BASE);
+  console.log('Boot', BASE);
   await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 120_000 });
-  await sleep(2000);
+  await sleep(1500);
   await page.evaluate(() => {
-    try {
-      localStorage.clear();
-    } catch {}
+    localStorage.clear();
+    localStorage.setItem('hompany.locale', 'en');
+    localStorage.setItem('hompany.tutorial.completed.v2', '1');
   });
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await sleep(2000);
+  await sleep(1800);
 
-  // Login
+  // LOGIN
   await go(page, '/login');
-  const demoFill = page.getByText(/Demo local|tap to fill|tocar para rellenar/i).first();
-  if (await demoFill.isVisible().catch(() => false)) {
-    await demoFill.click({ force: true });
-  } else {
+  await waitText(page, /HOMPANY/);
+  await hold(page, 2800);
+  const demo = page.getByText(/Local demo|Demo local|tap to fill/i).first();
+  if (await demo.isVisible().catch(() => false)) await demo.click({ force: true });
+  else {
     await page.getByRole('textbox').nth(0).fill('ana@hompany.local');
     await page.getByRole('textbox').nth(1).fill('password123');
   }
   await sleep(500);
-  await page.getByText(/Entrar|Sign in|Log in/i).first().click({ force: true });
+  await page.getByText(/Sign in|Entrar/i).first().click({ force: true });
   await sleep(5500);
-  await dismissOverlays(page);
+  await page.evaluate(() => {
+    localStorage.setItem('hompany.locale', 'en');
+    localStorage.setItem('hompany.tutorial.completed.v2', '1');
+  });
+  await clearNoise(page);
+  // Force-dismiss tour if it still appears
+  for (let i = 0; i < 5; i++) {
+    const skip = page.getByText(/Skip tour|Saltar tour/i).first();
+    if (await skip.isVisible().catch(() => false)) {
+      await skip.click({ force: true });
+      await sleep(500);
+    } else break;
+  }
 
-  // Feed dwell
+  // FEED
   await go(page, '/');
-  await sleep(3000);
-  await page.mouse.wheel(0, 320);
-  await sleep(2800);
-  await page.mouse.wheel(0, 320);
-  await sleep(2800);
+  await waitReady(page, /Leaderboard|Flat health|Balances/i);
+  await hold(page, 5000);
+  await page.mouse.wheel(0, 360);
+  await hold(page, 5000);
+  await page.mouse.wheel(0, 420);
+  await waitReady(page, /owe|Balances|THEY OWE|YOU OWE/i);
+  await hold(page, 4500);
 
-  // Tasks
+  // TASKS
   await go(page, '/tasks');
-  await sleep(2800);
-  await page.mouse.wheel(0, 260);
-  await sleep(3500);
+  await waitReady(page, /Open \(|Complete|Approve|Tasks/i);
+  await hold(page, 4500);
+  await page.mouse.wheel(0, 320);
+  await hold(page, 5500);
 
-  // Expenses
+  // EXPENSES
   await go(page, '/expenses');
-  await sleep(2800);
-  await page.mouse.wheel(0, 260);
-  await sleep(3500);
+  await waitReady(page, /Settle|Open \(|Expenses/i);
+  await hold(page, 4500);
+  await page.mouse.wheel(0, 300);
+  await hold(page, 5500);
 
-  // Flat
+  // FLAT
   await go(page, '/piso');
-  await sleep(2800);
-  const soon = page.getByText(/Próximamente|Coming soon/i).first();
+  await waitReady(page, /Absences|Coming soon|Quiet|Flat life|Visits/i);
+  await hold(page, 4000);
+  const soon = page.getByText(/Coming soon|Próximamente/i).first();
   if (await soon.isVisible().catch(() => false)) {
     await soon.click({ force: true }).catch(() => {});
-    await sleep(1600);
-    await dismissOverlays(page);
+    await hold(page, 1800);
+    await clearNoise(page);
   }
 
-  // Settings + Plus
+  // SETTINGS + PLUS
   await go(page, '/settings');
-  await sleep(1500);
-  await page.mouse.wheel(0, 1000);
-  await sleep(2000);
-  const plus = page.getByText(/Ver HOMPANY Plus|View HOMPANY Plus/i).first();
+  await waitReady(page, /Settings|Language|English/i);
+  await hold(page, 2500);
+  await page.mouse.wheel(0, 800);
+  await hold(page, 2500);
+  await page.mouse.wheel(0, 800);
+  await hold(page, 2000);
+  const plus = page.getByText(/View HOMPANY Plus|Ver HOMPANY Plus/i).first();
   if (await plus.isVisible().catch(() => false)) {
     await plus.click({ force: true });
-    await sleep(4500);
-    await dismissOverlays(page);
+    await hold(page, 5500);
+    await clearNoise(page);
   }
   await page.mouse.wheel(0, -500);
-  await sleep(2500);
+  await waitText(page, /DEMO2026|Invite|Code/i, 8000);
+  await hold(page, 4000);
 
   const videoPath = await page.video().path();
   await context.close();
   await browser.close();
-
   const dest = path.join(OUT_DIR, 'raw-capture.webm');
   fs.copyFileSync(videoPath, dest);
-  console.log('Saved raw video:', dest);
+  console.log('OK', dest);
 }
 
-main().catch((err) => {
-  console.error(err);
+main().catch((e) => {
+  console.error(e);
   process.exit(1);
 });

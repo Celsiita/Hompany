@@ -14,7 +14,7 @@ Grabar en dispositivo/emulador con seed limpio (`npm run db:reset`) y `EXPO_PUBL
 
 ## Corte generado
 
-Archivo listo: [`docs/demo-video/HOMPANY-Shipaton-Demo.mp4`](./demo-video/HOMPANY-Shipaton-Demo.mp4) (~64 s, 9:16, VO en inglés TTS).  
+Archivo listo: [`docs/demo-video/HOMPANY-Shipaton-Demo.mp4`](./demo-video/HOMPANY-Shipaton-Demo.mp4) (~1:37, 9:16, UI EN + voz neural Jenny + cards + captions).  
 Cómo regenerar: [`docs/demo-video/README.md`](./demo-video/README.md).
 
-Subir a YouTube/Vimeo **público**. Ideal: sustituir TTS por voz humana. Sin música con copyright.
+Subir a YouTube/Vimeo **público**. Opcional: sustituir la voz TTS por narración humana. Sin música con copyright.
