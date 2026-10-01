@@ -1,6 +1,8 @@
 import type { IconPack } from '@/lib/icons/packs';
 import { glyphForExpenseKind, glyphForTaskIcon } from '@/lib/icons/packs';
 import { isUserOwesExpense } from '@/features/expenses/lib/expense-filters';
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { translate } from '@/lib/i18n/strings';
 import {
   assigneeOverrideForDate,
   localDateKey,
@@ -267,13 +269,13 @@ function taskActorLabel(task: TaskWithRelations, when: Date): {
   if (override) {
     const match = (task.task_assignees ?? []).find((item) => item.user_id === override);
     return {
-      label: match?.profiles?.display_name ?? 'Compañero',
+      label: match?.profiles?.display_name ?? translate(getAppLocale(), 'common.roommate'),
       userId: override,
     };
   }
   const primary = (task.task_assignees ?? [])[0];
   return {
-    label: primary?.profiles?.display_name ?? 'Sin asignar',
+    label: primary?.profiles?.display_name ?? translate(getAppLocale(), 'common.unassigned'),
     userId: task.assigned_to ?? primary?.user_id ?? null,
   };
 }
@@ -337,7 +339,7 @@ export function buildAgendaItems(params: {
         seriesId: task.template_id,
         when,
         startsAt,
-        title: task.title?.trim() || 'Sin título',
+        title: task.title?.trim() || translate(getAppLocale(), 'common.untitled'),
         mine,
         kind: 'task',
         glyph: glyphForTaskIcon(params.pack, task.icon ?? 'checklist'),
@@ -381,7 +383,7 @@ export function buildAgendaItems(params: {
             previousDueAt: when,
             nextDueAt: due,
           }),
-          title: task.title?.trim() || 'Sin título',
+          title: task.title?.trim() || translate(getAppLocale(), 'common.untitled'),
           mine: projectedMine,
           kind: 'task',
           glyph: glyphForTaskIcon(params.pack, task.icon ?? 'checklist'),
@@ -413,9 +415,12 @@ export function buildAgendaItems(params: {
       const when = new Date(expense.due_at as string);
       const startsAt = expense.starts_at ? new Date(expense.starts_at) : startOfLocalDay(when);
       const expenseRole: AgendaExpenseRole = owes ? 'i_owe' : 'they_owe_me';
-      const payerName = expense.payer?.display_name ?? 'Alguien';
+      const payerName =
+        expense.payer?.display_name ?? translate(getAppLocale(), 'common.someone');
       const actorLabel =
-        expenseRole === 'i_owe' ? `Debes a ${payerName}` : `${payerName} te debe`;
+        expenseRole === 'i_owe'
+          ? translate(getAppLocale(), 'money.youOweName', { name: payerName })
+          : translate(getAppLocale(), 'money.nameOwesYou', { name: payerName });
       const mineExpense = owes || creditor;
       items.push({
         id: `e-open-${expense.id}`,
@@ -423,7 +428,7 @@ export function buildAgendaItems(params: {
         seriesId: expense.series_id,
         when,
         startsAt,
-        title: expense.title?.trim() || 'Sin título',
+        title: expense.title?.trim() || translate(getAppLocale(), 'common.untitled'),
         mine: mineExpense,
         expenseRole,
         kind: 'expense',
@@ -459,7 +464,7 @@ export function buildAgendaItems(params: {
             previousDueAt: when,
             nextDueAt: due,
           }),
-          title: expense.title?.trim() || 'Sin título',
+          title: expense.title?.trim() || translate(getAppLocale(), 'common.untitled'),
           mine: mineExpense,
           expenseRole,
           kind: 'expense',

@@ -47,8 +47,8 @@ type AbsencesPanelProps = {
 };
 
 const TYPE_OPTIONS = [
-  { value: 'PUNCTUAL' as const, label: 'Corta' },
-  { value: 'SYSTEM' as const, label: 'Larga / baja' },
+  { value: 'PUNCTUAL' as const, labelKey: 'absence.short' },
+  { value: 'SYSTEM' as const, labelKey: 'absence.long' },
 ] as const;
 
 /**
@@ -81,6 +81,11 @@ export function AbsencesPanel({
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const typeOptions = [
+    { value: TYPE_OPTIONS[0].value, label: t(TYPE_OPTIONS[0].labelKey) },
+    { value: TYPE_OPTIONS[1].value, label: t(TYPE_OPTIONS[1].labelKey) },
+  ] as const;
+
   const marks = useMemo(
     () => buildPeriodMarks(absences, currentUserId, 'absence'),
     [absences, currentUserId],
@@ -108,9 +113,9 @@ export function AbsencesPanel({
     const warning = punctualAbsenceTaskWarning(taskCount);
     if (warning) {
       const ok = await confirm({
-        title: 'Tareas en el periodo',
+        title: t('absence.tasksTitle'),
         message: warning,
-        confirmLabel: 'Continuar',
+        confirmLabel: t('absence.continue'),
       });
       if (!ok) {
         return;
@@ -156,13 +161,13 @@ export function AbsencesPanel({
   return (
     <View className="gap-3">
       <View className="flex-row items-center gap-2">
-        <Text className="flex-1 text-sm font-semibold text-amber-950">Gestionar ausencias</Text>
+        <Text className="flex-1 text-sm font-semibold text-amber-950">{t('absence.manage')}</Text>
         <InfoTip title={t('filters.absences')} message={t('absence.info')} tone="amber" />
       </View>
       {showSystem ? (
         <FilterTogglePair
           value={absenceType}
-          options={TYPE_OPTIONS}
+          options={typeOptions}
           clearable={false}
           onChange={(next) => {
             if (next === 'ALL') {
@@ -192,10 +197,8 @@ export function AbsencesPanel({
         <View className="gap-3">
           {!hasAny ? (
             <View className="gap-1 rounded-xl border border-dashed border-amber-200 bg-amber-50/40 px-3 py-4">
-              <Text className="text-sm font-semibold text-amber-950">Sin ausencias cortas</Text>
-              <Text className="text-sm leading-5 text-amber-900/70">
-                Añade una si te vas un fin de semana; el calendario lo muestra al resto.
-              </Text>
+              <Text className="text-sm font-semibold text-amber-950">{t('absence.emptyShort')}</Text>
+              <Text className="text-sm leading-5 text-amber-900/70">{t('absence.emptyShort.sub')}</Text>
             </View>
           ) : (
             <View className="gap-3">
@@ -203,7 +206,7 @@ export function AbsencesPanel({
                 <View className="gap-2">
                   {mineOnly ? (
                     <Text className="text-[11px] font-semibold uppercase tracking-wide text-amber-800/80">
-                      Lo mío
+                      {t('absence.mine')}
                     </Text>
                   ) : null}
                   {mine.map((absence) => (
@@ -222,7 +225,7 @@ export function AbsencesPanel({
                 <View className="gap-2">
                   {mineOnly ? (
                     <Text className="text-[11px] font-semibold uppercase tracking-wide text-amber-800/80">
-                      Compañeros
+                      {t('absence.peers')}
                     </Text>
                   ) : null}
                   {others.map((absence) => (
@@ -262,7 +265,7 @@ export function AbsencesPanel({
                 label={t('form.reasonOptional')}
                 value={reason}
                 onChangeText={setReason}
-                placeholder="Vacaciones, viaje…"
+                placeholder={t('absence.ph')}
               />
               <PeriodRangeCalendar
                 visibleMonth={visibleMonth}
@@ -273,7 +276,7 @@ export function AbsencesPanel({
                 onSelectDate={handleSelectDate}
               />
               <Text className="text-xs text-stone-500">
-                Los días ámbar oscuros ya están registrados. Toca inicio y fin en días libres.
+                {t('absence.calendarHint')}
               </Text>
               {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
               <Button label={t('form.saveAbsence')} loading={saving || busy} onPress={() => void handleSave()} />

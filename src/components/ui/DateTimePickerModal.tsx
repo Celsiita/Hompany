@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Keyboard, Modal, Pressable, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { calendarDowLabels } from '@/lib/i18n/display';
 import { getAppLocale } from '@/lib/i18n/locale-store';
 import { mergeStyles, palette } from '@/lib/interactive-styles';
 import { useLocale } from '@/providers/LocaleProvider';
@@ -67,12 +68,14 @@ export function DateTimePickerModal({
   value,
   onClose,
   onConfirm,
-  title = 'Fecha y hora',
+  title,
   mode = 'datetime',
   isDayEnabled,
 }: DateTimePickerModalProps) {
-  const { t } = useLocale();
-  const intlLocale = getAppLocale() === 'es' ? 'es-ES' : 'en-US';
+  const { t, locale } = useLocale();
+  const intlLocale = locale === 'es' ? 'es-ES' : 'en-US';
+  const heading = title ?? t('schedule.dateTime');
+  const weekdayLabels = calendarDowLabels(locale);
   const [cursor, setCursor] = useState(new Date(value));
   const [timeText, setTimeText] = useState(
     `${pad(value.getHours())}:${pad(value.getMinutes())}`,
@@ -137,7 +140,7 @@ export function DateTimePickerModal({
     const parsed = parseTimeInput(cleaned);
     if (!parsed) {
       setTimeError(
-        cleaned.length === 0 || cleaned.length < 4 ? null : 'Usa HH:mm (ej. 18:30)',
+        cleaned.length === 0 || cleaned.length < 4 ? null : t('schedule.timeErrorSingle'),
       );
       return;
     }
@@ -152,7 +155,7 @@ export function DateTimePickerModal({
       const next = new Date(cursor);
       next.setHours(value.getHours(), value.getMinutes(), 0, 0);
       if (isDayEnabled && !isDayEnabled(next.getFullYear(), next.getMonth(), next.getDate())) {
-        setTimeError('Elige un día válido según la periodicidad');
+        setTimeError(t('schedule.invalidDay'));
         return;
       }
       onConfirm(next);
@@ -161,7 +164,7 @@ export function DateTimePickerModal({
     }
     const parsed = parseTimeInput(timeText);
     if (timeText.trim().length > 0 && !parsed) {
-      setTimeError('Usa HH:mm (ej. 18:30)');
+      setTimeError(t('schedule.timeErrorSingle'));
       return;
     }
     const next = new Date(cursor);
@@ -169,7 +172,7 @@ export function DateTimePickerModal({
       next.setHours(parsed.hours, parsed.minutes, 0, 0);
     }
     if (isDayEnabled && !isDayEnabled(next.getFullYear(), next.getMonth(), next.getDate())) {
-      setTimeError('Elige un día válido según la periodicidad');
+      setTimeError(t('schedule.invalidDay'));
       return;
     }
     onConfirm(next);
@@ -181,7 +184,7 @@ export function DateTimePickerModal({
       <View className="flex-1 justify-end bg-black/40">
         <Pressable className="absolute inset-0" onPress={onClose} accessibilityLabel={t('a11y.close')} />
         <View className="gap-3 rounded-t-3xl bg-white p-4">
-          <Text className="text-lg font-bold text-stone-900">{title}</Text>
+          <Text className="text-lg font-bold text-stone-900">{heading}</Text>
           <View className="flex-row items-center justify-between">
             <Pressable onPress={() => bumpMonth(-1)} className="px-3 py-2">
               <Text className="text-lg text-teal-700">‹</Text>
@@ -192,8 +195,10 @@ export function DateTimePickerModal({
             </Pressable>
           </View>
           <View className="flex-row">
-            {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((label) => (
-              <Text key={label} className="flex-1 text-center text-[10px] font-bold text-stone-400">
+            {weekdayLabels.map((label, index) => (
+              <Text
+                key={`${label}-${index}`}
+                className="flex-1 text-center text-[10px] font-bold text-stone-400">
                 {label}
               </Text>
             ))}
@@ -243,7 +248,7 @@ export function DateTimePickerModal({
               <View className="flex-row items-center justify-center gap-3">
                 <Pressable
                   onPress={() => bumpTime('hours', -1)}
-                  accessibilityLabel="Restar una hora"
+                  accessibilityLabel={t('a11y.hourMinus')}
                   className="rounded-lg bg-stone-100 px-3 py-2">
                   <Text className="text-teal-700">−h</Text>
                 </Pressable>
@@ -255,34 +260,32 @@ export function DateTimePickerModal({
                   selectTextOnFocus={false}
                   underlineColorAndroid="transparent"
                   autoCorrect={false}
-                  accessibilityLabel="Hora en formato HH:mm"
+                  accessibilityLabel={t('a11y.timeInput')}
                   className="min-w-[72px] rounded-lg border border-stone-300 bg-white px-3 py-2 text-center text-xl font-bold text-stone-900"
                   placeholder="HH:mm"
                   placeholderTextColor="#9ca3af"
                 />
                 <Pressable
                   onPress={() => bumpTime('hours', 1)}
-                  accessibilityLabel="Sumar una hora"
+                  accessibilityLabel={t('a11y.hourPlus')}
                   className="rounded-lg bg-stone-100 px-3 py-2">
                   <Text className="text-teal-700">+h</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => bumpTime('minutes', -15)}
-                  accessibilityLabel="Restar quince minutos"
+                  accessibilityLabel={t('a11y.minuteMinus')}
                   className="rounded-lg bg-stone-100 px-3 py-2">
                   <Text className="text-teal-700">−15</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => bumpTime('minutes', 15)}
-                  accessibilityLabel="Sumar quince minutos"
+                  accessibilityLabel={t('a11y.minutePlus')}
                   className="rounded-lg bg-stone-100 px-3 py-2">
                   <Text className="text-teal-700">+15</Text>
                 </Pressable>
               </View>
               {timeError ? <Text className="text-center text-xs text-red-600">{timeError}</Text> : null}
-              <Text className="text-center text-xs text-stone-500">
-                Escribe la hora (HH:mm) o usa −h / +h / −15 / +15.
-              </Text>
+              <Text className="text-center text-xs text-stone-500">{t('schedule.timeHint')}</Text>
             </>
           ) : timeError ? (
             <Text className="text-center text-xs text-red-600">{timeError}</Text>

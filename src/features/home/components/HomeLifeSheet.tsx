@@ -6,6 +6,7 @@ import { CalendarNoticesPanel } from '@/features/home/components/CalendarNotices
 import { ExamPeriodsPanel } from '@/features/home/components/ExamPeriodsPanel';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
 import { countOpenTasksInDateRange } from '@/features/tasks/lib/punctual-absence-reassign';
+import { useLocale } from '@/providers/LocaleProvider';
 import type { MemberAbsence } from '@/schemas/absence.schema';
 import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
 import type { CalendarNoticeKind, HomeNotice } from '@/schemas/home-notice.schema';
@@ -49,21 +50,6 @@ type HomeLifeSheetProps = {
   onRemoveCalendarNotice: (noticeId: string) => Promise<void>;
 };
 
-const TITLES: Record<HomeLifeSheetKind, { title: string; subtitle: string }> = {
-  absences: {
-    title: 'Ausencias',
-    subtitle: 'Puntuales o dejar el piso un tiempo. La agenda y las rotaciones se adaptan.',
-  },
-  exams: {
-    title: 'Modo silencio',
-    subtitle: 'Periodos de estudio o exámenes. Marca el calendario y baja un poco la presión del piso.',
-  },
-  visits: {
-    title: 'Visitas y avisos',
-    subtitle: 'Reparaciones, visitas o eventos del piso en el calendario.',
-  },
-};
-
 /**
  * Home ⋮ sheets for life management that used to clutter the Agenda scroll.
  */
@@ -91,7 +77,15 @@ export function HomeLifeSheet({
   onAddCalendarNotice,
   onRemoveCalendarNotice,
 }: HomeLifeSheetProps) {
-  const meta = kind ? TITLES[kind] : null;
+  const { t } = useLocale();
+  const meta =
+    kind === 'absences'
+      ? { title: t('filters.absences'), subtitle: t('lifeSheet.absences.sub') }
+      : kind === 'exams'
+        ? { title: t('quiet.modeTitle'), subtitle: t('lifeSheet.silence.sub') }
+        : kind === 'visits'
+          ? { title: t('lifeSheet.visits.title'), subtitle: t('lifeSheet.visits.sub') }
+          : null;
 
   return (
     <BottomSheetModal visible={kind !== null} onClose={onClose} maxHeightClassName="max-h-[85%]">

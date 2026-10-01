@@ -158,7 +158,7 @@ export function HomeAgenda({
     }
     const ok = await confirm({
       title: t('confirm.cancelDate'),
-      message: 'Se omitirá solo esta ejecución. La recurrencia sigue activa.',
+      message: t('confirm.cancelDateBody'),
       confirmLabel: t('confirm.cancelDateAction'),
     });
     if (!ok) {
@@ -251,7 +251,7 @@ export function HomeAgenda({
 
           <CollapsibleFilterPanel
             activeHint={filterHint}
-            closedHint="Mis cosas · Compañeros · Ausencias · Silencio · Visitas">
+            closedHint={`${t('filters.mine')} · ${t('filters.others')} · ${t('filters.absences')} · ${t('filters.silence')} · ${t('filters.visits')}`}>
             <AgendaScopeBar
               viewScope={viewScope}
               categories={categories}

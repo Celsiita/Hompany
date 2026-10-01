@@ -60,22 +60,20 @@ export function ScheduledItemSheet({
 
   return (
     <BottomSheetModal visible={visible} onClose={onClose} maxHeightClassName="max-h-[80%]" animationType="fade">
-      <Text className="text-xs font-semibold uppercase text-stone-400">Programada</Text>
+      <Text className="text-xs font-semibold uppercase text-stone-400">{t('agenda.scheduled')}</Text>
       <Text className="mt-1 text-lg font-bold text-stone-800 opacity-80">
         {item.glyph} {item.title}
       </Text>
       <Text className="mt-1 text-sm text-stone-500">
-        {isTask ? 'Tarea' : 'Gasto'} · {item.actorLabel} · {preview.label}
+        {isTask ? t('common.task') : t('common.expense')} · {item.actorLabel} · {preview.label}
       </Text>
-      <Text className="mt-2 text-xs text-stone-500">
-        Vista previa: aún no se puede completar. Cuando llegue el día, la verás abierta en el tablero.
-      </Text>
+      <Text className="mt-2 text-xs text-stone-500">{t('scheduled.preview')}</Text>
 
       <View className="mt-4">
         {canReassign && onReassign ? (
           <View className="mb-3 gap-2">
             <Text className="text-sm font-semibold text-stone-800">
-              {isTask ? 'Reasignar esta fecha' : 'Reasignar acreedor (esta fecha)'}
+              {isTask ? t('scheduled.reassignDate') : t('scheduled.reassignCreditor')}
             </Text>
             {members.map((member) => {
               const selected = member.user_id === item.assignedUserId;

@@ -2,6 +2,8 @@ import { formatCountdown } from '@/features/tasks/lib/countdown';
 import { isTaskAssignedToUser } from '@/features/tasks/lib/board-filters';
 import { canViewerParticipateInTasks, isViewerAbsentOnDate } from '@/features/tasks/lib/absence-task-rules';
 import { isUserInvolvedInExpense } from '@/features/expenses/lib/expense-filters';
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { translate } from '@/lib/i18n/strings';
 import { isUserSystemFrozen } from '@/lib/presence';
 import type { MemberAbsence } from '@/schemas/absence.schema';
 import type { MemberPresencePeriod, MemberSystemLeave } from '@/schemas/presence.schema';
@@ -33,11 +35,34 @@ const SECTION_PRIORITY: Record<HomeAlertSection, number> = {
   money: 3,
 };
 
+const SECTION_LABEL_KEY: Record<HomeAlertSection, string> = {
+  urgent: 'alert.section.urgent',
+  soon: 'alert.section.soon',
+  review: 'alert.section.review',
+  money: 'alert.section.money',
+};
+
+/**
+ * Localized inbox section labels (reads current app locale).
+ */
+export function homeAlertSectionLabel(section: HomeAlertSection): string {
+  return translate(getAppLocale(), SECTION_LABEL_KEY[section]);
+}
+
+/** @deprecated Prefer homeAlertSectionLabel(); kept for callers that expect a map. */
 export const HOME_ALERT_SECTION_LABEL: Record<HomeAlertSection, string> = {
-  urgent: 'Urgente',
-  soon: 'Pronto',
-  review: 'Por revisar',
-  money: 'Gastos',
+  get urgent() {
+    return homeAlertSectionLabel('urgent');
+  },
+  get soon() {
+    return homeAlertSectionLabel('soon');
+  },
+  get review() {
+    return homeAlertSectionLabel('review');
+  },
+  get money() {
+    return homeAlertSectionLabel('money');
+  },
 };
 
 /**
@@ -64,7 +89,7 @@ export function groupHomeAlerts(
   return order
     .map((section) => ({
       section,
-      label: HOME_ALERT_SECTION_LABEL[section],
+      label: homeAlertSectionLabel(section),
       items: sorted.filter((item) => item.section === section),
     }))
     .filter((group) => group.items.length > 0);
@@ -85,6 +110,8 @@ export function buildHomeAlerts(params: {
   /** Max alerts kept after sort (default 12). */
   limit?: number;
 }): HomeAlert[] {
+  const locale = getAppLocale();
+  const t = (key: string, vars?: Record<string, string | number>) => translate(locale, key, vars);
   const now = params.now ?? Date.now();
   const nowDate = new Date(now);
   const absences = params.absences ?? [];
@@ -124,8 +151,8 @@ export function buildHomeAlerts(params: {
           id: `task-overdue-${task.id}`,
           tone: 'red',
           section: 'urgent',
-          title: 'Tarea vencida',
-          message: `«${task.title}» ha pasado el límite de tiempo.`,
+          title: t('alert.taskOverdue'),
+          message: t('alert.taskOverdueMsg', { title: task.title }),
           entityType: 'task',
           entityId: task.id,
         });
@@ -134,8 +161,11 @@ export function buildHomeAlerts(params: {
           id: `task-soon-${task.id}`,
           tone: 'amber',
           section: 'soon',
-          title: 'Vence pronto',
-          message: `«${task.title}» · ${formatCountdown(task.due_at, now).label}.`,
+          title: t('alert.taskSoon'),
+          message: t('alert.taskSoonMsg', {
+            title: task.title,
+            when: formatCountdown(task.due_at, now).label,
+          }),
           entityType: 'task',
           entityId: task.id,
         });
@@ -149,8 +179,8 @@ export function buildHomeAlerts(params: {
           id: `task-review-${task.id}`,
           tone: 'teal',
           section: 'review',
-          title: 'Foto por validar',
-          message: `Un compañero entregó «${task.title}».`,
+          title: t('alert.taskReview'),
+          message: t('alert.taskReviewMsg', { title: task.title }),
           entityType: 'task',
           entityId: task.id,
         });
@@ -173,8 +203,8 @@ export function buildHomeAlerts(params: {
           id: `expense-overdue-${expense.id}`,
           tone: 'red',
           section: 'urgent',
-          title: 'Gasto vencido',
-          message: `«${expense.title}» ha pasado la fecha límite.`,
+          title: t('alert.expenseOverdue'),
+          message: t('alert.expenseOverdueMsg', { title: expense.title }),
           entityType: 'expense',
           entityId: expense.id,
         });
@@ -194,8 +224,8 @@ export function buildHomeAlerts(params: {
         id: `expense-new-${expense.id}`,
         tone: 'teal',
         section: 'money',
-        title: 'Nuevo gasto',
-        message: `«${expense.title}» te incluye en el reparto.`,
+        title: t('alert.expenseNew'),
+        message: t('alert.expenseNewMsg', { title: expense.title }),
         entityType: 'expense',
         entityId: expense.id,
       });
@@ -206,8 +236,8 @@ export function buildHomeAlerts(params: {
         id: `expense-settled-${expense.id}`,
         tone: 'teal',
         section: 'money',
-        title: 'Deuda saldada',
-        message: `Se ha saldado «${expense.title}».`,
+        title: t('alert.expenseSettled'),
+        message: t('alert.expenseSettledMsg', { title: expense.title }),
         entityType: 'expense',
         entityId: expense.id,
       });
@@ -223,8 +253,8 @@ export function buildHomeAlerts(params: {
           id: `expense-overdue-${expense.id}`,
           tone: 'red',
           section: 'urgent',
-          title: 'Gasto vencido',
-          message: `«${expense.title}» ha pasado la fecha límite.`,
+          title: t('alert.expenseOverdue'),
+          message: t('alert.expenseOverdueMsg', { title: expense.title }),
           entityType: 'expense',
           entityId: expense.id,
         });
@@ -233,8 +263,11 @@ export function buildHomeAlerts(params: {
           id: `expense-soon-${expense.id}`,
           tone: 'amber',
           section: 'soon',
-          title: 'Saldar pronto',
-          message: `«${expense.title}» · ${formatCountdown(expense.due_at, now).label}.`,
+          title: t('alert.expenseSoon'),
+          message: t('alert.expenseSoonMsg', {
+            title: expense.title,
+            when: formatCountdown(expense.due_at, now).label,
+          }),
           entityType: 'expense',
           entityId: expense.id,
         });
@@ -247,36 +280,37 @@ export function buildHomeAlerts(params: {
 
 /**
  * Catalog of planned local/push reminders. Used by docs and a future scheduler.
+ * Titles use i18n keys; `when` stays English for internal docs.
  */
 export const NOTIFICATION_CATALOG = [
   {
     id: 'task_due_soon',
-    title: 'Tarea próxima a vencer',
-    when: '24 h antes de due_at si sigue PENDING',
+    titleKey: 'alert.taskSoon',
+    when: '24 h before due_at if still PENDING',
   },
   {
     id: 'task_overdue',
-    title: 'Tarea vencida',
-    when: 'Al cruzar due_at sin entrega',
+    titleKey: 'alert.taskOverdue',
+    when: 'When due_at passes without submit',
   },
   {
     id: 'task_proof_review',
-    title: 'Foto para validar',
-    when: 'Compañero en SUBMITTED',
+    titleKey: 'alert.taskReview',
+    when: 'Roommate in SUBMITTED',
   },
   {
     id: 'expense_created',
-    title: 'Nuevo gasto',
-    when: 'Alta que te incluye (≤ 48 h)',
+    titleKey: 'alert.expenseNew',
+    when: 'Create that includes you (≤ 48 h)',
   },
   {
     id: 'expense_settled',
-    title: 'Deuda saldada',
-    when: 'Gasto SETTLED reciente (≤ 48 h)',
+    titleKey: 'alert.expenseSettled',
+    when: 'Recent SETTLED expense (≤ 48 h)',
   },
   {
     id: 'expense_overdue',
-    title: 'Gasto fuera de plazo',
-    when: 'OPEN y due_at pasado — también en ausencia de sistema',
+    titleKey: 'alert.expenseOverdue',
+    when: 'OPEN and past due_at — also during system leave',
   },
 ];

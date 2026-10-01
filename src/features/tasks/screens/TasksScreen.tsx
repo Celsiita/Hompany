@@ -35,7 +35,7 @@ import {
   canViewerParticipateInTasks,
   isViewerAbsentOnDate,
 } from '@/features/tasks/lib/absence-task-rules';
-import { examSilenceWarning, shouldWarnExamSilence } from '@/lib/exam-periods';
+import { shouldWarnExamSilence } from '@/lib/exam-periods';
 import { useBoardItemFocus } from '@/hooks/useBoardItemFocus';
 import { parseFocusId } from '@/lib/navigation/board-focus';
 import { formatHistoryDate } from '@/lib/recurrence';
@@ -218,9 +218,9 @@ export function TasksScreen() {
         members.find((member) => member.user_id === assigneeId)?.profiles?.display_name ??
         t('common.roommate');
       const ok = await confirm({
-        title: 'Modo silencio',
-        message: `${examSilenceWarning(name)}. ¿Impugnar igualmente?`,
-        confirmLabel: 'Continuar',
+        title: t('quiet.modeTitle'),
+        message: t('quiet.disputeConfirm', { name }),
+        confirmLabel: t('absence.continue'),
       });
       if (!ok) {
         return;
@@ -341,13 +341,13 @@ export function TasksScreen() {
 
             {viewerAbsentToday ? (
               <Text className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-                Estás de ausencia: no verás tareas ni validaciones hasta que vuelvas.
+                {t('tasks.absenceBanner')}
               </Text>
             ) : null}
 
             {error ? (
               <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
-                <Text className="text-sm font-semibold text-amber-950">No se pudo cargar el tablero</Text>
+                <Text className="text-sm font-semibold text-amber-950">{t('tasks.loadFail')}</Text>
                 <Text className="text-sm leading-5 text-amber-900/80">{error}</Text>
                 <Button label={t('common.retry')} variant="secondary" onPress={() => void refresh()} />
               </View>
@@ -355,18 +355,18 @@ export function TasksScreen() {
 
             {!isHistory && incomingSwaps.length > 0 ? (
               <View className="gap-2">
-                <Text className="text-lg font-semibold text-stone-900">Intercambios pendientes</Text>
-                <Text className="text-xs text-stone-500">
-                  Un compañero quiere que asumas su tarea. Acéptala o recházala.
-                </Text>
+                <Text className="text-lg font-semibold text-stone-900">{t('tasks.swapsPending')}</Text>
+                <Text className="text-xs text-stone-500">{t('tasks.swapsHint')}</Text>
                 {incomingSwaps.map((swap) => {
                   const taskTitle =
-                    tasks.find((task) => task.id === swap.task_id)?.title ?? 'una tarea';
+                    tasks.find((task) => task.id === swap.task_id)?.title ?? t('tasks.aTask');
                   return (
                   <View key={swap.id} className="rounded-xl border border-blue-200 bg-blue-50 p-3 gap-2">
                     <Text className="text-sm font-semibold text-stone-900">⇄ {taskTitle}</Text>
                     <Text className="text-sm text-stone-700">
-                      {swap.from_profile?.display_name ?? 'Un compañero'} te propone el cambio.
+                      {t('tasks.swapPropose', {
+                        name: swap.from_profile?.display_name ?? t('common.roommate'),
+                      })}
                     </Text>
                     <View className="flex-row gap-2">
                       <View className="flex-1">
@@ -377,7 +377,7 @@ export function TasksScreen() {
                             void runTaskAction(
                               swap.id,
                               () => answerSwap(swap.id, true),
-                              'Intercambio aceptado',
+                              t('tasks.swapAccepted'),
                             )
                           }
                         />
@@ -391,7 +391,7 @@ export function TasksScreen() {
                             void runTaskAction(
                               swap.id,
                               () => answerSwap(swap.id, false),
-                              'Intercambio rechazado',
+                              t('tasks.swapRejected'),
                             )
                           }
                         />
@@ -405,7 +405,7 @@ export function TasksScreen() {
 
             {isHistory && activityEvents.length > 0 ? (
               <View className="gap-2">
-                <Text className="text-sm font-semibold text-stone-500">Movimientos</Text>
+                <Text className="text-sm font-semibold text-stone-500">{t('tasks.activity')}</Text>
                 {activityEvents.slice(0, 8).map((event) => (
                   <Text key={event.id} className="text-xs text-stone-600">
                     {formatHistoryDate(event.created_at)} · {event.summary}
@@ -564,17 +564,17 @@ export function TasksScreen() {
         onSubmit={async (input) => {
           if (formMode === 'edit' && formTask) {
             await editTask(formTask.id, input);
-            showToast({ message: 'Tarea actualizada', tone: 'success' });
+            showToast({ message: t('toast.taskUpdated'), tone: 'success' });
             return;
           }
           if (formMode === 'repeat' && formTask) {
             await repeatTask(formTask, input);
-            showToast({ message: 'Tarea repetida', tone: 'success' });
+            showToast({ message: t('toast.taskRepeated'), tone: 'success' });
             return;
           }
           const created = await addTask(input as Omit<UpsertTaskInput, 'home_id'>);
           requestFocus(created.id);
-          showToast({ message: 'Tarea creada', tone: 'success' });
+          showToast({ message: t('toast.taskCreated'), tone: 'success' });
         }}
       />
 
@@ -589,7 +589,7 @@ export function TasksScreen() {
           if (!task) {
             return;
           }
-          void runTaskAction(task.id, () => submitProof(task, source), 'Entrega enviada a revisión');
+          void runTaskAction(task.id, () => submitProof(task, source), t('toast.proofSubmitted'));
         }}
       />
 
@@ -607,7 +607,7 @@ export function TasksScreen() {
           void runTaskAction(
             task.id,
             () => reviewTask(task, mode, mode === 'APPROVE' ? '👏' : '🤨', comment || null),
-            mode === 'APPROVE' ? 'Prueba aprobada' : 'Prueba impugnada',
+            mode === 'APPROVE' ? t('toast.proofApproved') : t('toast.proofDisputed'),
           );
         }}
       />

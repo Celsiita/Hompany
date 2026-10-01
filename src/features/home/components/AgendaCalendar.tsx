@@ -28,6 +28,7 @@ import {
 import { hasAbsencesOnDate } from '@/lib/absences';
 import { hasExamPeriodsOnDate } from '@/lib/exam-periods';
 import { noticeEmojisOnDate } from '@/lib/home-notices';
+import { calendarDowLabels } from '@/lib/i18n/display';
 import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
 import { useIconPack } from '@/providers/IconPackProvider';
 import { useLocale } from '@/providers/LocaleProvider';
@@ -36,8 +37,8 @@ import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
 import type { HomeNotice } from '@/schemas/home-notice.schema';
 import type { ExpenseWithRelations, TaskWithRelations } from '@/types/database.types';
 
-const WEEKDAY_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-const WEEKDAY_SHORT = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+const WEEKDAY_SHORT_ES = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+const WEEKDAY_SHORT_EN = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MONTH_CELL_HEIGHT = 68;
 
 type AgendaCalendarProps = {
@@ -86,11 +87,8 @@ export function AgendaCalendar({
 }: AgendaCalendarProps) {
   const { pack } = useIconPack();
   const { t, locale } = useLocale();
-  const weekdayLabels = locale === 'en' ? ['M', 'T', 'W', 'T', 'F', 'S', 'S'] : WEEKDAY_LABELS;
-  const weekdayShort =
-    locale === 'en'
-      ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-      : WEEKDAY_SHORT;
+  const weekdayLabels = calendarDowLabels(locale);
+  const weekdayShort = locale === 'en' ? WEEKDAY_SHORT_EN : WEEKDAY_SHORT_ES;
 
   const horizon = useMemo(() => {
     if (expanded) {
@@ -208,14 +206,14 @@ export function AgendaCalendar({
                 cssInterop={false}
                 onPress={() => onVisibleMonthChange(shiftMonth(visibleMonth, -1))}
                 style={styles.navButton}
-                accessibilityLabel="Mes anterior">
+                accessibilityLabel={t('agenda.a11y.prevMonth')}>
                 <Text className="text-base font-bold text-stone-700">‹</Text>
               </Pressable>
               <Pressable
                 cssInterop={false}
                 onPress={() => onVisibleMonthChange(shiftMonth(visibleMonth, 1))}
                 style={styles.navButton}
-                accessibilityLabel="Mes siguiente">
+                accessibilityLabel={t('agenda.a11y.nextMonth')}>
                 <Text className="text-base font-bold text-stone-700">›</Text>
               </Pressable>
             </>
@@ -230,7 +228,7 @@ export function AgendaCalendar({
                   onWeekAnchorChange(shiftWeek(weekAnchor, -1, now));
                 }}
                 style={[styles.navButton, !canGoPrevWeek ? { opacity: 0.35 } : null]}
-                accessibilityLabel="Semana anterior"
+                accessibilityLabel={t('agenda.a11y.prevWeek')}
                 accessibilityState={{ disabled: !canGoPrevWeek }}>
                 <Text className="text-base font-bold text-stone-700">‹</Text>
               </Pressable>
@@ -238,7 +236,7 @@ export function AgendaCalendar({
                 cssInterop={false}
                 onPress={() => onWeekAnchorChange(shiftWeek(weekAnchor, 1, now))}
                 style={styles.navButton}
-                accessibilityLabel="Semana siguiente">
+                accessibilityLabel={t('agenda.a11y.nextWeek')}>
                 <Text className="text-base font-bold text-stone-700">›</Text>
               </Pressable>
             </>
@@ -247,9 +245,9 @@ export function AgendaCalendar({
             cssInterop={false}
             onPress={onToggleExpanded}
             style={styles.toggleButton}
-            accessibilityLabel={expanded ? 'Volver a vista semanal' : 'Ver mes completo'}>
+            accessibilityLabel={expanded ? t('agenda.a11y.seeWeek') : t('agenda.a11y.seeMonth')}>
             <Text className="text-xs font-semibold text-teal-800">
-              {expanded ? 'Ver semana' : 'Ver mes'}
+              {expanded ? t('agenda.seeWeek') : t('agenda.seeMonth')}
             </Text>
           </Pressable>
         </View>

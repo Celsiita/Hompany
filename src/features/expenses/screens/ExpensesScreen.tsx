@@ -227,7 +227,7 @@ export function ExpensesScreen() {
               helpTitle={t('tabs.expenses')}
               helpMessage={t('expenses.help')}
               createAccent="amber"
-              createAccessibilityLabel="Nuevo gasto"
+              createAccessibilityLabel={t('expense.newA11y')}
               onCreatePress={() => {
                 setEditing(null);
                 setFormMode('create');
@@ -260,7 +260,7 @@ export function ExpensesScreen() {
 
             {error ? (
               <View className="gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
-                <Text className="text-sm font-semibold text-amber-950">No se pudo cargar el tablero</Text>
+                <Text className="text-sm font-semibold text-amber-950">{t('tasks.loadFail')}</Text>
                 <Text className="text-sm leading-5 text-amber-900/80">{error}</Text>
                 <Button label={t('common.retry')} variant="secondary" onPress={() => void refresh()} />
               </View>
@@ -268,7 +268,7 @@ export function ExpensesScreen() {
 
             {isHistory && activityEvents.length > 0 ? (
               <View className="gap-1">
-                <Text className="text-sm font-semibold text-stone-500">Movimientos</Text>
+                <Text className="text-sm font-semibold text-stone-500">{t('tasks.activity')}</Text>
                 {activityEvents.slice(0, 8).map((event) => (
                   <Text key={event.id} className="text-xs text-stone-600">
                     {formatHistoryDate(event.created_at)} · {event.summary}
@@ -308,7 +308,11 @@ export function ExpensesScreen() {
                 isHistory
                   ? undefined
                   : (expense) =>
-                      void runAction(expense.id, () => settleExpense(expense.id), 'Gasto saldado')
+                      void runAction(
+                        expense.id,
+                        () => settleExpense(expense.id),
+                        t('toast.expenseSettled'),
+                      )
               }
               onSettleShare={
                 isHistory
@@ -317,7 +321,7 @@ export function ExpensesScreen() {
                       void runAction(
                         expense.id,
                         () => settleShare(expense.id, share.id, isSettled),
-                        isSettled ? 'Cobro deshecho' : 'Parte saldada',
+                        isSettled ? t('toast.shareUnsettled') : t('toast.shareSettled'),
                       )
               }
               onRepeat={
@@ -364,17 +368,17 @@ export function ExpensesScreen() {
         onSubmit={async (input) => {
           if (formMode === 'edit' && editing) {
             await editExpense(editing.id, input);
-            showToast({ message: 'Gasto actualizado', tone: 'success' });
+            showToast({ message: t('toast.expenseUpdated'), tone: 'success' });
             return;
           }
           if (formMode === 'repeat' && editing) {
             await repeatExpense(editing, input);
-            showToast({ message: 'Gasto repetido', tone: 'success' });
+            showToast({ message: t('toast.expenseRepeated'), tone: 'success' });
             return;
           }
           const created = await addExpense(input);
           requestFocus(created.id);
-          showToast({ message: 'Gasto creado', tone: 'success' });
+          showToast({ message: t('toast.expenseCreated'), tone: 'success' });
         }}
       />
     </Screen>

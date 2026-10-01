@@ -6,8 +6,10 @@ import {
   formatMonthTitle,
   shiftMonth,
 } from '@/features/home/lib/month-calendar';
+import { calendarDowLabels } from '@/lib/i18n/display';
 import { mergeStyles, palette } from '@/lib/interactive-styles';
 import { localDateKey, startOfLocalDay } from '@/lib/recurrence';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type ScheduleRangeCalendarProps = {
   rangeStart: Date;
@@ -23,9 +25,11 @@ export function ScheduleRangeCalendar({
   rangeEnd,
   onChangeRange,
 }: ScheduleRangeCalendarProps) {
+  const { t, locale } = useLocale();
   const [visibleMonth, setVisibleMonth] = useState(() => startOfLocalDay(rangeStart));
   const [pickingEnd, setPickingEnd] = useState(false);
   const cells = useMemo(() => buildMonthCells(visibleMonth, new Date()), [visibleMonth]);
+  const weekdayLabels = calendarDowLabels(locale);
 
   const startKey = localDateKey(rangeStart);
   const endKey = localDateKey(rangeEnd);
@@ -71,8 +75,8 @@ export function ScheduleRangeCalendar({
         </Pressable>
       </View>
       <View className="flex-row">
-        {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((label) => (
-          <Text key={label} className="flex-1 text-center text-[10px] font-bold text-stone-400">
+        {weekdayLabels.map((label, index) => (
+          <Text key={`${label}-${index}`} className="flex-1 text-center text-[10px] font-bold text-stone-400">
             {label}
           </Text>
         ))}
@@ -102,7 +106,7 @@ export function ScheduleRangeCalendar({
         ))}
       </View>
       <Text className="text-xs text-stone-500">
-        Toca un día, o dos días para un rango. {pickingEnd ? 'Elige el día final.' : ''}
+        {t('schedule.rangeHint')} {pickingEnd ? t('schedule.rangePickEnd') : ''}
       </Text>
     </View>
   );

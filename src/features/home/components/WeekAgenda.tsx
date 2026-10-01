@@ -9,6 +9,7 @@ import {
 import { examPeriodsOnDate } from '@/lib/exam-periods';
 import { stripCycleSuffix } from '@/lib/recurrence';
 import { useIconPack } from '@/providers/IconPackProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
 import type { ExpenseWithRelations, TaskWithRelations } from '@/types/database.types';
 
@@ -50,6 +51,8 @@ export function WeekAgenda({
   onOpenItem,
 }: WeekAgendaProps) {
   const { pack } = useIconPack();
+  const { t, locale } = useLocale();
+  const dateLocale = locale === 'en' ? 'en-US' : 'es-ES';
   const origin = startOfDay(now);
   const days = Array.from({ length: 7 }, (_, index) => {
     const day = new Date(origin);
@@ -71,14 +74,12 @@ export function WeekAgenda({
 
   return (
     <View className="gap-2">
-      <Text className="text-sm font-semibold text-stone-500">Agenda de 7 días</Text>
-      <Text className="text-xs text-stone-500">
-        Tareas en azul · gastos en ámbar · programadas atenuadas.
-      </Text>
+      <Text className="text-sm font-semibold text-stone-500">{t('agenda.weekTitle')}</Text>
+      <Text className="text-xs text-stone-500">{t('agenda.weekHint')}</Text>
       {days.map((day) => {
         const dayItems = items.filter((item) => startOfDay(item.when).getTime() === day.getTime());
         const dayExams = examPeriodsOnDate(examPeriods, day);
-        const label = new Intl.DateTimeFormat('es-ES', {
+        const label = new Intl.DateTimeFormat(dateLocale, {
           weekday: 'short',
           day: 'numeric',
           month: 'short',
@@ -90,19 +91,19 @@ export function WeekAgenda({
               <View className="mb-1 gap-0.5 rounded-lg bg-sky-50 px-2 py-1">
                 {dayExams.map((period) => (
                   <Text key={`${period.user_id}-${period.label}`} className="text-xs text-sky-800">
-                    📚 Exámenes: {period.label}
+                    📚 {t('agenda.exams', { label: period.label })}
                   </Text>
                 ))}
               </View>
             ) : null}
             {dayItems.length === 0 ? (
-              <Text className="text-sm text-stone-400">Libre</Text>
+              <Text className="text-sm text-stone-400">{t('agenda.free')}</Text>
             ) : (
               dayItems.map((item) => (
                 <Pressable key={item.id} onPress={() => onOpenItem(item)} hitSlop={4}>
                   <Text className={`text-sm ${itemTone(item)}`}>
                     {item.glyph} {stripCycleSuffix(item.title)}
-                    {item.lifecycle === 'scheduled' ? ' · prog.' : ''}
+                    {item.lifecycle === 'scheduled' ? ` · ${t('agenda.scheduledShort')}` : ''}
                   </Text>
                 </Pressable>
               ))

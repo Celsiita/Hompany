@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import { SafePressable } from '@/components/ui/SafePressable';
 import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type CollapsibleFilterPanelProps = {
   children: ReactNode;
@@ -18,10 +19,12 @@ type CollapsibleFilterPanelProps = {
 export function CollapsibleFilterPanel({
   children,
   activeHint,
-  closedHint = 'Alcance, tipo, periodicidad…',
+  closedHint,
 }: CollapsibleFilterPanelProps) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const hasActive = Boolean(activeHint);
+  const hintWhenClosed = closedHint ?? t('filters.closedDefault');
 
   return (
     <View
@@ -34,16 +37,16 @@ export function CollapsibleFilterPanel({
         onPress={() => setOpen((value) => !value)}
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
-        accessibilityLabel={open ? 'Ocultar filtros' : 'Mostrar filtros'}
+        accessibilityLabel={open ? t('filters.hide') : t('filters.show')}
         contentStyle={mergeStyles(interactive.rowBetween, {
           paddingHorizontal: 14,
           paddingVertical: 12,
         })}>
         <View className="min-w-0 flex-1 flex-row items-center gap-2">
           <View className="min-w-0 flex-1 gap-0.5">
-            <Text className="text-sm font-bold text-stone-900">Filtros</Text>
+            <Text className="text-sm font-bold text-stone-900">{t('common.filters')}</Text>
             <Text className="text-[11px] text-stone-500" numberOfLines={1}>
-              {open ? 'Toca para ocultar' : closedHint}
+              {open ? t('filters.tapToHide') : hintWhenClosed}
             </Text>
           </View>
           {hasActive ? (

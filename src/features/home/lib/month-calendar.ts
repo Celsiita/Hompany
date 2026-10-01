@@ -1,4 +1,5 @@
 import { startOfDay } from '@/features/home/lib/agenda-items';
+import { getAppLocale } from '@/lib/i18n/locale-store';
 
 export type MonthCell = {
   /** Local calendar day, or null for empty padding cells. */
@@ -54,7 +55,8 @@ export function buildMonthCells(anchor: Date, today: Date = new Date()): MonthCe
  * Formats a month title in Spanish (e.g. "agosto 2026").
  */
 export function formatMonthTitle(anchor: Date): string {
-  const label = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(anchor);
+  const dateLocale = getAppLocale() === 'en' ? 'en-US' : 'es-ES';
+  const label = new Intl.DateTimeFormat(dateLocale, { month: 'long', year: 'numeric' }).format(anchor);
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 

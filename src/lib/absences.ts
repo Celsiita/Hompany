@@ -1,3 +1,5 @@
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { translate } from '@/lib/i18n/strings';
 import { localDateKey, pickNextAssignee } from '@/lib/recurrence';
 import type { MemberAbsence } from '@/schemas/absence.schema';
 
@@ -76,7 +78,7 @@ export function absentMemberIdsOnDate(
  * UI copy for manual assignment to an absent member.
  */
 export function absentMemberWarning(displayName: string): string {
-  return `⚠️ ${displayName} estará ausente en esta fecha`;
+  return translate(getAppLocale(), 'absence.awayWarning', { name: displayName });
 }
 
 /**
@@ -106,7 +108,8 @@ export function isPeriodActiveOrUpcoming(
 export function formatDateKey(key: string): string {
   const [year, month, day] = key.split('-').map(Number);
   const date = new Date(year, month - 1, day);
-  return new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' }).format(date);
+  const locale = getAppLocale() === 'en' ? 'en-US' : 'es-ES';
+  return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }).format(date);
 }
 
 /**
@@ -126,9 +129,10 @@ export function absencesOnDate(
  * List / calendar copy for an absence on a day.
  */
 export function formatAbsenceDayLabel(memberName: string, reason?: string | null): string {
+  const locale = getAppLocale();
   return reason?.trim()
-    ? `🧳 Ausencia: ${memberName} · ${reason.trim()}`
-    : `🧳 Ausencia: ${memberName}`;
+    ? translate(locale, 'absence.dayLabelReason', { name: memberName, reason: reason.trim() })
+    : translate(locale, 'absence.dayLabel', { name: memberName });
 }
 
 /**

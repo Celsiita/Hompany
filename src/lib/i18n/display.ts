@@ -110,3 +110,25 @@ export function displayRecurrenceKind(kind: RecurrenceKind, t: TFn): string {
 export function tLocale(locale: AppLocale): TFn {
   return (key, vars) => translate(locale, key, vars);
 }
+
+/**
+ * Monday-first single-letter weekday headers for calendars.
+ */
+export function calendarDowLabels(locale: AppLocale): string[] {
+  return locale === 'en'
+    ? ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+    : ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+}
+
+/**
+ * Short month labels (3 letters) for recurrence month chips.
+ */
+export function calendarMonthShortLabels(locale: AppLocale): string[] {
+  const intl = locale === 'en' ? 'en-US' : 'es-ES';
+  return Array.from({ length: 12 }, (_, index) => {
+    const raw = new Intl.DateTimeFormat(intl, { month: 'short' }).format(
+      new Date(2000, index, 1),
+    );
+    return raw.replace(/\.$/, '').slice(0, 3);
+  });
+}

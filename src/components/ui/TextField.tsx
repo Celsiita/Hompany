@@ -1,6 +1,8 @@
 import { Pressable, Text, TextInput, View, type TextInputProps } from 'react-native';
 import { useState } from 'react';
 
+import { useLocale } from '@/providers/LocaleProvider';
+
 type TextFieldProps = TextInputProps & {
   label: string;
   error?: string;
@@ -17,6 +19,7 @@ export function TextField({
   secureTextEntry,
   ...props
 }: TextFieldProps) {
+  const { t } = useLocale();
   const [hidden, setHidden] = useState(true);
   const isPassword = Boolean(secureTextEntry);
   const secure = isPassword ? hidden : false;
@@ -35,7 +38,7 @@ export function TextField({
           <Pressable
             onPress={() => setHidden((value) => !value)}
             accessibilityRole="button"
-            accessibilityLabel={hidden ? 'Mostrar contraseña' : 'Ocultar contraseña'}
+            accessibilityLabel={hidden ? t('a11y.showPassword') : t('a11y.hidePassword')}
             className="absolute right-3 top-3"
             hitSlop={8}>
             <Text className="text-sm font-semibold text-teal-700">{hidden ? '🙈' : '🐵'}</Text>

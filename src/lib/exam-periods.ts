@@ -1,3 +1,5 @@
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { translate } from '@/lib/i18n/strings';
 import { localDateKey } from '@/lib/recurrence';
 import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
 
@@ -55,7 +57,7 @@ export function examPeriodsOverlappingRange(
  * Calendar banner copy for silence mode (exams are a common example label).
  */
 export function formatSilenceModeBanner(label: string, memberName: string): string {
-  return `🔇 Modo silencio: ${label} · ${memberName}`;
+  return translate(getAppLocale(), 'quiet.banner', { label, name: memberName });
 }
 
 /**
@@ -69,14 +71,17 @@ export function formatExamPeriodBanner(label: string, memberName: string): strin
  * List / calendar copy for silence mode on a day.
  */
 export function formatSilenceModeDayLabel(label: string, memberName?: string): string {
-  return memberName ? formatSilenceModeBanner(label, memberName) : `🔇 Modo silencio: ${label}`;
+  const locale = getAppLocale();
+  return memberName
+    ? translate(locale, 'quiet.banner', { label, name: memberName })
+    : translate(locale, 'quiet.bannerSolo', { label });
 }
 
 /**
  * Subtle silence-mode copy for direct complaints / notifications to someone in exams.
  */
 export function examSilenceWarning(displayName: string): string {
-  return `Recuerda que ${displayName} está en periodo de exámenes`;
+  return translate(getAppLocale(), 'quiet.examWarn', { name: displayName });
 }
 
 /**

@@ -20,11 +20,10 @@ import {
   type AgendaLifeFocus,
   type AgendaScopeFilter,
 } from '@/features/home/lib/agenda-items';
-import { absencesOnDate, formatAbsenceDayLabel } from '@/lib/absences';
-import { examPeriodsOnDate, formatSilenceModeDayLabel } from '@/lib/exam-periods';
+import { absencesOnDate } from '@/lib/absences';
+import { examPeriodsOnDate } from '@/lib/exam-periods';
 import {
   CALENDAR_NOTICE_GLYPH,
-  CALENDAR_NOTICE_LABEL,
   noticesOnDate,
 } from '@/lib/home-notices';
 import { localDateKey } from '@/lib/recurrence';
@@ -81,9 +80,20 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
   ref,
 ) {
   const { pack } = useIconPack();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const dateLocale = locale === 'en' ? 'en-US' : 'es-ES';
   const listRootY = useRef(0);
   const offsetsRef = useRef<Record<string, number>>({});
+
+  const visitKindLabel = useCallback(
+    (kind: string) => {
+      if (kind === 'VISIT') return t('visit.kind.visit');
+      if (kind === 'REPAIR') return t('visit.kind.repair');
+      if (kind === 'EVENT') return t('visit.kind.event');
+      return kind;
+    },
+    [t],
+  );
 
   const memberName = useCallback(
     (userId: string) =>
@@ -178,7 +188,7 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
         const daySilence = life.silence ? examPeriodsOnDate(examPeriods, day) : [];
         const dayAbsences = life.absences ? absencesOnDate(absences, day) : [];
         const dayNotices = life.visits ? noticesOnDate(calendarNotices, day) : [];
-        const label = new Intl.DateTimeFormat('es-ES', {
+        const label = new Intl.DateTimeFormat(dateLocale, {
           weekday: 'long',
           day: 'numeric',
           month: 'short',
@@ -216,7 +226,10 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
                   <Text
                     key={`silence-${key}-${period.user_id}-${index}`}
                     className="text-xs text-violet-800">
-                    {formatSilenceModeDayLabel(period.label, memberName(period.user_id))}
+                    {t('quiet.banner', {
+                      label: period.label,
+                      name: memberName(period.user_id),
+                    })}
                   </Text>
                 ))}
               </View>
@@ -228,7 +241,12 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
                   <Text
                     key={`absence-${key}-${absence.user_id}-${index}`}
                     className="text-xs text-amber-900">
-                    {formatAbsenceDayLabel(memberName(absence.user_id), absence.reason)}
+                    {absence.reason
+                      ? t('absence.dayLabelReason', {
+                          name: memberName(absence.user_id),
+                          reason: absence.reason,
+                        })
+                      : t('absence.dayLabel', { name: memberName(absence.user_id) })}
                   </Text>
                 ))}
               </View>
@@ -247,7 +265,7 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
                     notice.kind === 'VISIT' ||
                     notice.kind === 'REPAIR' ||
                     notice.kind === 'EVENT'
-                      ? CALENDAR_NOTICE_LABEL[notice.kind]
+                      ? visitKindLabel(notice.kind)
                       : notice.kind;
                   return (
                     <Text
@@ -262,7 +280,7 @@ export const AgendaList = forwardRef<AgendaListHandle, AgendaListProps>(function
 
             {dayItems.length === 0 ? (
               hasMarkers ? null : (
-                <Text className="text-xs text-stone-400">Libre</Text>
+                <Text className="text-xs text-stone-400">{t('agenda.free')}</Text>
               )
             ) : (
               dayItems.map((item) => (

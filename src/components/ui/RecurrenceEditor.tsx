@@ -3,11 +3,9 @@ import { Text, View } from 'react-native';
 
 import { SafePressable } from '@/components/ui/SafePressable';
 import { TextField } from '@/components/ui/TextField';
+import { calendarDowLabels, calendarMonthShortLabels } from '@/lib/i18n/display';
 import { interactive, mergeStyles, palette } from '@/lib/interactive-styles';
 import {
-  MONTH_LABELS,
-  RECURRENCE_FREQUENCY_UNIT_LABEL,
-  WEEKDAY_CHIPS,
   isoWeekday,
   monthlyDays,
   recurrenceInterval,
@@ -20,7 +18,14 @@ import {
 import { useLocale } from '@/providers/LocaleProvider';
 
 const UNITS: RecurrenceFrequencyUnit[] = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'];
+const UNIT_CHIP_KEYS: Record<RecurrenceFrequencyUnit, string> = {
+  DAILY: 'recurrence.unitChip.daily',
+  WEEKLY: 'recurrence.unitChip.weekly',
+  MONTHLY: 'recurrence.unitChip.monthly',
+  YEARLY: 'recurrence.unitChip.yearly',
+};
 const MONTH_DAY_OPTIONS = Array.from({ length: 31 }, (_, index) => index + 1);
+const WEEKDAY_VALUES = [1, 2, 3, 4, 5, 6, 7] as const;
 
 type RecurrenceEditorProps = {
   recurrence: RecurrenceKind;
@@ -54,7 +59,9 @@ export function RecurrenceEditor({
   compact = false,
   seedFrom = new Date(),
 }: RecurrenceEditorProps) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const weekdayLabels = calendarDowLabels(locale);
+  const monthLabels = calendarMonthShortLabels(locale);
   const [pausePanelOpen, setPausePanelOpen] = useState(Boolean(config.is_paused));
   const [dayOfMonthDraft, setDayOfMonthDraft] = useState(() =>
     String(config.day_of_month ?? seedFrom.getDate()),
@@ -180,7 +187,7 @@ export function RecurrenceEditor({
               fontWeight: '600',
               color: !repeats ? palette.white : palette.gray700,
             }}>
-            No se repite
+            {t('recurrence.never')}
           </Text>
         </SafePressable>
         <SafePressable onPress={() => setRepeats(true)} contentStyle={chipStyle(repeats)}>
@@ -190,14 +197,14 @@ export function RecurrenceEditor({
               fontWeight: '600',
               color: repeats ? palette.white : palette.gray700,
             }}>
-            Se repite
+            {t('recurrence.repeats')}
           </Text>
         </SafePressable>
       </View>
 
       {repeats ? (
         <View className="gap-2">
-          <Text className="text-xs text-stone-600">Cada</Text>
+          <Text className="text-xs text-stone-600">{t('recurrence.every')}</Text>
           <View className="flex-row items-center gap-2">
             <SafePressable
               onPress={() => bumpInterval(-1)}
@@ -225,7 +232,7 @@ export function RecurrenceEditor({
                       fontWeight: '600',
                       color: active ? palette.white : palette.gray700,
                     }}>
-                    {RECURRENCE_FREQUENCY_UNIT_LABEL[unit]}
+                    {t(UNIT_CHIP_KEYS[unit])}
                   </Text>
                 </SafePressable>
               );
@@ -234,14 +241,14 @@ export function RecurrenceEditor({
 
           {recurrence === 'WEEKLY' ? (
             <View className="gap-2">
-              <Text className="text-xs text-stone-600">Días de la semana (mín. 1)</Text>
+              <Text className="text-xs text-stone-600">{t('recurrence.weekdaysMin')}</Text>
               <View className="flex-row gap-1">
-                {WEEKDAY_CHIPS.map((chip) => {
-                  const active = selectedWeekdays.includes(chip.value);
+                {WEEKDAY_VALUES.map((value, index) => {
+                  const active = selectedWeekdays.includes(value);
                   return (
                     <SafePressable
-                      key={chip.value}
-                      onPress={() => toggleWeekday(chip.value)}
+                      key={value}
+                      onPress={() => toggleWeekday(value)}
                       contentStyle={chipStyle(active)}>
                       <Text
                         style={{
@@ -249,7 +256,7 @@ export function RecurrenceEditor({
                           fontWeight: '600',
                           color: active ? palette.white : palette.gray700,
                         }}>
-                        {chip.label}
+                        {weekdayLabels[index]}
                       </Text>
                     </SafePressable>
                   );
@@ -260,7 +267,7 @@ export function RecurrenceEditor({
 
           {recurrence === 'MONTHLY' ? (
             <View className="gap-2">
-              <Text className="text-xs text-stone-600">Días del mes (mín. 1)</Text>
+              <Text className="text-xs text-stone-600">{t('recurrence.monthDaysMin')}</Text>
               <View className="flex-row flex-wrap gap-1">
                 {MONTH_DAY_OPTIONS.map((day) => {
                   const active = selectedMonthDays.includes(day);
@@ -291,16 +298,16 @@ export function RecurrenceEditor({
                   })
                 }
                 contentStyle={borderedOption(config.due_day_type === 'LAST_DAY_OF_MONTH')}>
-                <Text className="text-sm text-stone-900">Último día del mes</Text>
+                <Text className="text-sm text-stone-900">{t('recurrence.lastDayOfMonth')}</Text>
               </SafePressable>
             </View>
           ) : null}
 
           {recurrence === 'YEARLY' ? (
             <View className="gap-2">
-              <Text className="text-xs text-stone-600">Meses (mín. 1)</Text>
+              <Text className="text-xs text-stone-600">{t('recurrence.monthsMin')}</Text>
               <View className="flex-row flex-wrap gap-1">
-                {MONTH_LABELS.map((label, index) => {
+                {monthLabels.map((label, index) => {
                   const value = index + 1;
                   const active = selectedMonths.includes(value);
                   return (
@@ -314,7 +321,7 @@ export function RecurrenceEditor({
                           fontWeight: '600',
                           color: active ? palette.white : palette.gray700,
                         }}>
-                        {label.slice(0, 3)}
+                        {label}
                       </Text>
                     </SafePressable>
                   );
@@ -341,17 +348,17 @@ export function RecurrenceEditor({
                   }
                 }}
                 contentStyle={borderedOption(Boolean(config.is_paused))}>
-                <Text className="text-sm font-semibold text-stone-900">Pausa indefinida</Text>
-                <Text className="text-xs text-stone-500">
-                  No genera nuevas instancias hasta que la reactives
+                <Text className="text-sm font-semibold text-stone-900">
+                  {t('recurrence.pauseIndefinite')}
                 </Text>
+                <Text className="text-xs text-stone-500">{t('recurrence.pauseHint')}</Text>
               </SafePressable>
               {pausePanelOpen ? (
                 <SafePressable
                   onPress={() => patch({ is_paused: !config.is_paused })}
                   contentStyle={borderedOption(Boolean(config.is_paused))}>
                   <Text className="text-sm text-stone-900">
-                    {config.is_paused ? 'Pausada · tocar para reanudar' : 'Activa · tocar para pausar'}
+                    {config.is_paused ? t('recurrence.pausedTap') : t('recurrence.activeTap')}
                   </Text>
                 </SafePressable>
               ) : null}

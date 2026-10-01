@@ -181,7 +181,7 @@ export function TaskCard({
       {showDate ? (
         <View className="gap-0.5">
           <Text className="text-sm text-stone-600">
-            Programada: {formatHistoryDateTime(task.due_at)}
+            {t('agenda.scheduled')}: {formatHistoryDateTime(task.due_at)}
           </Text>
           <Text className="text-sm text-stone-600">
             Realización:{' '}

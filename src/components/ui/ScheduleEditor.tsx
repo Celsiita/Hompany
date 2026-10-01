@@ -18,6 +18,7 @@ import {
   type RecurrenceConfig,
   type RecurrenceKind,
 } from '@/lib/recurrence';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type ScheduleEditorProps = {
   startsAt: Date;
@@ -62,6 +63,7 @@ export function ScheduleEditor({
   onConfigChange,
   compact = false,
 }: ScheduleEditorProps) {
+  const { t } = useLocale();
   const rangeStart = startOfLocalDay(startsAt);
   const rangeEnd = startOfLocalDay(dueAt);
   const [startTimeText, setStartTimeText] = useState(
@@ -128,7 +130,7 @@ export function ScheduleEditor({
     const startParsed = parseTimeInput(startTimeText);
     const endParsed = parseTimeInput(endTimeText);
     if (!startParsed || !endParsed) {
-      setTimeError('Usa HH:mm (ej. 09:00 y 18:00)');
+      setTimeError(t('schedule.timeError'));
       return;
     }
     setTimeError(null);
@@ -146,9 +148,9 @@ export function ScheduleEditor({
   return (
     <View className="gap-4">
       <View className="gap-2">
-        <Text className="text-sm font-medium text-stone-700">1. Primera vez (fechas)</Text>
+        <Text className="text-sm font-medium text-stone-700">{t('schedule.stepFirst')}</Text>
         <Text className="text-xs text-stone-500">
-          Seleccionado: {formatRangeLabel(ordered.start, ordered.end)}
+          {t('schedule.selected')} {formatRangeLabel(ordered.start, ordered.end)}
         </Text>
         <ScheduleRangeCalendar
           rangeStart={ordered.start}
@@ -158,7 +160,7 @@ export function ScheduleEditor({
       </View>
 
       <View className="gap-2">
-        <Text className="text-sm font-medium text-stone-700">2. Horas</Text>
+        <Text className="text-sm font-medium text-stone-700">{t('schedule.stepHours')}</Text>
         <SafePressable
           onPress={() => setAllDay(!allDay)}
           contentStyle={mergeStyles(
@@ -167,22 +169,18 @@ export function ScheduleEditor({
             allDay ? interactive.borderedCardActive : undefined,
           )}>
           <View className="flex-1 pr-2">
-            <Text className="text-sm font-semibold text-stone-900">Todo el día</Text>
-            <Text className="text-xs text-stone-500">
-              Inicio 00:00 del primer día · fin 23:59 del último
-            </Text>
+            <Text className="text-sm font-semibold text-stone-900">{t('schedule.allDay')}</Text>
+            <Text className="text-xs text-stone-500">{t('schedule.allDay.sub')}</Text>
           </View>
           <Text className="text-sm text-teal-700">{allDay ? '✓' : ''}</Text>
         </SafePressable>
 
         {!allDay ? (
           <View className="gap-2 rounded-xl border border-stone-200 bg-stone-50 p-3">
-            <Text className="text-xs text-stone-600">
-              Hora de inicio (primer día) · Hora de fin (último día)
-            </Text>
+            <Text className="text-xs text-stone-600">{t('schedule.hoursHint')}</Text>
             <View className="flex-row gap-3">
               <View className="flex-1 gap-1">
-                <Text className="text-xs font-semibold text-stone-500">Inicio</Text>
+                <Text className="text-xs font-semibold text-stone-500">{t('schedule.startShort')}</Text>
                 <TextInput
                   value={startTimeText}
                   onChangeText={(raw) => setStartTimeText(sanitizeTimeDraft(raw))}
@@ -195,7 +193,7 @@ export function ScheduleEditor({
                 />
               </View>
               <View className="flex-1 gap-1">
-                <Text className="text-xs font-semibold text-stone-500">Fin</Text>
+                <Text className="text-xs font-semibold text-stone-500">{t('schedule.endShort')}</Text>
                 <TextInput
                   value={endTimeText}
                   onChangeText={(raw) => setEndTimeText(sanitizeTimeDraft(raw))}
@@ -214,7 +212,7 @@ export function ScheduleEditor({
       </View>
 
       <View className="gap-2">
-        <Text className="text-sm font-medium text-stone-700">3. Periodicidad</Text>
+        <Text className="text-sm font-medium text-stone-700">{t('schedule.stepPeriod')}</Text>
         <RecurrenceEditor
           recurrence={recurrence}
           config={recurrenceConfig}

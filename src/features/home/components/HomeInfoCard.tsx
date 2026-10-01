@@ -90,7 +90,7 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
       },
       {
         key: 'portal_code',
-        label: 'Portal / portero',
+        label: t('info.portalShort'),
         value: home.portal_code?.trim() ?? '',
         copyable: true,
       },
@@ -185,7 +185,7 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
                   {row.secret ? (
                     <Pressable onPress={() => setShowPassword((v) => !v)} hitSlop={8}>
                       <Text className="text-xs font-semibold text-teal-700">
-                        {showPassword ? 'Ocultar' : 'Ver'}
+                        {showPassword ? t('info.hide') : t('info.show')}
                       </Text>
                     </Pressable>
                   ) : null}

@@ -124,9 +124,7 @@ export function HomeNoticesPanel({
                 message={t('rules.help')}
               />
             </View>
-            <Text className="text-xs text-stone-500">
-              Acuerdos del piso y avisos puntuales
-            </Text>
+            <Text className="text-xs text-stone-500">{t('rules.subtitle')}</Text>
           </View>
           <SafePressable
             onPress={() => {

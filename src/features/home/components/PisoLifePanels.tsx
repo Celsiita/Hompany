@@ -83,21 +83,24 @@ const TILE: Record<
   },
 };
 
-const MODAL_META: Record<
+const MODAL_META_KEYS: Record<
   Exclude<LifeModalKind, null>,
-  { title: string; subtitle: string }
+  { titleKey: string; subtitleKey: string; glyph: string }
 > = {
   absences: {
-    title: '🧳 Ausencias',
-    subtitle: 'Lo mío y lo próximo de tus compañeros.',
+    glyph: '🧳',
+    titleKey: 'filters.absences',
+    subtitleKey: 'piso.modal.absences.sub',
   },
   silence: {
-    title: '🔇 Modo silencio',
-    subtitle: 'Periodos de estudio. Sin pedir permiso.',
+    glyph: '🔇',
+    titleKey: 'quiet.modeTitle',
+    subtitleKey: 'piso.modal.silence.sub',
   },
   visits: {
-    title: '🚪 Visitas y eventos',
-    subtitle: 'Visitas, reparaciones y avisos del calendario.',
+    glyph: '🚪',
+    titleKey: 'visit.title',
+    subtitleKey: 'piso.modal.visits.sub',
   },
 };
 
@@ -172,7 +175,12 @@ export function PisoLifePanels({
       (row.author_id !== currentUserId && isPeriodActiveOrUpcoming(row.ends_on)),
   ).length;
 
-  const meta = modal ? MODAL_META[modal] : null;
+  const meta = modal
+    ? {
+        title: `${MODAL_META_KEYS[modal].glyph} ${t(MODAL_META_KEYS[modal].titleKey)}`,
+        subtitle: t(MODAL_META_KEYS[modal].subtitleKey),
+      }
+    : null;
 
   return (
     <View className="gap-3">

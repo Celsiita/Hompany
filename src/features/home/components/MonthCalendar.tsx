@@ -18,6 +18,7 @@ import {
 import { hasAbsencesOnDate } from '@/lib/absences';
 import { examPeriodsOnDate, hasExamPeriodsOnDate } from '@/lib/exam-periods';
 import { useIconPack } from '@/providers/IconPackProvider';
+import { useLocale } from '@/providers/LocaleProvider';
 import type { HomeMemberWithProfile } from '@/features/home/api/homes-api';
 import type { MemberAbsence } from '@/schemas/absence.schema';
 import type { MemberExamPeriod } from '@/schemas/exam-period.schema';
@@ -35,7 +36,8 @@ type MonthCalendarProps = {
   onOpenItem: (item: AgendaItem) => void;
 };
 
-const WEEKDAY_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+const WEEKDAY_LABELS_ES = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+const WEEKDAY_LABELS_EN = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 /**
  * Full-month calendar with task/expense dots and exam-period shaded bands.
@@ -52,6 +54,8 @@ export function MonthCalendar({
   onOpenItem,
 }: MonthCalendarProps) {
   const { pack } = useIconPack();
+  const { t, locale } = useLocale();
+  const weekdayLabels = locale === 'en' ? WEEKDAY_LABELS_EN : WEEKDAY_LABELS_ES;
   const [visibleMonth, setVisibleMonth] = useState(() =>
     startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)),
   );
@@ -91,17 +95,17 @@ export function MonthCalendar({
   return (
     <View className="gap-2">
       <View className="flex-row items-center justify-between">
-        <Text className="text-sm font-semibold text-stone-500">Calendario mensual</Text>
+        <Text className="text-sm font-semibold text-stone-500">{t('agenda.monthTitle')}</Text>
         <View className="flex-row gap-2">
           <Pressable
             onPress={() => setVisibleMonth((month) => shiftMonth(month, -1))}
-            accessibilityLabel="Mes anterior"
+            accessibilityLabel={t('agenda.a11y.prevMonth')}
             className="h-9 w-9 items-center justify-center rounded-full bg-stone-100">
             <Text className="text-base font-bold text-stone-700">‹</Text>
           </Pressable>
           <Pressable
             onPress={() => setVisibleMonth((month) => shiftMonth(month, 1))}
-            accessibilityLabel="Mes siguiente"
+            accessibilityLabel={t('agenda.a11y.nextMonth')}
             className="h-9 w-9 items-center justify-center rounded-full bg-stone-100">
             <Text className="text-base font-bold text-stone-700">›</Text>
           </Pressable>
@@ -109,9 +113,7 @@ export function MonthCalendar({
       </View>
 
       <Text className="text-base font-semibold text-stone-900">{formatMonthTitle(visibleMonth)}</Text>
-      <Text className="text-xs text-stone-500">
-        Azul = tuyas · teal = otras · ámbar = gastos · celeste = exámenes · violeta = ausencias
-      </Text>
+      <Text className="text-xs text-stone-500">{t('agenda.monthHint')}</Text>
 
       <ExamCalendarBands
         examPeriods={examPeriods}
@@ -122,7 +124,7 @@ export function MonthCalendar({
 
       <View className="rounded-xl border border-stone-200 bg-white p-2">
         <View className="mb-1 flex-row">
-          {WEEKDAY_LABELS.map((label) => (
+          {weekdayLabels.map((label) => (
             <View key={label} className="flex-1 items-center py-1">
               <Text className="text-[10px] font-bold uppercase text-stone-400">{label}</Text>
             </View>
@@ -229,4 +231,4 @@ export function MonthCalendar({
     </View>
   );
 }
-
+

@@ -7,6 +7,7 @@ import {
   leaderboardInitial,
   type HomeLeaderboardRow,
 } from '@/features/home/lib/leaderboard';
+import { useLocale } from '@/providers/LocaleProvider';
 
 type HomeLeaderboardProps = {
   rows: HomeLeaderboardRow[];
@@ -38,6 +39,8 @@ const CARD_SHADOW = {
  * Feed card: ranked roommates with reputation score and task stats.
  */
 export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
+  const { t, locale } = useLocale();
+
   if (rows.length === 0) {
     return <MascotEmpty kind="leaderboard" />;
   }
@@ -75,11 +78,11 @@ export function HomeLeaderboard({ rows, currentUserId }: HomeLeaderboardProps) {
               <Text className="text-[15px] font-semibold text-stone-900" numberOfLines={1}>
                 {row.display_name}
                 {isMe ? (
-                  <Text className="font-bold text-teal-700"> · tú</Text>
+                  <Text className="font-bold text-teal-700">{t('lb.you')}</Text>
                 ) : null}
               </Text>
               <Text className="text-[11px] leading-4 text-stone-500" numberOfLines={2}>
-                {formatLeaderboardTaskInfo(row)}
+                {formatLeaderboardTaskInfo(row, locale)}
               </Text>
             </View>
 

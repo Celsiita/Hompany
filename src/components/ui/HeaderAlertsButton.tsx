@@ -1,5 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 
+import { useLocale } from '@/providers/LocaleProvider';
+
 type HeaderAlertsButtonProps = {
   count: number;
   urgentCount?: number;
@@ -10,6 +12,7 @@ type HeaderAlertsButtonProps = {
  * Header bell that opens the in-app alerts inbox.
  */
 export function HeaderAlertsButton({ count, urgentCount = 0, onPress }: HeaderAlertsButtonProps) {
+  const { t } = useLocale();
   const badge = count > 9 ? '9+' : String(count);
   const hasUrgent = urgentCount > 0;
 
@@ -19,9 +22,9 @@ export function HeaderAlertsButton({ count, urgentCount = 0, onPress }: HeaderAl
       hitSlop={8}
       accessibilityRole="button"
       accessibilityLabel={
-        count > 0 ? `Avisos, ${count} pendientes` : 'Avisos, ninguno pendiente'
+        count > 0 ? t('alerts.a11yCount', { n: count }) : t('alerts.a11yNone')
       }
-      accessibilityHint="Abre la bandeja de avisos del piso"
+      accessibilityHint={t('alerts.a11yHint')}
       className={`h-11 w-11 items-center justify-center rounded-xl bg-white/90 border ${
         count > 0 ? 'border-stone-200' : 'border-teal-100'
       }`}>

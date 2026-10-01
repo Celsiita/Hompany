@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { translate } from '@/lib/i18n/strings';
+import type { AppLocale } from '@/lib/i18n/types';
+
 /**
  * One row of the home leaderboard returned by `get_home_leaderboard`.
  */
@@ -20,22 +24,34 @@ export type HomeLeaderboardRow = z.infer<typeof homeLeaderboardRowSchema>;
 
 export const homeLeaderboardSchema = z.array(homeLeaderboardRowSchema);
 
+function pluralStat(
+  locale: AppLocale,
+  n: number,
+  oneKey: string,
+  manyKey: string,
+): string {
+  return n === 1 ? translate(locale, oneKey) : translate(locale, manyKey, { n });
+}
+
 /**
  * Short task stats line for a leaderboard row.
  */
-export function formatLeaderboardTaskInfo(row: Pick<
-  HomeLeaderboardRow,
-  'tasks_completed' | 'tasks_pending' | 'tasks_submitted' | 'tasks_overdue'
->): string {
+export function formatLeaderboardTaskInfo(
+  row: Pick<
+    HomeLeaderboardRow,
+    'tasks_completed' | 'tasks_pending' | 'tasks_submitted' | 'tasks_overdue'
+  >,
+  locale: AppLocale = getAppLocale(),
+): string {
   const parts = [
-    `${row.tasks_completed} hecha${row.tasks_completed === 1 ? '' : 's'}`,
-    `${row.tasks_pending} pendiente${row.tasks_pending === 1 ? '' : 's'}`,
+    pluralStat(locale, row.tasks_completed, 'lb.doneOne', 'lb.doneMany'),
+    pluralStat(locale, row.tasks_pending, 'lb.pendingOne', 'lb.pendingMany'),
   ];
   if (row.tasks_submitted > 0) {
-    parts.push(`${row.tasks_submitted} en revisión`);
+    parts.push(pluralStat(locale, row.tasks_submitted, 'lb.reviewOne', 'lb.reviewMany'));
   }
   if (row.tasks_overdue > 0) {
-    parts.push(`${row.tasks_overdue} vencida${row.tasks_overdue === 1 ? '' : 's'}`);
+    parts.push(pluralStat(locale, row.tasks_overdue, 'lb.overdueOne', 'lb.overdueMany'));
   }
   return parts.join(' · ');
 }

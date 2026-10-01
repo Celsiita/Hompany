@@ -501,7 +501,10 @@ export function cycleInstanceTitle(
     return base;
   }
   if (recurrence === 'MONTHLY') {
-    return `${base} - ${MONTH_LABELS[dueAt.getMonth()]} ${dueAt.getFullYear()}`;
+    const intlLocale = getAppLocale() === 'en' ? 'en-US' : 'es-ES';
+    const rawMonth = new Intl.DateTimeFormat(intlLocale, { month: 'long' }).format(dueAt);
+    const month = rawMonth.charAt(0).toUpperCase() + rawMonth.slice(1);
+    return `${base} - ${month} ${dueAt.getFullYear()}`;
   }
   if (recurrence === 'YEARLY') {
     return `${base} - ${dueAt.getFullYear()}`;
@@ -769,14 +772,15 @@ export function pickNextAssignee(
 }
 
 /**
- * Formats a timestamp for history cards (es-ES, day + month + year).
+ * Formats a timestamp for history cards (active locale, day + month + year).
  */
 export function formatHistoryDate(iso: string, now = new Date()): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
     return '';
   }
-  return new Intl.DateTimeFormat('es-ES', {
+  const intlLocale = getAppLocale() === 'en' ? 'en-US' : 'es-ES';
+  return new Intl.DateTimeFormat(intlLocale, {
     day: 'numeric',
     month: 'short',
     year: date.getFullYear() === now.getFullYear() ? undefined : 'numeric',
@@ -784,14 +788,15 @@ export function formatHistoryDate(iso: string, now = new Date()): string {
 }
 
 /**
- * Date + time for history “realización”.
+ * Date + time for history realization.
  */
 export function formatHistoryDateTime(iso: string, now = new Date()): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
     return '';
   }
-  return new Intl.DateTimeFormat('es-ES', {
+  const intlLocale = getAppLocale() === 'en' ? 'en-US' : 'es-ES';
+  return new Intl.DateTimeFormat(intlLocale, {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',

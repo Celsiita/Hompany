@@ -13,7 +13,7 @@ import {
 } from '@/features/home/components/PeriodRangeCalendar';
 import { startOfMonth } from '@/features/home/lib/month-calendar';
 import { applyPeriodRangeSelection } from '@/features/home/lib/period-range-calendar';
-import { formatExamDateKey, formatSilenceModeBanner, toExamDateKey } from '@/lib/exam-periods';
+import { formatExamDateKey, toExamDateKey } from '@/lib/exam-periods';
 import { isPeriodActiveOrUpcoming } from '@/lib/absences';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -52,7 +52,7 @@ export function ExamPeriodsPanel({
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(new Date()));
   const [rangeStart, setRangeStart] = useState<Date | null>(null);
   const [rangeEnd, setRangeEnd] = useState<Date | null>(null);
-  const [label, setLabel] = useState('Finales');
+  const [label, setLabel] = useState(() => t('quiet.defaultLabel'));
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -81,15 +81,15 @@ export function ExamPeriodsPanel({
     const end = toExamDateKey(rangeEnd ?? rangeStart);
     const trimmed = label.trim();
     if (!trimmed) {
-      setError('Indica un motivo (ej. Finales).');
+      setError(t('quiet.needLabel'));
       return;
     }
     setSaving(true);
     try {
       await onAdd({ start_date: start, end_date: end, label: trimmed });
-      showToast({ message: 'Modo silencio guardado', tone: 'success' });
+      showToast({ message: t('quiet.saved'), tone: 'success' });
       setFormOpen(false);
-      setLabel('Finales');
+      setLabel(t('quiet.defaultLabel'));
       setRangeStart(null);
       setRangeEnd(null);
     } catch (err) {
@@ -109,7 +109,7 @@ export function ExamPeriodsPanel({
       return;
     }
     await onRemove(period.id);
-    showToast({ message: 'Modo silencio eliminado', tone: 'success' });
+    showToast({ message: t('quiet.deleted'), tone: 'success' });
   }
 
   const mine = examPeriods.filter((row) => row.user_id === currentUserId);
@@ -123,17 +123,15 @@ export function ExamPeriodsPanel({
   return (
     <View className="gap-3">
       <View className="flex-row items-center gap-2">
-        <Text className="flex-1 text-sm font-semibold text-violet-950">Gestionar modo silencio</Text>
+        <Text className="flex-1 text-sm font-semibold text-violet-950">{t('quiet.manage')}</Text>
         <InfoTip title={t('quiet.modeTitle')} message={t('quiet.info')} tone="violet" />
       </View>
       {isLoading ? (
         <MascotLoading />
       ) : !hasAny ? (
         <View className="gap-1 rounded-xl border border-dashed border-violet-200 bg-violet-50/40 px-3 py-4">
-          <Text className="text-sm font-semibold text-violet-950">Sin modo silencio</Text>
-          <Text className="text-sm leading-5 text-violet-800/70">
-            Actívalo en época de exámenes para bajar el ruido del piso.
-          </Text>
+          <Text className="text-sm font-semibold text-violet-950">{t('quiet.empty')}</Text>
+          <Text className="text-sm leading-5 text-violet-800/70">{t('quiet.empty.sub')}</Text>
         </View>
       ) : (
         <View className="gap-3">
@@ -141,13 +139,13 @@ export function ExamPeriodsPanel({
             <View className="gap-2">
               {mineOnly ? (
                 <Text className="text-[11px] font-semibold uppercase tracking-wide text-violet-800/80">
-                  Lo mío
+                  {t('absence.mine')}
                 </Text>
               ) : null}
               {mine.map((period) => (
                 <SilenceModeRow
                   key={period.id}
-                  banner={formatSilenceModeBanner(period.label, t('form.you'))}
+                  banner={t('quiet.banner', { label: period.label, name: t('form.you') })}
                   period={period}
                   canRemove
                   busy={busy}
@@ -160,13 +158,16 @@ export function ExamPeriodsPanel({
             <View className="gap-2">
               {mineOnly ? (
                 <Text className="text-[11px] font-semibold uppercase tracking-wide text-violet-800/80">
-                  Compañeros
+                  {t('absence.peers')}
                 </Text>
               ) : null}
               {others.map((period) => (
                 <SilenceModeRow
                   key={period.id}
-                  banner={formatSilenceModeBanner(period.label, memberName(period.user_id))}
+                  banner={t('quiet.banner', {
+                    label: period.label,
+                    name: memberName(period.user_id),
+                  })}
                   period={period}
                 />
               ))}
@@ -200,7 +201,7 @@ export function ExamPeriodsPanel({
             label={t('form.reasonPeriod')}
             value={label}
             onChangeText={setLabel}
-            placeholder="Finales, entrega TFG…"
+            placeholder={t('quiet.ph')}
           />
           <PeriodRangeCalendar
             visibleMonth={visibleMonth}
@@ -211,7 +212,7 @@ export function ExamPeriodsPanel({
             onSelectDate={handleSelectDate}
           />
           <Text className="text-xs text-stone-500">
-            Los días morados oscuros ya están registrados. Toca inicio y fin en días libres.
+            {t('quiet.calendarHint')}
           </Text>
           {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
           <Button label={t('form.savePeriod')} loading={saving || busy} onPress={() => void handleSave()} />

@@ -15,7 +15,6 @@ import { applyPeriodRangeSelection } from '@/features/home/lib/period-range-cale
 import { formatDateKey, toDateKey, isPeriodActiveOrUpcoming } from '@/lib/absences';
 import {
   CALENDAR_NOTICE_GLYPH,
-  CALENDAR_NOTICE_LABEL,
 } from '@/lib/home-notices';
 import { interactive, mergeStyles } from '@/lib/interactive-styles';
 import { useConfirmDialog } from '@/providers/ConfirmProvider';
@@ -41,6 +40,12 @@ type CalendarNoticesPanelProps = {
 };
 
 const KIND_OPTIONS: CalendarNoticeKind[] = ['VISIT', 'REPAIR', 'EVENT'];
+
+const KIND_LABEL_KEYS: Record<CalendarNoticeKind, string> = {
+  VISIT: 'visit.kind.visit',
+  REPAIR: 'visit.kind.repair',
+  EVENT: 'visit.kind.event',
+};
 
 /**
  * Agenda section to create visit / repair / event calendar notices.
@@ -165,31 +170,34 @@ export function CalendarNoticesPanel({
     showToast({ message: t('toast.visitDeleted'), tone: 'success' });
   }
 
+  function kindLabel(noticeKind: string): string {
+    if (noticeKind === 'VISIT' || noticeKind === 'REPAIR' || noticeKind === 'EVENT') {
+      return t(KIND_LABEL_KEYS[noticeKind]);
+    }
+    return noticeKind;
+  }
+
   return (
     <View className="gap-3">
       <View className="flex-row items-center gap-2">
-        <Text className="flex-1 text-sm font-semibold text-stone-900">Gestionar visitas y eventos</Text>
+        <Text className="flex-1 text-sm font-semibold text-stone-900">{t('visit.manage')}</Text>
         <InfoTip title={t('visit.title')} message={t('visit.info')} />
       </View>
       <View className="gap-3">
-        <Text className="text-xs text-stone-500">
-          Visitas, reparaciones o eventos del piso en el calendario.
-        </Text>
+        <Text className="text-xs text-stone-500">{t('visit.info')}</Text>
 
         {isLoading ? (
           <MascotLoading />
         ) : visibleNotices.length === 0 ? (
           <View className="gap-1 rounded-xl border border-dashed border-stone-200 bg-stone-50/80 px-3 py-4">
-            <Text className="text-sm font-semibold text-stone-800">Sin visitas ni eventos</Text>
-            <Text className="text-sm leading-5 text-stone-500">
-              Añade una reparación o visita para que salga en el calendario.
-            </Text>
+            <Text className="text-sm font-semibold text-stone-800">{t('visit.empty')}</Text>
+            <Text className="text-sm leading-5 text-stone-500">{t('visit.empty.sub')}</Text>
           </View>
         ) : (
           <View className="gap-3">
             {mineOnly && mineNotices.length > 0 ? (
               <Text className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">
-                Lo mío
+                {t('visit.mine')}
               </Text>
             ) : null}
             {(mineOnly ? mineNotices : notices).map((notice) => {
@@ -199,10 +207,7 @@ export function CalendarNoticesPanel({
                 notice.kind === 'VISIT' || notice.kind === 'REPAIR' || notice.kind === 'EVENT'
                   ? CALENDAR_NOTICE_GLYPH[notice.kind]
                   : '📌';
-              const label =
-                notice.kind === 'VISIT' || notice.kind === 'REPAIR' || notice.kind === 'EVENT'
-                  ? CALENDAR_NOTICE_LABEL[notice.kind]
-                  : notice.kind;
+              const label = kindLabel(notice.kind);
               return (
                 <View
                   key={notice.id}
@@ -222,7 +227,7 @@ export function CalendarNoticesPanel({
                       onPress={() => void handleRemove(notice)}
                       disabled={busy}
                       hitSlop={8}>
-                      <Text className="text-xs font-semibold text-red-600">Borrar</Text>
+                      <Text className="text-xs font-semibold text-red-600">{t('common.delete')}</Text>
                     </Pressable>
                   ) : null}
                 </View>
@@ -231,7 +236,7 @@ export function CalendarNoticesPanel({
             {mineOnly && peerUpcomingNotices.length > 0 ? (
               <View className="gap-2">
                 <Text className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">
-                  Compañeros
+                  {t('visit.peers')}
                 </Text>
                 {peerUpcomingNotices.map((notice) => {
                   const glyph =
@@ -240,12 +245,7 @@ export function CalendarNoticesPanel({
                     notice.kind === 'EVENT'
                       ? CALENDAR_NOTICE_GLYPH[notice.kind]
                       : '📌';
-                  const label =
-                    notice.kind === 'VISIT' ||
-                    notice.kind === 'REPAIR' ||
-                    notice.kind === 'EVENT'
-                      ? CALENDAR_NOTICE_LABEL[notice.kind]
-                      : notice.kind;
+                  const label = kindLabel(notice.kind);
                   return (
                     <View
                       key={notice.id}
@@ -296,7 +296,7 @@ export function CalendarNoticesPanel({
                         : { borderColor: '#e5e7eb', backgroundColor: '#f9fafb' },
                     )}>
                     <Text className="text-center text-xs font-semibold text-stone-800">
-                      {CALENDAR_NOTICE_GLYPH[option]} {CALENDAR_NOTICE_LABEL[option]}
+                      {CALENDAR_NOTICE_GLYPH[option]} {t(KIND_LABEL_KEYS[option])}
                     </Text>
                   </SafePressable>
                 );

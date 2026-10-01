@@ -24,7 +24,7 @@ import {
 import { useIconPack } from '@/providers/IconPackProvider';
 import type { HomeItemType } from '@/schemas/item-type.schema';
 import type { UpsertTaskInput } from '@/schemas/task.schema';
-import { TASK_CATEGORY_LABEL, TASK_ICON_OPTIONS } from '@/types/task-category';
+import { TASK_ICON_OPTIONS } from '@/types/task-category';
 import type { TaskWithRelations } from '@/types/database.types';
 import type { MemberAbsence } from '@/schemas/absence.schema';
 import { useLocale } from '@/providers/LocaleProvider';
@@ -161,7 +161,7 @@ export function TaskFormModal({
   async function handleSubmit() {
     setError(null);
     if (!title.trim()) {
-      setError('El título es obligatorio');
+      setError(t('form.titleRequired'));
       return;
     }
     if (!autoAssign) {
@@ -177,7 +177,7 @@ export function TaskFormModal({
       }
     }
     if (recurrence === 'WEEKLY' && weeklyDays(recurrenceConfig).length === 0) {
-      setError('Elige al menos un día de la semana');
+      setError(t('form.pickWeekday'));
       return;
     }
     if (
@@ -185,11 +185,11 @@ export function TaskFormModal({
       (recurrenceConfig.due_day_type ?? 'SPECIFIC_DAY') === 'SPECIFIC_DAY' &&
       monthlyDays(recurrenceConfig).length === 0
     ) {
-      setError('Elige al menos un día del mes');
+      setError(t('form.pickMonthDay'));
       return;
     }
     if (recurrence === 'YEARLY' && yearlyMonths(recurrenceConfig, startsAt).length === 0) {
-      setError('Elige al menos un mes');
+      setError(t('form.pickMonth'));
       return;
     }
     const rangeError = validateScheduleRangeAgainstRecurrence({
@@ -247,9 +247,9 @@ export function TaskFormModal({
                 onChangeText={setDescription}
               />
 
-              <Text className="text-sm font-medium text-stone-700">Tipo</Text>
+              <Text className="text-sm font-medium text-stone-700">{t('form.type')}</Text>
               <ItemTypePicker
-                builtin={[{ key: 'QUICK', label: TASK_CATEGORY_LABEL.QUICK }]}
+                builtin={[{ key: 'QUICK', label: t('kind.quick') }]}
                 customTypes={customTypes}
                 value={itemTypeId ?? 'QUICK'}
                 onChange={(next) => setItemTypeId(next === 'QUICK' ? null : next)}
@@ -261,7 +261,7 @@ export function TaskFormModal({
                 }}
               />
 
-              <Text className="text-sm font-medium text-stone-700">Icono</Text>
+              <Text className="text-sm font-medium text-stone-700">{t('form.icon')}</Text>
               <View className="flex-row flex-wrap gap-2">
                 {TASK_ICON_OPTIONS.map((option) => {
                   const active = icon === option;
@@ -299,7 +299,7 @@ export function TaskFormModal({
                 onChangeText={setPoints}
               />
 
-              <Text className="text-sm font-medium text-stone-700">Quién la hace</Text>
+              <Text className="text-sm font-medium text-stone-700">{t('form.whoDoes')}</Text>
               <View className="gap-2">
                 {members.map((member) => {
                   const selected = assigneeIds.includes(member.user_id);
@@ -319,10 +319,12 @@ export function TaskFormModal({
                       <Text className="text-sm font-medium text-stone-900">{name}</Text>
                       {showAbsentWarning ? (
                         <Text className="mt-1 text-xs text-amber-700">
-                          {absentMemberWarning(name)}
+                          {t('form.absentWarning')}
                         </Text>
                       ) : (
-                        <Text className="text-sm text-blue-700">{selected ? '✓ Asignado' : 'Tocar'}</Text>
+                        <Text className="text-sm text-blue-700">
+                          {selected ? t('form.assigned') : t('form.tap')}
+                        </Text>
                       )}
                     </Pressable>
                   );
@@ -333,11 +335,10 @@ export function TaskFormModal({
                 onPress={() => setAutoAssign((value) => !value)}
                 className={`rounded-xl border px-3 py-3 ${autoAssign ? 'border-blue-500 bg-blue-50' : 'border-stone-200 bg-white'}`}>
                 <Text className="text-sm font-medium text-stone-900">
-                  {autoAssign ? '✓ ' : ''}Rotación automática
+                  {autoAssign ? '✓ ' : ''}
+                  {t('form.autoAssign')}
                 </Text>
-                <Text className="text-xs text-stone-500 mt-1">
-                  Cada ciclo toca al siguiente compañero de la lista.
-                </Text>
+                <Text className="text-xs text-stone-500 mt-1">{t('form.autoAssign.sub')}</Text>
               </Pressable>
 
               {error ? <Text className="text-sm text-red-600">{error}</Text> : null}

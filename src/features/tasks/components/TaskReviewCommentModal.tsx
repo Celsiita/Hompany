@@ -31,7 +31,7 @@ export function TaskReviewCommentModal({
   function handleConfirm() {
     const trimmed = comment.trim();
     if (isDispute && !trimmed) {
-      setError('El motivo es obligatorio al impugnar.');
+      setError(t('review.disputeRequired'));
       return;
     }
     setError(null);
@@ -53,22 +53,20 @@ export function TaskReviewCommentModal({
           className="w-full gap-3 rounded-2xl bg-white p-4"
           onPress={(event) => event.stopPropagation()}>
           <Text className="text-lg font-bold text-stone-900">
-            {isDispute ? 'Impugnar prueba' : 'Aprobar entrega'}
+            {isDispute ? t('review.disputeTitle') : t('review.approveTitle')}
           </Text>
           <Text className="text-sm text-stone-600">
-            {isDispute
-              ? 'Explica qué falla para que el compañero pueda corregirlo.'
-              : 'Opcional: deja una sugerencia amable al validar la foto.'}
+            {isDispute ? t('review.disputeHint') : t('review.approveHint')}
           </Text>
           <TextField
             label={isDispute ? t('review.reason') : t('review.suggestion')}
             value={comment}
             onChangeText={setComment}
-            placeholder={isDispute ? 'Ej. la encimera sigue manchada' : 'Ej. genial, la próxima con más luz'}
+            placeholder={isDispute ? t('review.disputePh') : t('review.approvePh')}
           />
           {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
           <Button
-            label={isDispute ? 'Impugnar' : 'Aprobar'}
+            label={isDispute ? t('review.dispute') : t('review.approve')}
             loading={busy}
             onPress={handleConfirm}
           />

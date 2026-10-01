@@ -175,11 +175,11 @@ export function ExpenseCard({
       {showDate ? (
         <View className="gap-0.5">
           <Text className="text-sm text-stone-600">
-            Programada:{' '}
+            {t('agenda.scheduled')}:{' '}
             {expense.due_at ? formatHistoryDateTime(expense.due_at) : t('common.noDate')}
           </Text>
           <Text className="text-sm text-stone-600">
-            Realización:{' '}
+            {t('expense.completedAt')}{' '}
             {completedAt ? formatHistoryDateTime(completedAt) : '—'}
           </Text>
         </View>
@@ -189,7 +189,7 @@ export function ExpenseCard({
             countdown?.isOverdue ? 'text-red-600' : 'text-stone-700'
           }`}>
           {countdown?.label ??
-            (expense.due_at ? formatHistoryDateTime(expense.due_at) : 'Fecha obligatoria')}
+            (expense.due_at ? formatHistoryDateTime(expense.due_at) : t('expense.dueRequired'))}
         </Text>
       )}
 

@@ -32,8 +32,7 @@ type ShoppingListsPanelProps = {
   onOpenExpense: (expenseId: string) => Promise<void>;
 };
 
-const INFO =
-  'Cada lista tiene un gasto vinculado y participantes elegidos. Marca lo que falta; la rotación elige quién compra.';
+const INFO_KEY = 'lists.info';
 
 /**
  * Shared shopping / supply lists on the Expenses tab.
@@ -102,7 +101,7 @@ export function ShoppingListsPanel({
   async function handleAddList() {
     const name = newListName.trim();
     if (!name) {
-      setError('Pon un nombre a la lista');
+      setError(t('lists.needName'));
       return;
     }
     const memberIds =
@@ -112,13 +111,13 @@ export function ShoppingListsPanel({
           ? [currentUserId, ...members.map((m) => m.user_id).filter((id) => id !== currentUserId)]
           : members.map((member) => member.user_id);
     if (memberIds.length === 0) {
-      setError('Elige con quién se comparte la lista');
+      setError(t('lists.needMembers'));
       return;
     }
     const amountRaw = newListAmount.trim().replace(',', '.');
     const amount = amountRaw ? Number(amountRaw) : 0;
     if (amountRaw && (!Number.isFinite(amount) || amount < 0)) {
-      setError('Importe no válido');
+      setError(t('lists.invalidAmount'));
       return;
     }
     setBusy(true);
@@ -139,7 +138,7 @@ export function ShoppingListsPanel({
     }
     const title = newItemTitle.trim();
     if (!title) {
-      setError('Escribe qué falta');
+      setError(t('lists.needItem'));
       return;
     }
     setBusy(true);
@@ -162,7 +161,7 @@ export function ShoppingListsPanel({
       ? activeList.member_ids.filter((id) => id !== userId)
       : [...activeList.member_ids, userId];
     if (next.length === 0) {
-      setError('Debe quedar al menos un participante');
+      setError(t('lists.needOneMember'));
       return;
     }
     setBusy(true);
@@ -202,17 +201,15 @@ export function ShoppingListsPanel({
       }
       accent="amber"
       defaultExpanded
-      info={<InfoTip title={t('lists.shared')} message={INFO} tone="amber" />}>
+      info={<InfoTip title={t('lists.shared')} message={t(INFO_KEY)} tone="amber" />}>
       {isLoading ? (
         <MascotLoading />
       ) : (
         <View className="gap-3">
           {lists.length === 0 ? (
             <View className="gap-1 rounded-xl border border-dashed border-amber-200 bg-amber-50/40 px-3 py-4">
-              <Text className="text-sm font-semibold text-amber-950">Sin listas aún</Text>
-              <Text className="text-sm leading-5 text-amber-900/70">
-                Crea la del súper o de productos compartidos para marcar lo que falta.
-              </Text>
+              <Text className="text-sm font-semibold text-amber-950">{t('lists.empty')}</Text>
+              <Text className="text-sm leading-5 text-amber-900/70">{t('lists.empty.sub')}</Text>
             </View>
           ) : (
             <View className="flex-row flex-wrap gap-2">
@@ -251,7 +248,7 @@ export function ShoppingListsPanel({
                 }
               }}
               contentStyle={mergeStyles(interactive.secondaryButton, { alignSelf: 'flex-start' })}>
-              <Text className="text-sm font-semibold text-stone-800">+ Añadir lista</Text>
+              <Text className="text-sm font-semibold text-stone-800">{t('lists.addList')}</Text>
             </SafePressable>
           ) : (
             <View className="gap-2 rounded-xl border border-stone-200 bg-stone-50 p-3">
@@ -266,9 +263,9 @@ export function ShoppingListsPanel({
                 value={newListAmount}
                 onChangeText={setNewListAmount}
                 keyboardType="decimal-pad"
-                placeholder="0 = recordatorio"
+                placeholder={t('expense.zeroHintShort')}
               />
-              <Text className="text-xs text-stone-600">¿Con quién se comparte?</Text>
+              <Text className="text-xs text-stone-600">{t('expense.whoOwes')}</Text>
               {members.map((member) => {
                 const selected = newMemberIds.includes(member.user_id);
                 return (
@@ -308,17 +305,17 @@ export function ShoppingListsPanel({
               <Text className="text-sm font-semibold text-stone-900">{activeList.name}</Text>
 
               <View className="gap-2 rounded-xl border border-emerald-100 bg-emerald-50/60 px-3 py-2">
-                <Text className="text-xs font-semibold uppercase text-emerald-800">Gasto controlado</Text>
+                <Text className="text-xs font-semibold uppercase text-emerald-800">
+                  {t('lists.expenseControlled')}
+                </Text>
                 {linkedExpense ? (
                   <Text className="text-sm text-emerald-950">
                     {linkedExpense.title} · {linkedExpense.amount.toFixed(2)} € · {linkedExpense.status}
                   </Text>
                 ) : hasLinkedExpenseId ? (
-                  <Text className="text-sm text-emerald-900/80">
-                    Gasto vinculado (puede no verse en tus filtros actuales).
-                  </Text>
+                  <Text className="text-sm text-emerald-900/80">{t('lists.expenseLinkedHidden')}</Text>
                 ) : (
-                  <Text className="text-sm text-emerald-900/80">Aún no hay gasto vinculado.</Text>
+                  <Text className="text-sm text-emerald-900/80">{t('lists.noExpenseYet')}</Text>
                 )}
                 <Button
                   label={hasLinkedExpenseId ? t('lists.openExpense') : t('lists.linkExpense')}
@@ -328,7 +325,7 @@ export function ShoppingListsPanel({
                 />
               </View>
 
-              <Text className="text-xs font-semibold text-stone-700">Compartida con</Text>
+              <Text className="text-xs font-semibold text-stone-700">{t('lists.sharedWith')}</Text>
               {members.map((member) => {
                 const selected = activeList.member_ids.includes(member.user_id);
                 return (
@@ -365,12 +362,15 @@ export function ShoppingListsPanel({
                   activeList.rotation_enabled ? interactive.borderedCardActive : undefined,
                 )}>
                 <Text className="text-sm font-medium text-stone-900">
-                  {activeList.rotation_enabled ? '✓ ' : ''}Rotación para ir a comprar
+                  {activeList.rotation_enabled ? '✓ ' : ''}
+                  {t('lists.rotation')}
                 </Text>
                 <Text className="mt-1 text-xs text-stone-500">
                   {activeList.rotation_enabled
-                    ? `Comprador actual: ${memberName(activeList.current_buyer_user_id)}`
-                    : 'Opcional: el acreedor/comprador rota entre participantes.'}
+                    ? t('lists.currentBuyer', {
+                        name: memberName(activeList.current_buyer_user_id),
+                      })
+                    : t('lists.rotationHint')}
                 </Text>
               </SafePressable>
 
@@ -401,10 +401,8 @@ export function ShoppingListsPanel({
 
               {activeList.items.length === 0 ? (
                 <View className="gap-1 rounded-xl border border-dashed border-amber-200 bg-amber-50/40 px-3 py-4">
-                  <Text className="text-sm font-semibold text-amber-950">Lista vacía</Text>
-                  <Text className="text-sm leading-5 text-amber-900/70">
-                    Añade lo que falta comprar; el piso lo ve al instante.
-                  </Text>
+                  <Text className="text-sm font-semibold text-amber-950">{t('lists.emptyItems')}</Text>
+                  <Text className="text-sm leading-5 text-amber-900/70">{t('lists.emptyItems.sub')}</Text>
                 </View>
               ) : (
                 activeList.items.map((item) => (
@@ -421,7 +419,7 @@ export function ShoppingListsPanel({
                       </Text>
                     </SafePressable>
                     <SafePressable onPress={() => void onRemoveItem(item.id)}>
-                      <Text className="text-xs font-semibold text-red-600">Quitar</Text>
+                      <Text className="text-xs font-semibold text-red-600">{t('lists.removeItem')}</Text>
                     </SafePressable>
                   </View>
                 ))
@@ -433,7 +431,7 @@ export function ShoppingListsPanel({
                     label={t('lists.addItem')}
                     value={newItemTitle}
                     onChangeText={setNewItemTitle}
-                    placeholder="Papel, detergente…"
+                    placeholder={t('lists.itemPh')}
                   />
                 </View>
                 <View className="justify-end pb-1">
@@ -447,7 +445,7 @@ export function ShoppingListsPanel({
               </View>
             </View>
           ) : lists.length > 0 ? (
-            <Text className="text-sm text-stone-500">Elige una lista arriba para ver los ítems.</Text>
+            <Text className="text-sm text-stone-500">{t('lists.pickList')}</Text>
           ) : null}
 
           {error ? <Text className="text-sm text-red-600">{error}</Text> : null}

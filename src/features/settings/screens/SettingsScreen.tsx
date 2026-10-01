@@ -666,7 +666,10 @@ export function SettingsScreen() {
                   ? [
                       {
                         key: 'role',
-                        label: menuMember.role === 'admin' ? 'Revocar admin' : 'Hacer admin',
+                        label:
+                          menuMember.role === 'admin'
+                            ? t('settings.revokeAdmin')
+                            : t('settings.makeAdmin'),
                         onPress: () => {
                           if (!activeHome) {
                             return;
@@ -674,12 +677,18 @@ export function SettingsScreen() {
                           const nextRole = menuMember.role === 'admin' ? 'member' : 'admin';
                           const name = menuMember.profiles?.display_name ?? t('common.roommate');
                           void confirm({
-                            title: nextRole === 'admin' ? 'Hacer admin' : 'Revocar admin',
+                            title:
+                              nextRole === 'admin'
+                                ? t('settings.makeAdmin')
+                                : t('settings.revokeAdmin'),
                             message:
                               nextRole === 'admin'
                                 ? t('confirm.makeAdmin', { name })
                                 : t('confirm.revokeAdmin', { name }),
-                            confirmLabel: nextRole === 'admin' ? 'Hacer admin' : 'Revocar',
+                            confirmLabel:
+                              nextRole === 'admin'
+                                ? t('settings.makeAdmin')
+                                : t('settings.revoke'),
                             tone: 'neutral',
                           }).then((ok) => {
                             if (!ok) {
@@ -702,19 +711,19 @@ export function SettingsScreen() {
                       },
                       {
                         key: 'kick',
-                        label: 'Expulsar del piso',
+                        label: t('settings.kickFromHome'),
                         destructive: true,
                         onPress: () => {
                           if (!activeHome) {
                             return;
                           }
                           void confirm({
-                            title: 'Expulsar compañero',
+                            title: t('settings.kickTitle'),
                             message: t('confirm.kick', {
                               name: menuMember.profiles?.display_name ?? t('common.roommate'),
                               home: activeHome.name,
                             }),
-                            confirmLabel: 'Expulsar',
+                            confirmLabel: t('settings.kick'),
                           }).then((ok) => {
                             if (!ok) {
                               return;
@@ -751,13 +760,13 @@ export function SettingsScreen() {
           <Pressable
             className="w-full max-w-sm items-center gap-3 rounded-3xl bg-white p-5"
             onPress={(event) => event.stopPropagation()}>
-            <Text className="text-base font-semibold text-stone-900">QR de invitación</Text>
+            <Text className="text-base font-semibold text-stone-900">{t('settings.inviteQr')}</Text>
             {activeHome ? (
               <>
                 <Image
                   source={{ uri: homeInviteQrImageUrl(activeHome.invite_code) }}
                   style={{ width: 220, height: 220 }}
-                  accessibilityLabel="Código QR de invitación"
+                  accessibilityLabel={t('a11y.qr')}
                 />
                 <Text className="text-center text-xs text-stone-500" selectable>
                   {homeInviteUrl(activeHome.invite_code)}

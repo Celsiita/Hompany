@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { recurrenceLabel } from '@/features/tasks/lib/recurrence';
 import { resolveTaskTypeLabel } from '@/lib/item-type-labels';
+import { useLocale } from '@/providers/LocaleProvider';
 import type { HomeItemType } from '@/schemas/item-type.schema';
 import type { TaskTemplateWithRelations } from '@/types/database.types';
 
@@ -37,6 +38,7 @@ export function TemplateCard({
   onEdit,
   onDelete,
 }: TemplateCardProps) {
+  const { t } = useLocale();
   const typeLabel = resolveTaskTypeLabel({
     category: template.category,
     itemTypeId: template.item_type_id,
@@ -71,7 +73,7 @@ export function TemplateCard({
       <View className="flex-row items-center justify-between">
         <View className="flex-row -space-x-2">
           {template.task_template_assignees.length === 0 ? (
-            <Text className="text-xs text-stone-500">Sin asignar</Text>
+            <Text className="text-xs text-stone-500">{t('common.unassigned')}</Text>
           ) : (
             template.task_template_assignees.slice(0, 4).map((assignee) => (
               <View
@@ -88,7 +90,7 @@ export function TemplateCard({
 
       {onUse ? (
         <Button
-          label={template.recurrence === 'ONCE' ? 'Usar de nuevo' : 'Reactivar'}
+          label={template.recurrence === 'ONCE' ? t('template.reuse') : t('template.reactivate')}
           loading={busy}
           onPress={() => onUse(template)}
         />
@@ -98,12 +100,12 @@ export function TemplateCard({
         <View className="flex-row gap-3">
           {onEdit ? (
             <Pressable onPress={() => onEdit(template)}>
-              <Text className="text-sm font-semibold text-blue-700">Editar</Text>
+              <Text className="text-sm font-semibold text-blue-700">{t('common.edit')}</Text>
             </Pressable>
           ) : null}
           {onDelete ? (
             <Pressable onPress={() => onDelete(template)}>
-              <Text className="text-sm font-semibold text-red-600">Eliminar</Text>
+              <Text className="text-sm font-semibold text-red-600">{t('common.delete')}</Text>
             </Pressable>
           ) : null}
         </View>

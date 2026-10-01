@@ -21,6 +21,10 @@ const TYPES: HomeItemType[] = [
 ];
 
 describe('item-type-labels', () => {
+  beforeEach(() => {
+    setAppLocale('es');
+  });
+
   it('prefers custom task type name over built-in category', () => {
     expect(
       resolveTaskTypeLabel({
@@ -31,14 +35,25 @@ describe('item-type-labels', () => {
     ).toBe('Cocina');
   });
 
-  it('falls back to built-in task category', () => {
+  it('falls back to built-in task category in Spanish', () => {
     expect(
       resolveTaskTypeLabel({
         category: 'QUICK',
         itemTypeId: null,
         itemTypes: TYPES,
       }),
-    ).toBe('Tareas Rápidas');
+    ).toBe('Tareas rápidas');
+  });
+
+  it('falls back to built-in task category in English', () => {
+    setAppLocale('en');
+    expect(
+      resolveTaskTypeLabel({
+        category: 'QUICK',
+        itemTypeId: null,
+        itemTypes: TYPES,
+      }),
+    ).toBe('Quick tasks');
   });
 
   it('prefers custom expense type name over built-in kind', () => {
@@ -49,6 +64,17 @@ describe('item-type-labels', () => {
         itemTypes: TYPES,
       }),
     ).toBe('Netflix');
+  });
+
+  it('falls back to built-in expense kind in English', () => {
+    setAppLocale('en');
+    expect(
+      resolveExpenseTypeLabel({
+        kind: 'PEER',
+        itemTypeId: null,
+        itemTypes: TYPES,
+      }),
+    ).toBe('Fun');
   });
 });
 

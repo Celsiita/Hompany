@@ -23,7 +23,7 @@ export function ConfirmModal({
   visible,
   title,
   message,
-  confirmLabel = 'Confirmar',
+  confirmLabel = translate(getAppLocale(), 'common.confirm'),
   cancelLabel = translate(getAppLocale(), 'common.cancel'),
   tone = 'danger',
   onConfirm,

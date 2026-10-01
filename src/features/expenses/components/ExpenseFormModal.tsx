@@ -25,7 +25,7 @@ import {
 } from '@/lib/recurrence';
 import type { HomeItemType } from '@/schemas/item-type.schema';
 import type { ExpenseSplitMode } from '@/schemas/expense.schema';
-import { EXPENSE_KIND, EXPENSE_KIND_LABEL, type ExpenseKind } from '@/types/expense';
+import { EXPENSE_KIND, type ExpenseKind } from '@/types/expense';
 import { formatAppError } from '@/lib/error-message';
 import { interactive, mergeStyles } from '@/lib/interactive-styles';
 import { buildExpenseParticipantIds } from '@/features/expenses/lib/expense-filters';
@@ -357,15 +357,15 @@ export function ExpenseFormModal({
                 keyboardType="decimal-pad"
                 value={amount}
                 onChangeText={setAmount}
-                placeholder="0 = recordatorio, sin deuda"
+                placeholder={t('expense.zeroHint')}
               />
 
-              <Text className="text-sm font-medium text-stone-700">Tipo</Text>
+              <Text className="text-sm font-medium text-stone-700">{t('common.kind')}</Text>
               <ItemTypePicker
                 builtin={[
-                  { key: EXPENSE_KIND.GROCERY, label: EXPENSE_KIND_LABEL.GROCERY },
-                  { key: EXPENSE_KIND.HOUSE, label: EXPENSE_KIND_LABEL.HOUSE },
-                  { key: EXPENSE_KIND.PEER, label: EXPENSE_KIND_LABEL.PEER },
+                  { key: EXPENSE_KIND.GROCERY, label: t('kind.grocery') },
+                  { key: EXPENSE_KIND.HOUSE, label: t('kind.house') },
+                  { key: EXPENSE_KIND.PEER, label: t('kind.peer') },
                 ]}
                 customTypes={customTypes}
                 value={itemTypeId ?? kind}
@@ -390,13 +390,13 @@ export function ExpenseFormModal({
                 }}
               />
 
-              <Text className="text-sm font-medium text-stone-700">Cómo se reparte</Text>
+              <Text className="text-sm font-medium text-stone-700">{t('expense.splitHow')}</Text>
               <View className="flex-row flex-wrap gap-2">
                 {(
                   [
-                    { key: 'EQUAL' as const, label: 'A partes iguales' },
-                    { key: 'PERCENT' as const, label: 'Porcentajes' },
-                    { key: 'AMOUNT' as const, label: 'Cantidades fijas' },
+                    { key: 'EQUAL' as const, labelKey: 'expense.splitEqual' },
+                    { key: 'PERCENT' as const, labelKey: 'expense.splitPercent' },
+                    { key: 'AMOUNT' as const, labelKey: 'expense.splitAmount' },
                   ] as const
                 ).map((option) => {
                   const active = splitMode === option.key;
@@ -410,21 +410,17 @@ export function ExpenseFormModal({
                       )}>
                       <Text
                         className={`text-xs font-semibold ${active ? 'text-white' : 'text-stone-700'}`}>
-                        {option.label}
+                        {t(option.labelKey)}
                       </Text>
                     </SafePressable>
                   );
                 })}
               </View>
 
-              <Text className="text-sm font-medium text-stone-700">¿Quiénes te deben?</Text>
-              <Text className="text-xs text-stone-500">
-                Toca para marcar o desmarcar. Si no ves a nadie, invita a un compañero al piso.
-              </Text>
+              <Text className="text-sm font-medium text-stone-700">{t('expense.whoOwes')}</Text>
+              <Text className="text-xs text-stone-500">{t('expense.whoOwes.sub')}</Text>
               {debtorCandidates.length === 0 ? (
-                <Text className="text-sm text-amber-700">
-                  Solo estás tú en el piso. Añade compañeros para poder repartir.
-                </Text>
+                <Text className="text-sm text-amber-700">{t('expense.noMembers')}</Text>
               ) : (
                 <View className="gap-2">
                   {debtorCandidates.map((member) => {
@@ -442,7 +438,7 @@ export function ExpenseFormModal({
                         )}>
                         <Text className="text-sm font-medium text-stone-900">{name}</Text>
                         <Text className="text-sm text-amber-800">
-                          {selected ? '✓ Te debe' : 'Incluir'}
+                          {selected ? t('expense.owesYou') : t('expense.include')}
                         </Text>
                       </SafePressable>
                     );
@@ -458,20 +454,16 @@ export function ExpenseFormModal({
                   includePayer ? interactive.borderedCardActive : undefined,
                 )}>
                 <Text className="text-sm font-medium text-stone-900">
-                  {includePayer ? '✓ ' : ''}También me toca a mí
+                  {includePayer ? '✓ ' : ''}
+                  {t('expense.splitAll')}
                 </Text>
-                <Text className="mt-1 text-xs text-stone-500">
-                  Activado: repartes el total con los demás (tú también pagas tu parte). Desactivado:
-                  ellos te deben el 100 %.
-                </Text>
+                <Text className="mt-1 text-xs text-stone-500">{t('expense.splitAll.sub')}</Text>
               </SafePressable>
 
               {splitMode !== 'EQUAL' ? (
                 <View className="gap-2 rounded-xl border border-stone-200 bg-stone-50 p-3">
                   <Text className="text-xs text-stone-600">
-                    {splitMode === 'PERCENT'
-                      ? 'Escribe el % de cada participante. Debe sumar 100.'
-                      : 'Escribe la cantidad de cada uno. Debe sumar el total.'}
+                    {splitMode === 'PERCENT' ? t('expense.percentHint') : t('expense.amountHint')}
                   </Text>
                   {buildExpenseParticipantIds({
                     paidBy,
@@ -481,7 +473,9 @@ export function ExpenseFormModal({
                     const member = members.find((row) => row.user_id === userId);
                     const name =
                       userId === paidBy
-                        ? `${member?.profiles?.display_name ?? 'Pagador'} (pagó)`
+                        ? t('expense.payerPaid', {
+                            name: member?.profiles?.display_name ?? t('expense.payerLabel'),
+                          })
                         : (member?.profiles?.display_name ?? userId.slice(0, 6));
                     return (
                       <TextField
@@ -499,7 +493,7 @@ export function ExpenseFormModal({
                 </View>
               ) : null}
 
-              <Text className="text-sm font-medium text-stone-700">¿Quién pagó / adelantó?</Text>
+              <Text className="text-sm font-medium text-stone-700">{t('expense.whoPaid')}</Text>
               <View className="gap-2">
                 {members.map((member) => {
                   const selected = paidBy === member.user_id;
@@ -540,10 +534,8 @@ export function ExpenseFormModal({
                 onChangeText={setDescription}
               />
 
-              <Text className="text-sm font-medium text-stone-700">Ticket / recibo</Text>
-              <Text className="text-xs text-stone-500">
-                Puedes guardar el gasto sin adjunto y añadirlo más tarde al editar.
-              </Text>
+              <Text className="text-sm font-medium text-stone-700">{t('expense.receipt')}</Text>
+              <Text className="text-xs text-stone-500">{t('expense.receipt.sub')}</Text>
               {previewUri ? (
                 <Image
                   source={{ uri: previewUri }}

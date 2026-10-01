@@ -1,6 +1,7 @@
-import { TASK_CATEGORY_LABEL } from '@/types/task-category';
-import { EXPENSE_KIND_LABEL, type ExpenseKind } from '@/types/expense';
+import { displayExpenseKind, displayTaskCategory, tLocale } from '@/lib/i18n/display';
+import { getAppLocale } from '@/lib/i18n/locale-store';
 import type { HomeItemType } from '@/schemas/item-type.schema';
+import type { ExpenseKind } from '@/types/expense';
 import type { TaskCategory } from '@/types/task-category';
 
 /**
@@ -17,7 +18,7 @@ export function resolveTaskTypeLabel(params: {
       return match.name.trim();
     }
   }
-  return TASK_CATEGORY_LABEL[params.category] ?? 'Tarea';
+  return displayTaskCategory(params.category, tLocale(getAppLocale()));
 }
 
 /**
@@ -34,5 +35,5 @@ export function resolveExpenseTypeLabel(params: {
       return match.name.trim();
     }
   }
-  return EXPENSE_KIND_LABEL[params.kind] ?? 'Gasto';
+  return displayExpenseKind(params.kind, tLocale(getAppLocale()));
 }

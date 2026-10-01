@@ -1,3 +1,5 @@
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { translate } from '@/lib/i18n/strings';
 import { localDateKey } from '@/lib/recurrence';
 import type { CalendarNoticeKind, HomeNotice } from '@/schemas/home-notice.schema';
 
@@ -7,10 +9,30 @@ export const CALENDAR_NOTICE_GLYPH: Record<CalendarNoticeKind, string> = {
   EVENT: '📅',
 };
 
+const CALENDAR_NOTICE_LABEL_KEY: Record<CalendarNoticeKind, string> = {
+  REPAIR: 'visit.kind.repair',
+  VISIT: 'visit.kind.visit',
+  EVENT: 'visit.kind.event',
+};
+
+/**
+ * Localized calendar notice kind label.
+ */
+export function calendarNoticeLabel(kind: CalendarNoticeKind): string {
+  return translate(getAppLocale(), CALENDAR_NOTICE_LABEL_KEY[kind]);
+}
+
+/** Localized labels; reads current app locale on each access. */
 export const CALENDAR_NOTICE_LABEL: Record<CalendarNoticeKind, string> = {
-  REPAIR: 'Reparación',
-  VISIT: 'Visita',
-  EVENT: 'Evento',
+  get REPAIR() {
+    return calendarNoticeLabel('REPAIR');
+  },
+  get VISIT() {
+    return calendarNoticeLabel('VISIT');
+  },
+  get EVENT() {
+    return calendarNoticeLabel('EVENT');
+  },
 };
 
 type CalendarNoticeLike = Pick<HomeNotice, 'kind' | 'starts_on' | 'ends_on' | 'title'>;

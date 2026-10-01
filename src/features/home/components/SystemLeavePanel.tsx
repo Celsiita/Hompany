@@ -167,10 +167,8 @@ export function SystemLeavePanel({
         <MascotLoading />
       ) : listedLeaves.length === 0 ? (
         <View className="gap-1 rounded-xl border border-dashed border-amber-200 bg-amber-50/40 px-3 py-4">
-          <Text className="text-sm font-semibold text-amber-950">Sin bajas largas</Text>
-          <Text className="text-sm leading-5 text-amber-900/70">
-            Úsalo si te vas semanas o dejas el piso; las tareas se reasignan.
-          </Text>
+          <Text className="text-sm font-semibold text-amber-950">{t('systemLeave.empty')}</Text>
+          <Text className="text-sm leading-5 text-amber-900/70">{t('systemLeave.empty.sub')}</Text>
         </View>
       ) : (
         <View className="gap-3">
@@ -178,7 +176,7 @@ export function SystemLeavePanel({
             <View className="gap-2">
               {mineOnly ? (
                 <Text className="text-[11px] font-semibold uppercase tracking-wide text-amber-800/80">
-                  Lo mío
+                  {t('absence.mine')}
                 </Text>
               ) : null}
               {mine.map((leave) => (
@@ -197,7 +195,7 @@ export function SystemLeavePanel({
             <View className="gap-2">
               {mineOnly ? (
                 <Text className="text-[11px] font-semibold uppercase tracking-wide text-amber-800/80">
-                  Compañeros
+                  {t('absence.peers')}
                 </Text>
               ) : null}
               {others.map((leave) => (
@@ -212,7 +210,7 @@ export function SystemLeavePanel({
         <SafePressable
           onPress={() => setFormOpen(true)}
           contentStyle={mergeStyles(interactive.secondaryButton, { marginTop: 4 })}>
-          <Text className="text-sm font-semibold text-stone-800">+ Registrar</Text>
+          <Text className="text-sm font-semibold text-stone-800">{t('systemLeave.register')}</Text>
         </SafePressable>
       ) : (
         <View className="gap-3">
@@ -230,9 +228,7 @@ export function SystemLeavePanel({
             }}
           />
           <Text className="text-xs text-amber-900/70">
-            {kind === 'INDEFINITE'
-              ? 'Toca el día en que empieza. No tiene fin hasta que la quites.'
-              : 'Toca inicio y fin en el calendario.'}
+            {kind === 'INDEFINITE' ? t('systemLeave.indefiniteHint') : t('systemLeave.plannedHint')}
           </Text>
           <PeriodRangeCalendar
             visibleMonth={visibleMonth}
@@ -246,7 +242,7 @@ export function SystemLeavePanel({
             label={t('form.reasonOptional')}
             value={reason}
             onChangeText={setReason}
-            placeholder="Viaje, mudanza…"
+            placeholder={t('systemLeave.ph')}
           />
           {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
           <View className="flex-row gap-2">
@@ -297,10 +293,12 @@ function LeaveRow({
   busy?: boolean;
   onRemove?: () => void;
 }) {
-  const kindLabel = leave.kind === 'INDEFINITE' ? 'Indefinida' : 'Planificada';
+  const { t } = useLocale();
+  const kindLabel =
+    leave.kind === 'INDEFINITE' ? t('systemLeave.indefinite') : t('systemLeave.planned');
   const range =
     leave.kind === 'INDEFINITE'
-      ? `desde ${formatDateKey(leave.start_date)}`
+      ? t('systemLeave.from', { date: formatDateKey(leave.start_date) })
       : `${formatDateKey(leave.start_date)} → ${formatDateKey(leave.end_date!)}`;
 
   return (
@@ -324,7 +322,7 @@ function LeaveRow({
             disabled={busy}
             onPress={onRemove}
             contentStyle={mergeStyles(interactive.ghostButton, { paddingVertical: 4 })}>
-            <Text className="text-xs font-semibold text-red-600">Quitar</Text>
+            <Text className="text-xs font-semibold text-red-600">{t('systemLeave.remove')}</Text>
           </SafePressable>
         ) : null}
       </View>
