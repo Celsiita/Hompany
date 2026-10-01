@@ -37,33 +37,58 @@ export function AuthProvider({ children }: PropsWithChildren) {
     let cancelled = false;
 
     async function hydrateSession() {
-      const { data, error } = await supabase.auth.getSession();
+      try {
+        const { data, error } = await supabase.auth.getSession();
 
-      if (cancelled) {
-        return;
-      }
+        if (cancelled) {
+          return;
+        }
 
-      if (error || !data.session) {
-        setSession(null);
+        if (error || !data.session) {
+          setSession(null);
+          return;
+        }
+
+        // Validate against Auth server — fails after db:reset with stale AsyncStorage.
+        // Bound wait so a hung network never leaves the app gate stuck on loading.
+        const userResult = await Promise.race([
+          supabase.auth.getUser(),
+          new Promise<{ data: { user: null }; error: Error }>((resolve) => {
+            setTimeout(
+              () =>
+                resolve({
+                  data: { user: null },
+                  error: new Error('getUser timeout'),
+                }),
+              8_000,
+            );
+          }),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        if (userResult.error?.message === 'getUser timeout' && data.session) {
+          // Trust persisted session if validation times out (common on slow web).
+          setSession(data.session);
+          return;
+        }
+
+        if (userResult.error || !userResult.data.user) {
+          await supabase.auth.signOut();
+          setSession(null);
+          return;
+        }
+
+        setSession(data.session);
+      } catch {
+        if (!cancelled) {
+          setSession(null);
+        }
+      } finally {
         setIsLoading(false);
-        return;
       }
-
-      // Validate against Auth server — fails after db:reset with stale AsyncStorage.
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (cancelled) {
-        return;
-      }
-
-      if (userError || !userData.user) {
-        await supabase.auth.signOut();
-        setSession(null);
-        setIsLoading(false);
-        return;
-      }
-
-      setSession(data.session);
-      setIsLoading(false);
     }
 
     void hydrateSession();

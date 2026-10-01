@@ -116,6 +116,9 @@ export function PurchasesProvider({ children }: PropsWithChildren) {
         Purchases.configure({ apiKey });
         if (!cancelled) {
           setIsConfigured(true);
+          // syncUser effect will refresh CustomerInfo; don't stay loading forever
+          // if that effect is skipped (e.g. no user yet).
+          setIsLoading(false);
         }
       } catch (err) {
         console.warn('[Purchases] configure failed', err);

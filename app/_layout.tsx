@@ -43,7 +43,8 @@ function RootNavigator() {
       return;
     }
 
-    if (gate === 'ready' && (inAuthGroup || inOnboardingGroup)) {
+    // Empty segments = root `/` after the loading gate unmounts the Stack.
+    if (gate === 'ready' && (inAuthGroup || inOnboardingGroup || segments.length === 0)) {
       router.replace('/(tabs)');
     }
   }, [gate, segments, router]);

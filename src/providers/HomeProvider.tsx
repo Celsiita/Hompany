@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
@@ -68,12 +69,14 @@ export function resolveActiveHomeId(
  */
 export function HomeProvider({ children }: PropsWithChildren) {
   const { user, isLoading: isAuthLoading } = useAuth();
+  const userId = user?.id ?? null;
   const [homes, setHomes] = useState<Home[]>([]);
   const [activeHomeId, setActiveHomeIdState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const bootstrapGenerationRef = useRef(0);
 
   const refreshHomes = useCallback(async () => {
-    if (!user) {
+    if (!userId) {
       setHomes([]);
       return [];
     }
@@ -81,17 +84,21 @@ export function HomeProvider({ children }: PropsWithChildren) {
     const nextHomes = await listMyHomes();
     setHomes(nextHomes);
     return nextHomes;
-  }, [user]);
+  }, [userId]);
 
   useEffect(() => {
-    let cancelled = false;
+    const generation = ++bootstrapGenerationRef.current;
 
     async function bootstrap() {
       if (isAuthLoading) {
+        setIsLoading(true);
         return;
       }
 
-      if (!user) {
+      if (!userId) {
+        if (bootstrapGenerationRef.current !== generation) {
+          return;
+        }
         setHomes([]);
         setActiveHomeIdState(null);
         setIsLoading(false);
@@ -105,7 +112,7 @@ export function HomeProvider({ children }: PropsWithChildren) {
           AsyncStorage.getItem(ACTIVE_HOME_ID_KEY),
         ]);
 
-        if (cancelled) {
+        if (bootstrapGenerationRef.current !== generation) {
           return;
         }
 
@@ -120,23 +127,19 @@ export function HomeProvider({ children }: PropsWithChildren) {
           await AsyncStorage.removeItem(ACTIVE_HOME_ID_KEY);
         }
       } catch {
-        if (!cancelled) {
+        if (bootstrapGenerationRef.current === generation) {
           setHomes([]);
           setActiveHomeIdState(null);
         }
       } finally {
-        if (!cancelled) {
+        if (bootstrapGenerationRef.current === generation) {
           setIsLoading(false);
         }
       }
     }
 
     void bootstrap();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user, isAuthLoading]);
+  }, [userId, isAuthLoading]);
 
   const setActiveHomeId = useCallback(async (homeId: string) => {
     const scoped = requireHomeId(homeId);
