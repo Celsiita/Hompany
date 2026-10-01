@@ -28,9 +28,9 @@ type HomeNoticesPanelProps = {
   onRemove: (noticeId: string) => Promise<void>;
 };
 
-const KIND_LABEL: Record<FeedNoticeKind, string> = {
-  RULE: 'Regla',
-  COMPLAINT: 'Queja',
+const KIND_KEYS: Record<FeedNoticeKind, string> = {
+  RULE: 'rules.kindRule',
+  COMPLAINT: 'rules.kindComplaint',
 };
 
 /**
@@ -143,10 +143,10 @@ export function HomeNoticesPanel({
         ) : sorted.length === 0 ? (
           <View className="items-center gap-1 rounded-2xl border border-stone-200 bg-white/80 px-4 py-6">
             <Text className="text-center text-sm font-semibold text-stone-800">
-              Sin reglas ni quejas
+              {t('rules.empty')}
             </Text>
             <Text className="text-center text-sm leading-5 text-stone-500">
-              Publica la primera desde Añadir para que todo el piso la vea.
+              {t('rules.empty.sub')}
             </Text>
           </View>
         ) : (
@@ -154,7 +154,7 @@ export function HomeNoticesPanel({
             {sorted.map((notice) => {
               const authorLabel =
                 notice.is_anonymous || !notice.author_id
-                  ? 'Anónimo'
+                  ? t('rules.anonymous')
                   : (authorName?.(notice.author_id) ?? t('common.roommate'));
               return (
                 <View
@@ -162,11 +162,13 @@ export function HomeNoticesPanel({
                   className="gap-1 rounded-xl border border-stone-100 bg-stone-50 px-3 py-2.5">
                   <View className="flex-row items-center justify-between gap-2">
                     <Text className="text-[11px] font-semibold uppercase tracking-wide text-stone-500">
-                      {KIND_LABEL[notice.kind as FeedNoticeKind] ?? notice.kind}
+                      {t(KIND_KEYS[notice.kind as FeedNoticeKind] ?? 'rules.kindRule')}
                     </Text>
                     {isAdmin || notice.author_id === currentUserId ? (
                       <Pressable onPress={() => void handleRemove(notice)} hitSlop={8}>
-                        <Text className="text-xs font-semibold text-red-600">Borrar</Text>
+                        <Text className="text-xs font-semibold text-red-600">
+                          {t('rules.delete')}
+                        </Text>
                       </Pressable>
                     ) : null}
                   </View>
@@ -183,10 +185,8 @@ export function HomeNoticesPanel({
       </View>
 
       <BottomSheetModal visible={editorOpen} onClose={() => setEditorOpen(false)}>
-        <Text className="mb-1 text-lg font-bold text-stone-900">Nuevo aviso</Text>
-        <Text className="mb-3 text-sm text-stone-500">
-          Regla del piso o queja puntual (puedes publicar sin nombre).
-        </Text>
+        <Text className="mb-1 text-lg font-bold text-stone-900">{t('form.addNotice')}</Text>
+        <Text className="mb-3 text-sm text-stone-500">{t('rules.formHint')}</Text>
         <View className="gap-3">
           <View className="flex-row gap-2">
             {(['RULE', 'COMPLAINT'] as const).map((option) => {
@@ -207,7 +207,7 @@ export function HomeNoticesPanel({
                       : { borderColor: '#e5e7eb', backgroundColor: '#f9fafb' },
                   )}>
                   <Text className="text-center text-sm font-semibold text-stone-800">
-                    {KIND_LABEL[option]}
+                    {t(KIND_KEYS[option])}
                   </Text>
                 </SafePressable>
               );
@@ -223,7 +223,7 @@ export function HomeNoticesPanel({
           />
           {kind === 'COMPLAINT' ? (
             <View className="flex-row items-center justify-between gap-3 rounded-xl bg-stone-50 px-3 py-2">
-              <Text className="flex-1 text-sm text-stone-700">Publicar de forma anónima</Text>
+              <Text className="flex-1 text-sm text-stone-700">{t('rules.anonymousToggle')}</Text>
               <Switch value={isAnonymous} onValueChange={setIsAnonymous} />
             </View>
           ) : null}

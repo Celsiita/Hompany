@@ -146,10 +146,8 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
       <View className="rounded-2xl border border-teal-200 bg-white p-4 gap-3">
         <View className="flex-row items-start justify-between gap-2">
           <View className="flex-1 gap-0.5">
-            <Text className="text-sm font-semibold text-stone-900">Info del piso</Text>
-            <Text className="text-xs text-stone-500">
-              Wi‑Fi, portal, basura y notas compartidas
-            </Text>
+            <Text className="text-sm font-semibold text-stone-900">{t('info.title')}</Text>
+            <Text className="text-xs text-stone-500">{t('info.subtitle')}</Text>
           </View>
           <SafePressable
             onPress={() => setEditorOpen(true)}
@@ -162,10 +160,8 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
 
         {!filled ? (
           <View className="gap-1 rounded-xl border border-dashed border-stone-200 bg-stone-50/80 px-3 py-4">
-            <Text className="text-sm font-semibold text-stone-800">Sin datos del piso</Text>
-            <Text className="text-sm leading-5 text-stone-500">
-              Añade Wi‑Fi o el código del portal para que el resto del piso lo tenga a mano.
-            </Text>
+            <Text className="text-sm font-semibold text-stone-800">{t('info.empty')}</Text>
+            <Text className="text-sm leading-5 text-stone-500">{t('info.empty.sub')}</Text>
           </View>
         ) : (
           <View className="gap-2">
@@ -208,10 +204,8 @@ export function HomeInfoCard({ home, onSave }: HomeInfoCardProps) {
       </View>
 
       <BottomSheetModal visible={editorOpen} onClose={() => setEditorOpen(false)}>
-        <Text className="mb-1 text-lg font-bold text-stone-900">Info del piso</Text>
-        <Text className="mb-3 text-sm text-stone-500">
-          Visible para todos los compañeros del piso.
-        </Text>
+        <Text className="mb-1 text-lg font-bold text-stone-900">{t('info.title')}</Text>
+        <Text className="mb-3 text-sm text-stone-500">{t('info.visible')}</Text>
         <View className="gap-3">
           <TextField label={t('info.wifiName')} value={wifiSsid} onChangeText={setWifiSsid} />
           <TextField

@@ -1,6 +1,7 @@
 import { formatCountdown, formatDuration, formatDueSummary } from '@/features/tasks/lib/countdown';
 import { partitionTasks, summarizeTasks } from '@/features/tasks/lib/task-summary';
 import { canTransitionTaskStatus } from '@/features/tasks/lib/task-transitions';
+import { setAppLocale } from '@/lib/i18n/locale-store';
 import type { Task } from '@/types/database.types';
 import { TASK_STATUS } from '@/types/task-status';
 
@@ -39,6 +40,10 @@ function makeTask(overrides: Partial<Task> = {}): Task {
 }
 
 describe('formatDueSummary', () => {
+  beforeEach(() => {
+    setAppLocale('es');
+  });
+
   it('shows absolute date and calendar-day relative label', () => {
     const now = Date.parse('2026-08-16T10:00:00.000Z');
     // Force local-stable by using midday local via Date constructor in test env —
@@ -48,9 +53,20 @@ describe('formatDueSummary', () => {
     expect(summary.label).toContain('Vence el');
     expect(summary.calendarDays).toBeGreaterThanOrEqual(2);
   });
+
+  it('uses English due verb when locale is en', () => {
+    setAppLocale('en');
+    const now = Date.parse('2026-08-16T10:00:00.000Z');
+    const summary = formatDueSummary('2026-08-19T22:00:00.000Z', 'DEADLINE', now);
+    expect(summary.label).toMatch(/^Due /);
+  });
 });
 
 describe('formatCountdown', () => {
+  beforeEach(() => {
+    setAppLocale('es');
+  });
+
   it('formats remaining time', () => {
     const now = Date.parse('2026-08-16T10:00:00.000Z');
     const result = formatCountdown('2026-08-17T12:00:00.000Z', now);

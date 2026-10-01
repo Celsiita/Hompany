@@ -1,4 +1,5 @@
 import { resolveExpenseTypeLabel, resolveTaskTypeLabel } from '@/lib/item-type-labels';
+import { setAppLocale } from '@/lib/i18n/locale-store';
 import { recurrenceLabel } from '@/lib/recurrence';
 import type { HomeItemType } from '@/schemas/item-type.schema';
 
@@ -52,11 +53,20 @@ describe('item-type-labels', () => {
 });
 
 describe('recurrenceLabel with interval', () => {
+  beforeEach(() => {
+    setAppLocale('es');
+  });
+
   it('shows Semanal for weekly interval 1', () => {
     expect(recurrenceLabel('WEEKLY', { interval: 1 })).toBe('Semanal');
   });
 
   it('shows Cada 2 semanas for weekly interval 2', () => {
     expect(recurrenceLabel('WEEKLY', { interval: 2 })).toBe('Cada 2 semanas');
+  });
+
+  it('shows English for weekly interval 2', () => {
+    setAppLocale('en');
+    expect(recurrenceLabel('WEEKLY', { interval: 2 })).toBe('Every 2 weeks');
   });
 });

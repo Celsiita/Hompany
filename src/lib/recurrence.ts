@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { translate } from '@/lib/i18n/strings';
+
 export const recurrenceKindSchema = z.enum(['ONCE', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']);
 export type RecurrenceKind = z.infer<typeof recurrenceKindSchema>;
 
@@ -306,21 +309,25 @@ export function recurrenceIntervalLabel(
   recurrence: RecurrenceKind,
   config?: RecurrenceConfig | null,
 ): string {
+  const locale = getAppLocale();
   if (recurrence === 'ONCE') {
-    return RECURRENCE_KIND_LABEL.ONCE;
+    return translate(locale, 'recurrence.once');
   }
   const n = recurrenceInterval(config);
-  const plural: Record<Exclude<RecurrenceKind, 'ONCE'>, [string, string]> = {
-    DAILY: ['día', 'días'],
-    WEEKLY: ['semana', 'semanas'],
-    MONTHLY: ['mes', 'meses'],
-    YEARLY: ['año', 'años'],
+  const unitKey: Record<Exclude<RecurrenceKind, 'ONCE'>, [string, string]> = {
+    DAILY: ['recurrence.unit.day', 'recurrence.unit.days'],
+    WEEKLY: ['recurrence.unit.week', 'recurrence.unit.weeks'],
+    MONTHLY: ['recurrence.unit.month', 'recurrence.unit.months'],
+    YEARLY: ['recurrence.unit.year', 'recurrence.unit.years'],
   };
-  const [one, many] = plural[recurrence];
+  const [oneKey, manyKey] = unitKey[recurrence];
   if (n === 1) {
-    return `Cada ${one}`;
+    return translate(locale, 'recurrence.everyOne', { unit: translate(locale, oneKey) });
   }
-  return `Cada ${n} ${many}`;
+  return translate(locale, 'recurrence.everyN', {
+    n,
+    unit: translate(locale, manyKey),
+  });
 }
 
 /**
@@ -800,14 +807,23 @@ export function recurrenceLabel(
   recurrence: RecurrenceKind,
   config?: RecurrenceConfig | null,
 ): string {
+  const locale = getAppLocale();
   if (recurrence === 'ONCE') {
-    return RECURRENCE_KIND_LABEL.ONCE;
+    return translate(locale, 'recurrence.once');
   }
   const n = recurrenceInterval(config);
   if (n > 1) {
     return recurrenceIntervalLabel(recurrence, config);
   }
-  return RECURRENCE_KIND_LABEL[recurrence];
+  const key =
+    recurrence === 'DAILY'
+      ? 'recurrence.daily'
+      : recurrence === 'WEEKLY'
+        ? 'recurrence.weekly'
+        : recurrence === 'MONTHLY'
+          ? 'recurrence.monthly'
+          : 'recurrence.yearly';
+  return translate(locale, key);
 }
 
 /**

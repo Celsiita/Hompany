@@ -1,3 +1,6 @@
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { translate } from '@/lib/i18n/strings';
+
 /**
  * Home membership roles. `owner` and `admin` share elevated permissions.
  */
@@ -11,14 +14,15 @@ export function isHomeAdminRole(role: HomeMemberRole | null | undefined): boolea
 }
 
 /**
- * Human-readable role badge for settings and history.
+ * Human-readable role badge for settings and history (active app locale).
  */
 export function homeRoleLabel(role: HomeMemberRole): string {
+  const locale = getAppLocale();
   if (role === 'owner') {
-    return 'Admin (creador)';
+    return translate(locale, 'role.owner');
   }
   if (role === 'admin') {
-    return 'Admin';
+    return translate(locale, 'role.admin');
   }
-  return 'Miembro';
+  return translate(locale, 'role.member');
 }

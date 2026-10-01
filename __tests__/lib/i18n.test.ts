@@ -54,4 +54,12 @@ describe('i18n tutorial + mascot', () => {
     expect(mascotReaction('approve').button).toMatch(/approve/i);
     expect(mascotEmptyCopy('tasks_open').title).toMatch(/pending/i);
   });
+
+  it('localizes roles and due prefixes', () => {
+    setAppLocale('en');
+    const { homeRoleLabel } = require('@/lib/roles') as typeof import('@/lib/roles');
+    const { formatDueSummary } = require('@/features/tasks/lib/countdown') as typeof import('@/features/tasks/lib/countdown');
+    expect(homeRoleLabel('member')).toBe('Member');
+    expect(formatDueSummary('2099-01-01T12:00:00.000Z', 'DEADLINE').label).toMatch(/^Due /);
+  });
 });

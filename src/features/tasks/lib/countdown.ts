@@ -4,9 +4,12 @@
  */
 
 import type { DueMode } from '@/lib/recurrence';
+import { getAppLocale } from '@/lib/i18n/locale-store';
+import { translate } from '@/lib/i18n/strings';
+import type { AppLocale } from '@/lib/i18n/types';
 
 export type DueSummary = {
-  /** Combined label, e.g. "Vence el 15 mar (en 3 días)". */
+  /** Combined label, e.g. "Vence el 15 mar (en 3 días)" / "Due 15 Mar (in 3 days)". */
   label: string;
   absoluteLabel: string;
   relativeLabel: string;
@@ -54,14 +57,18 @@ export function formatDuration(ms: number): string {
 }
 
 /**
- * Absolute due date for cards (es-ES).
+ * Absolute due date for cards (locale-aware).
  */
-export function formatAbsoluteDue(iso: string, now = new Date()): string {
+export function formatAbsoluteDue(
+  iso: string,
+  now = new Date(),
+  locale: AppLocale = getAppLocale(),
+): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
     return '';
   }
-  return new Intl.DateTimeFormat('es-ES', {
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'es-ES', {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
@@ -74,24 +81,28 @@ function relativeFromCalendarDays(
   days: number,
   totalMs: number,
   isOverdue: boolean,
+  locale: AppLocale,
 ): string {
+  const t = (key: string, vars?: Record<string, string | number>) =>
+    translate(locale, key, vars);
+
   if (isOverdue) {
     if (days === 0) {
-      return `hace ${formatDuration(Math.abs(totalMs))}`;
+      return t('due.ago', { duration: formatDuration(Math.abs(totalMs)) });
     }
     if (days === -1) {
-      return 'desde ayer';
+      return t('due.sinceYesterday');
     }
-    return `hace ${Math.abs(days)} días`;
+    return t('due.daysAgo', { n: Math.abs(days) });
   }
 
   if (days === 0) {
-    return `hoy · quedan ${formatDuration(totalMs)}`;
+    return t('due.todayLeft', { duration: formatDuration(totalMs) });
   }
   if (days === 1) {
-    return 'mañana';
+    return t('due.tomorrow');
   }
-  return `en ${days} días`;
+  return t('due.inDays', { n: days });
 }
 
 /**
@@ -101,11 +112,14 @@ export function formatCountdown(
   dueAt: string,
   now: number = Date.now(),
 ): { label: string; isOverdue: boolean; totalMs: number } {
+  const locale = getAppLocale();
   const summary = formatDueSummary(dueAt, 'DEADLINE', now);
   return {
     label: summary.isOverdue
-      ? `Vencida ${summary.relativeLabel}`
-      : `Quedan ${formatDuration(Math.max(0, summary.totalMs))}`,
+      ? translate(locale, 'due.overduePrefix', { relative: summary.relativeLabel })
+      : translate(locale, 'due.leftPrefix', {
+          duration: formatDuration(Math.max(0, summary.totalMs)),
+        }),
     isOverdue: summary.isOverdue,
     totalMs: summary.totalMs,
   };
@@ -113,20 +127,24 @@ export function formatCountdown(
 
 /**
  * Exact date + relative countdown for tasks and expenses.
- * Example: "Vence el 15 mar, 23:59 (en 3 días)".
+ * Example ES: "Vence el 15 mar, 23:59 (en 3 días)".
+ * Example EN: "Due 15 Mar, 11:59 PM (in 3 days)".
  */
 export function formatDueSummary(
   dueAt: string,
   dueMode: DueMode = 'DEADLINE',
   now: number = Date.now(),
 ): DueSummary {
+  const locale = getAppLocale();
+  const t = (key: string, vars?: Record<string, string | number>) =>
+    translate(locale, key, vars);
   const due = new Date(dueAt);
   const totalMs = due.getTime() - now;
-  const absoluteLabel = formatAbsoluteDue(dueAt, new Date(now));
+  const absoluteLabel = formatAbsoluteDue(dueAt, new Date(now), locale);
 
   if (Number.isNaN(due.getTime())) {
     return {
-      label: 'Fecha inválida',
+      label: t('due.invalid'),
       absoluteLabel: '',
       relativeLabel: '',
       isOverdue: false,
@@ -137,9 +155,10 @@ export function formatDueSummary(
 
   const calendarDays = calendarDaysBetween(new Date(now), due);
   const isOverdue = totalMs <= 0;
-  const relativeLabel = relativeFromCalendarDays(calendarDays, totalMs, isOverdue);
-  const verb = dueMode === 'EXECUTION' ? 'Programada para' : 'Vence el';
-  const overdueVerb = dueMode === 'EXECUTION' ? 'Debía hacerse el' : 'Venció el';
+  const relativeLabel = relativeFromCalendarDays(calendarDays, totalMs, isOverdue, locale);
+  const verb = dueMode === 'EXECUTION' ? t('due.execution') : t('due.deadline');
+  const overdueVerb =
+    dueMode === 'EXECUTION' ? t('due.overdueExecution') : t('due.overdueDeadline');
 
   return {
     label: isOverdue
