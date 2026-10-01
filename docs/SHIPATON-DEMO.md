@@ -12,4 +12,9 @@ Grabar en dispositivo/emulador con seed limpio (`npm run db:reset`) y `EXPO_PUBL
 | 70–90 s | Piso → **Próximamente** + Ajustes → Ver HOMPANY Plus | “Plus cableado con RevenueCat; matching en camino.” |
 | 90–105 s | Invite / cierre | “Expo, Supabase y RevenueCat.” |
 
-Subir a YouTube/Vimeo público. Voz humana. Sin música con copyright.
+## Corte generado
+
+Archivo listo: [`docs/demo-video/HOMPANY-Shipaton-Demo.mp4`](./demo-video/HOMPANY-Shipaton-Demo.mp4) (~64 s, 9:16, VO en inglés TTS).  
+Cómo regenerar: [`docs/demo-video/README.md`](./demo-video/README.md).
+
+Subir a YouTube/Vimeo **público**. Ideal: sustituir TTS por voz humana. Sin música con copyright.
