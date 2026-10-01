@@ -25,14 +25,16 @@ Write-Output 'Cards…'
 New-Card 'intro.mp4' 'HOMPANY' 'Stop arguing about chores and money' 3.2
 New-Card 'outro.mp4' 'HOMPANY' 'Expo  ·  Supabase  ·  RevenueCat' 3.0
 
-# --- Timed VO (Jenny neural), aligned to improved capture ---
+# --- Timed VO (Jenny neural), advantage-first beat sheet ---
 $clips = @(
   @{ file = '01-intro.mp3'; at = 3.5 },
-  @{ file = '02-feed.mp3'; at = 18.0 },
-  @{ file = '03-tasks.mp3'; at = 40.0 },
-  @{ file = '04-expenses.mp3'; at = 58.0 },
-  @{ file = '05-plus.mp3'; at = 76.0 },
-  @{ file = '06-outro.mp3'; at = 90.0 }
+  @{ file = '02-feed.mp3'; at = 14.0 },
+  @{ file = '02b-alerts.mp3'; at = 26.0 },
+  @{ file = '03b-reminders.mp3'; at = 38.0 },
+  @{ file = '03-tasks.mp3'; at = 46.0 },
+  @{ file = '04-expenses.mp3'; at = 62.0 },
+  @{ file = '05-plus.mp3'; at = 80.0 },
+  @{ file = '06-outro.mp3'; at = 92.0 }
 )
 
 $n = $clips.Count
@@ -66,11 +68,13 @@ Style: Default,Segoe UI,42,&H00FFFFFF,&H000000FF,&H80000000,&H80000000,-1,0,0,0,
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:03.50,0:00:11.00,Default,,0,0,0,,Fewer arguments. More clarity.
-Dialogue: 0,0:00:18.00,0:00:28.00,Default,,0,0,0,,Flat health, ranking, and balances.
-Dialogue: 0,0:00:40.00,0:00:52.00,Default,,0,0,0,,Photo proof. No chore debates.
-Dialogue: 0,0:00:58.00,0:01:10.00,Default,,0,0,0,,Who owes whom - one tap.
-Dialogue: 0,0:01:16.00,0:01:26.00,Default,,0,0,0,,Plus via RevenueCat. Matching soon.
-Dialogue: 0,0:01:30.00,0:01:40.00,Default,,0,0,0,,Expo - Supabase - RevenueCat
+Dialogue: 0,0:00:14.00,0:00:24.00,Default,,0,0,0,,Flat health, ranking, and balances.
+Dialogue: 0,0:00:26.00,0:00:36.00,Default,,0,0,0,,Alerts for overdue, review, and money.
+Dialogue: 0,0:00:38.00,0:00:44.00,Default,,0,0,0,,Deadlines on every card.
+Dialogue: 0,0:00:46.00,0:00:58.00,Default,,0,0,0,,Photo proof. No chore debates.
+Dialogue: 0,0:01:02.00,0:01:14.00,Default,,0,0,0,,Who owes whom - one tap.
+Dialogue: 0,0:01:20.00,0:01:30.00,Default,,0,0,0,,Plus via RevenueCat. Matching soon.
+Dialogue: 0,0:01:32.00,0:01:42.00,Default,,0,0,0,,Expo - Supabase - RevenueCat
 '@ | Set-Content -Encoding ASCII $ass
 
 Write-Output 'Assemble final…'

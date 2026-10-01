@@ -131,58 +131,78 @@ async function main() {
     } else break;
   }
 
-  // FEED
+  // FEED — status / ranking / money at a glance
   await go(page, '/');
   await waitReady(page, /Leaderboard|Flat health|Balances/i);
-  await hold(page, 5000);
+  await hold(page, 3500);
   await page.mouse.wheel(0, 360);
-  await hold(page, 5000);
+  await hold(page, 3000);
   await page.mouse.wheel(0, 420);
   await waitReady(page, /owe|Balances|THEY OWE|YOU OWE/i);
-  await hold(page, 4500);
+  await hold(page, 3000);
 
-  // TASKS
+  // ALERTS / REMINDERS — campanita (core Shipaton advantage)
+  await page.mouse.wheel(0, -900);
+  await sleep(600);
+  const bell = page.getByRole('button', { name: /Alert|Avisos|pending/i }).first();
+  if (await bell.isVisible().catch(() => false)) {
+    await bell.click({ force: true });
+    await sleep(1200);
+    await waitText(page, /Urgent|Review|Money|Soon|Alert|overdue|validate|owe/i, 10000);
+    await hold(page, 6500);
+    // Close sheet
+    const closeAlerts = page.getByText(/^Close$|^Cerrar$/i).last();
+    if (await closeAlerts.isVisible().catch(() => false)) {
+      await closeAlerts.click({ force: true });
+      await sleep(500);
+    } else {
+      await page.keyboard.press('Escape').catch(() => {});
+      await sleep(400);
+    }
+  }
+
+  // TASKS — countdown + photo review
   await go(page, '/tasks');
   await waitReady(page, /Open \(|Complete|Approve|Tasks/i);
-  await hold(page, 4500);
-  await page.mouse.wheel(0, 320);
-  await hold(page, 5500);
+  await hold(page, 4000);
+  await page.mouse.wheel(0, 280);
+  await hold(page, 5000);
 
-  // EXPENSES
+  // EXPENSES — debts / settle
   await go(page, '/expenses');
   await waitReady(page, /Settle|Open \(|Expenses/i);
+  await hold(page, 4000);
+  await page.mouse.wheel(0, 280);
   await hold(page, 4500);
-  await page.mouse.wheel(0, 300);
-  await hold(page, 5500);
 
-  // FLAT
+  // FLAT life — quiet / absences / matching teaser
   await go(page, '/piso');
   await waitReady(page, /Absences|Coming soon|Quiet|Flat life|Visits/i);
-  await hold(page, 4000);
+  await hold(page, 3500);
   const soon = page.getByText(/Coming soon|Próximamente/i).first();
   if (await soon.isVisible().catch(() => false)) {
     await soon.click({ force: true }).catch(() => {});
-    await hold(page, 1800);
+    await hold(page, 1500);
     await clearNoise(page);
   }
 
   // SETTINGS + PLUS
   await go(page, '/settings');
   await waitReady(page, /Settings|Language|English/i);
-  await hold(page, 2500);
-  await page.mouse.wheel(0, 800);
-  await hold(page, 2500);
-  await page.mouse.wheel(0, 800);
   await hold(page, 2000);
+  await page.mouse.wheel(0, 900);
+  await hold(page, 2000);
+  await page.mouse.wheel(0, 700);
+  await hold(page, 1500);
   const plus = page.getByText(/View HOMPANY Plus|Ver HOMPANY Plus/i).first();
   if (await plus.isVisible().catch(() => false)) {
     await plus.click({ force: true });
-    await hold(page, 5500);
+    await hold(page, 5000);
     await clearNoise(page);
   }
-  await page.mouse.wheel(0, -500);
+  await page.mouse.wheel(0, -400);
   await waitText(page, /DEMO2026|Invite|Code/i, 8000);
-  await hold(page, 4000);
+  await hold(page, 3000);
 
   const videoPath = await page.video().path();
   await context.close();
